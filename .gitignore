@@ -1,0 +1,10 @@
+output/*
+cellData/1M*
+work
+graphs/*
+plots/*.csv
+coupling_output/*
+.nextflow*
+.ipynb*
+*~
+*.*.*

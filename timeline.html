@@ -1,0 +1,253 @@
+<!doctype html>
+<!--
+  ~ Copyright 2013-2019, Centre for Genomic Regulation (CRG)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<script type="text/javascript">
+var prot = (("https:" == document.location.protocol) ? "https://" : "http://");
+document.write(unescape("%3Cscript src='" + prot + "code.jquery.com/jquery-latest.min.js' type='text/javascript' %3E%3C/script%3E"));
+document.write(unescape("%3Cscript src='" + prot + "d3js.org/d3.v3.min.js' charset='utf-8' type='text/javascript' %3E%3C/script%3E"));
+document.write(unescape("%3Cscript src='" + prot + "cdn.rawgit.com/nextflow-io/d3-timeline/82622c4cc35bac7283b3a317826b0709ac1ae476/src/d3-timeline.js' type='text/javascript' %3E%3C/script%3E"));
+</script>
+<style type="text/css">
+* {
+  font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+
+.axis path,
+.axis line {
+fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font-size: 10px;
+}
+
+div#timeline g text {
+  font-size: 13px;
+}
+
+text.timeline-label {
+  font-size: 13px;
+}
+
+#timeline2 .axis {
+  transform: translate(0px,30px);
+  -ms-transform: translate(0px,30px); /* IE 9 */
+  -webkit-transform: translate(0px,30px); /* Safari and Chrome */
+  -o-transform: translate(0px,30px); /* Opera */
+  -moz-transform: translate(0px,30px); /* Firefox */
+}
+
+.coloredDiv {
+  height:20px; width:20px; float:left;
+}
+
+#footer {
+  padding-top: 3em; color: #bfbfbf; font-size: 13px;
+}
+
+#footer a:visited {
+  color: #bfbfbf;
+  text-decoration: underline;
+}
+</style>
+<script type="text/javascript">
+var handler=null;
+// see https://github.com/mbostock/d3/wiki/Ordinal-Scales#category20c
+var colors = d3.scale.category20c().domain(d3.range(0,20)).range()
+
+function c0(index) { return "#9c9c9c"; }
+function c1(index) { return "#bdbdbd"; }
+function c2(index) { return colors[index % 16]; } // <-- note: uses only the first 16 colors
+
+var elapsed="1.6s"
+var beginningMillis=1607864451341;
+var endingMillis=1607866274022;
+var data=[
+{"label": "makeData (1)", "times": [{"starting_time": 1607864451417, "ending_time": 1607864451509, "color":c1(0)}, {"starting_time": 1607864451509, "ending_time": 1607864465509, "color":c0(0), "label": "15.1s \/ - \/ CACHED"}, {"starting_time": 1607864465509, "ending_time": 1607864466538, "color":c1(0)}]},
+{"label": "makeData (5)", "times": [{"starting_time": 1607864451341, "ending_time": 1607864451409, "color":c1(0)}, {"starting_time": 1607864451409, "ending_time": 1607864465409, "color":c0(0), "label": "15.1s \/ - \/ CACHED"}, {"starting_time": 1607864465409, "ending_time": 1607864466448, "color":c1(0)}]},
+{"label": "makeData (3)", "times": [{"starting_time": 1607864451365, "ending_time": 1607864451414, "color":c1(0)}, {"starting_time": 1607864451414, "ending_time": 1607864465414, "color":c0(0), "label": "15.2s \/ - \/ CACHED"}, {"starting_time": 1607864465414, "ending_time": 1607864466527, "color":c1(0)}]},
+{"label": "makeData (2)", "times": [{"starting_time": 1607864451427, "ending_time": 1607864451510, "color":c1(0)}, {"starting_time": 1607864451510, "ending_time": 1607864465510, "color":c0(0), "label": "15.1s \/ - \/ CACHED"}, {"starting_time": 1607864465510, "ending_time": 1607864466560, "color":c1(0)}]},
+{"label": "makeData (4)", "times": [{"starting_time": 1607864451352, "ending_time": 1607864451412, "color":c1(0)}, {"starting_time": 1607864451412, "ending_time": 1607864465412, "color":c0(0), "label": "15.2s \/ - \/ CACHED"}, {"starting_time": 1607864465412, "ending_time": 1607864466517, "color":c1(0)}]},
+{"label": "estimatePCgraph (2)", "times": [{"starting_time": 1607864466531, "ending_time": 1607864466575, "color":c1(1)}, {"starting_time": 1607864466575, "ending_time": 1607864470575, "color":c0(1), "label": "10.9s \/ - \/ CACHED"}, {"starting_time": 1607864470575, "ending_time": 1607864477425, "color":c1(1)}]},
+{"label": "estimatePCgraph (1)", "times": [{"starting_time": 1607864466562, "ending_time": 1607864466577, "color":c1(1)}, {"starting_time": 1607864466577, "ending_time": 1607864470577, "color":c0(1), "label": "9.8s \/ - \/ CACHED"}, {"starting_time": 1607864470577, "ending_time": 1607864476402, "color":c1(1)}]},
+{"label": "estimatePCgraph (4)", "times": [{"starting_time": 1607864466588, "ending_time": 1607864466682, "color":c1(1)}, {"starting_time": 1607864466682, "ending_time": 1607864470682, "color":c0(1), "label": "10.1s \/ - \/ CACHED"}, {"starting_time": 1607864470682, "ending_time": 1607864476688, "color":c1(1)}]},
+{"label": "estimatePCgraph (7)", "times": [{"starting_time": 1607864466647, "ending_time": 1607864466689, "color":c1(1)}, {"starting_time": 1607864466689, "ending_time": 1607864470689, "color":c0(1), "label": "10.1s \/ - \/ CACHED"}, {"starting_time": 1607864470689, "ending_time": 1607864476731, "color":c1(1)}]},
+{"label": "estimatePCgraph (5)", "times": [{"starting_time": 1607864466622, "ending_time": 1607864466686, "color":c1(1)}, {"starting_time": 1607864466686, "ending_time": 1607864470686, "color":c0(1), "label": "10.1s \/ - \/ CACHED"}, {"starting_time": 1607864470686, "ending_time": 1607864476716, "color":c1(1)}]},
+{"label": "estimatePCgraph (10)", "times": [{"starting_time": 1607864466671, "ending_time": 1607864466691, "color":c1(1)}, {"starting_time": 1607864466691, "ending_time": 1607864470691, "color":c0(1), "label": "9.9s \/ - \/ CACHED"}, {"starting_time": 1607864470691, "ending_time": 1607864476567, "color":c1(1)}]},
+{"label": "estimatePCgraph (9)", "times": [{"starting_time": 1607864466660, "ending_time": 1607864466690, "color":c1(1)}, {"starting_time": 1607864466690, "ending_time": 1607864470690, "color":c0(1), "label": "11.3s \/ - \/ CACHED"}, {"starting_time": 1607864470690, "ending_time": 1607864478002, "color":c1(1)}]},
+{"label": "estimatePCgraph (8)", "times": [{"starting_time": 1607864466634, "ending_time": 1607864466687, "color":c1(1)}, {"starting_time": 1607864466687, "ending_time": 1607864470687, "color":c0(1), "label": "11.9s \/ - \/ CACHED"}, {"starting_time": 1607864470687, "ending_time": 1607864478503, "color":c1(1)}]},
+{"label": "estimatePCgraph (3)", "times": [{"starting_time": 1607864466577, "ending_time": 1607864466680, "color":c1(1)}, {"starting_time": 1607864466680, "ending_time": 1607864470680, "color":c0(1), "label": "10.1s \/ - \/ CACHED"}, {"starting_time": 1607864470680, "ending_time": 1607864476666, "color":c1(1)}]},
+{"label": "estimatePCgraph (6)", "times": [{"starting_time": 1607864466610, "ending_time": 1607864466684, "color":c1(1)}, {"starting_time": 1607864466684, "ending_time": 1607864470684, "color":c0(1), "label": "10.1s \/ - \/ CACHED"}, {"starting_time": 1607864470684, "ending_time": 1607864476704, "color":c1(1)}]},
+{"label": "iterMCMCscheme (4)", "times": [{"starting_time": 1607864478508, "ending_time": 1607864478605, "color":c1(2)}, {"starting_time": 1607864478605, "ending_time": 1607864495605, "color":c0(2), "label": "24.6s \/ - \/ CACHED"}, {"starting_time": 1607864495605, "ending_time": 1607864503105, "color":c1(2)}]},
+{"label": "iterMCMCscheme (7)", "times": [{"starting_time": 1607864697673, "ending_time": 1607864697769, "color":c1(2)}, {"starting_time": 1607864697769, "ending_time": 1607864719769, "color":c0(2), "label": "29.8s \/ - \/ CACHED"}, {"starting_time": 1607864719769, "ending_time": 1607864727441, "color":c1(2)}]},
+{"label": "iterMCMCscheme (3)", "times": [{"starting_time": 1607864476735, "ending_time": 1607864476792, "color":c1(2)}, {"starting_time": 1607864476792, "ending_time": 1607864492792, "color":c0(2), "label": "25.1s \/ - \/ CACHED"}, {"starting_time": 1607864492792, "ending_time": 1607864501872, "color":c1(2)}]},
+{"label": "iterMCMCscheme (10)", "times": [{"starting_time": 1607864930787, "ending_time": 1607864930882, "color":c1(2)}, {"starting_time": 1607864930882, "ending_time": 1607864950882, "color":c0(2), "label": "28.5s \/ - \/ CACHED"}, {"starting_time": 1607864950882, "ending_time": 1607864959283, "color":c1(2)}]},
+{"label": "estimateCoups (13)", "times": [{"starting_time": 1607864705843, "ending_time": 1607864705939, "color":c1(3)}, {"starting_time": 1607864705939, "ending_time": 1607865064939, "color":c0(3), "label": "6m 3s \/ - \/ CACHED"}, {"starting_time": 1607865064939, "ending_time": 1607865068825, "color":c1(3)}]},
+{"label": "estimateCoups (1)", "times": [{"starting_time": 1607864476448, "ending_time": 1607864476580, "color":c1(3)}, {"starting_time": 1607864476580, "ending_time": 1607864856580, "color":c0(3), "label": "6m 23s \/ - \/ CACHED"}, {"starting_time": 1607864856580, "ending_time": 1607864859187, "color":c1(3)}]},
+{"label": "estimateCoups (2)", "times": [{"starting_time": 1607864476460, "ending_time": 1607864476582, "color":c1(3)}, {"starting_time": 1607864476582, "ending_time": 1607864858582, "color":c0(3), "label": "6m 25s \/ - \/ CACHED"}, {"starting_time": 1607864858582, "ending_time": 1607864861505, "color":c1(3)}]},
+{"label": "estimateCoups (12)", "times": [{"starting_time": 1607864503110, "ending_time": 1607864503205, "color":c1(3)}, {"starting_time": 1607864503205, "ending_time": 1607864900205, "color":c0(3), "label": "6m 40s \/ - \/ CACHED"}, {"starting_time": 1607864900205, "ending_time": 1607864903475, "color":c1(3)}]},
+{"label": "iterMCMCscheme (9)", "times": [{"starting_time": 1607864861509, "ending_time": 1607864861605, "color":c1(2)}, {"starting_time": 1607864861605, "ending_time": 1607864882605, "color":c0(2), "label": "29s \/ - \/ CACHED"}, {"starting_time": 1607864882605, "ending_time": 1607864890548, "color":c1(2)}]},
+{"label": "estimateCoups (15)", "times": [{"starting_time": 1607864722989, "ending_time": 1607864723084, "color":c1(3)}, {"starting_time": 1607864723084, "ending_time": 1607865116084, "color":c0(3), "label": "6m 37s \/ - \/ CACHED"}, {"starting_time": 1607865116084, "ending_time": 1607865120034, "color":c1(3)}]},
+{"label": "estimateCoups (7)", "times": [{"starting_time": 1607864478007, "ending_time": 1607864478107, "color":c1(3)}, {"starting_time": 1607864478107, "ending_time": 1607864694107, "color":c0(3), "label": "3m 40s \/ - \/ CACHED"}, {"starting_time": 1607864694107, "ending_time": 1607864697668, "color":c1(3)}]},
+{"label": "estimateCoups (14)", "times": [{"starting_time": 1607864722320, "ending_time": 1607864722417, "color":c1(3)}, {"starting_time": 1607864722417, "ending_time": 1607865074417, "color":c0(3), "label": "5m 55s \/ - \/ CACHED"}, {"starting_time": 1607865074417, "ending_time": 1607865077735, "color":c1(3)}]},
+{"label": "estimateCoups (16)", "times": [{"starting_time": 1607864756740, "ending_time": 1607864756836, "color":c1(3)}, {"starting_time": 1607864756836, "ending_time": 1607865131836, "color":c0(3), "label": "6m 19s \/ - \/ CACHED"}, {"starting_time": 1607865131836, "ending_time": 1607865135352, "color":c1(3)}]},
+{"label": "estimateCoups (4)", "times": [{"starting_time": 1607864476597, "ending_time": 1607864476787, "color":c1(3)}, {"starting_time": 1607864476787, "ending_time": 1607864927787, "color":c0(3), "label": "7m 34s \/ - \/ CACHED"}, {"starting_time": 1607864927787, "ending_time": 1607864930782, "color":c1(3)}]},
+{"label": "iterMCMCscheme (1)", "times": [{"starting_time": 1607864476481, "ending_time": 1607864476584, "color":c1(2)}, {"starting_time": 1607864476584, "ending_time": 1607864486584, "color":c0(2), "label": "17.6s \/ - \/ CACHED"}, {"starting_time": 1607864486584, "ending_time": 1607864494119, "color":c1(2)}]},
+{"label": "estimateCoups (11)", "times": [{"starting_time": 1607864531080, "ending_time": 1607864531179, "color":c1(3)}, {"starting_time": 1607864531179, "ending_time": 1607864985179, "color":c0(3), "label": "7m 37s \/ - \/ CACHED"}, {"starting_time": 1607864985179, "ending_time": 1607864988183, "color":c1(3)}]},
+{"label": "iterMCMCscheme (2)", "times": [{"starting_time": 1607864476677, "ending_time": 1607864476789, "color":c1(2)}, {"starting_time": 1607864476789, "ending_time": 1607864492789, "color":c0(2), "label": "24.7s \/ - \/ CACHED"}, {"starting_time": 1607864492789, "ending_time": 1607864501379, "color":c1(2)}]},
+{"label": "estimateCoups (3)", "times": [{"starting_time": 1607864476698, "ending_time": 1607864476790, "color":c1(3)}, {"starting_time": 1607864476790, "ending_time": 1607864926790, "color":c0(3), "label": "7m 33s \/ - \/ CACHED"}, {"starting_time": 1607864926790, "ending_time": 1607864929331, "color":c1(3)}]},
+{"label": "iterMCMCscheme (8)", "times": [{"starting_time": 1607864727445, "ending_time": 1607864727542, "color":c1(2)}, {"starting_time": 1607864727542, "ending_time": 1607864747542, "color":c0(2), "label": "29.3s \/ - \/ CACHED"}, {"starting_time": 1607864747542, "ending_time": 1607864756736, "color":c1(2)}]},
+{"label": "iterMCMCscheme (6)", "times": [{"starting_time": 1607864676142, "ending_time": 1607864676236, "color":c1(2)}, {"starting_time": 1607864676236, "ending_time": 1607864697236, "color":c0(2), "label": "29.7s \/ - \/ CACHED"}, {"starting_time": 1607864697236, "ending_time": 1607864705838, "color":c1(2)}]},
+{"label": "estimateCoups (8)", "times": [{"starting_time": 1607864477430, "ending_time": 1607864477529, "color":c1(3)}, {"starting_time": 1607864477529, "ending_time": 1607864673529, "color":c0(3), "label": "3m 19s \/ - \/ CACHED"}, {"starting_time": 1607864673529, "ending_time": 1607864676135, "color":c1(3)}]},
+{"label": "iterMCMCscheme (5)", "times": [{"starting_time": 1607864501877, "ending_time": 1607864501977, "color":c1(2)}, {"starting_time": 1607864501977, "ending_time": 1607864523977, "color":c0(2), "label": "29.2s \/ - \/ CACHED"}, {"starting_time": 1607864523977, "ending_time": 1607864531074, "color":c1(2)}]},
+{"label": "estimateCoups (19)", "times": [{"starting_time": 1607864929335, "ending_time": 1607864929432, "color":c1(3)}, {"starting_time": 1607864929432, "ending_time": 1607865236432, "color":c0(3), "label": "5m 10s \/ - \/ CACHED"}, {"starting_time": 1607865236432, "ending_time": 1607865239019, "color":c1(3)}]},
+{"label": "estimateCoups (20)", "times": [{"starting_time": 1607864903480, "ending_time": 1607864903575, "color":c1(3)}, {"starting_time": 1607864903575, "ending_time": 1607865210575, "color":c0(3), "label": "5m 11s \/ - \/ CACHED"}, {"starting_time": 1607865210575, "ending_time": 1607865214155, "color":c1(3)}]},
+{"label": "estimateCoups (18)", "times": [{"starting_time": 1607864859192, "ending_time": 1607864859290, "color":c1(3)}, {"starting_time": 1607864859290, "ending_time": 1607865234290, "color":c0(3), "label": "6m 18s \/ - \/ CACHED"}, {"starting_time": 1607865234290, "ending_time": 1607865237580, "color":c1(3)}]},
+{"label": "estimateCoups (17)", "times": [{"starting_time": 1607864890552, "ending_time": 1607864890648, "color":c1(3)}, {"starting_time": 1607864890648, "ending_time": 1607865305648, "color":c0(3), "label": "6m 59s \/ - \/ CACHED"}, {"starting_time": 1607865305648, "ending_time": 1607865309643, "color":c1(3)}]},
+{"label": "estimateCoups (23)", "times": [{"starting_time": 1607864987089, "ending_time": 1607864987188, "color":c1(3)}, {"starting_time": 1607864987188, "ending_time": 1607865233188, "color":c0(3), "label": "4m 10s \/ - \/ CACHED"}, {"starting_time": 1607865233188, "ending_time": 1607865236657, "color":c1(3)}]},
+{"label": "estimateCoups (5)", "times": [{"starting_time": 1607864476714, "ending_time": 1607864476791, "color":c1(3)}, {"starting_time": 1607864476791, "ending_time": 1607864719791, "color":c0(3), "label": "4m 6s \/ - \/ CACHED"}, {"starting_time": 1607864719791, "ending_time": 1607864722314, "color":c1(3)}]},
+{"label": "estimateCoups (27)", "times": [{"starting_time": 1607865120038, "ending_time": 1607865120136, "color":c1(3)}, {"starting_time": 1607865120136, "ending_time": 1607865353136, "color":c0(3), "label": "3m 57s \/ - \/ CACHED"}, {"starting_time": 1607865353136, "ending_time": 1607865356620, "color":c1(3)}]},
+{"label": "estimateCoups (24)", "times": [{"starting_time": 1607864988187, "ending_time": 1607864988285, "color":c1(3)}, {"starting_time": 1607864988285, "ending_time": 1607865171285, "color":c0(3), "label": "3m 7s \/ - \/ CACHED"}, {"starting_time": 1607865171285, "ending_time": 1607865174957, "color":c1(3)}]},
+{"label": "estimateCoups (10)", "times": [{"starting_time": 1607864494125, "ending_time": 1607864494219, "color":c1(3)}, {"starting_time": 1607864494219, "ending_time": 1607864954219, "color":c0(3), "label": "7m 43s \/ - \/ CACHED"}, {"starting_time": 1607864954219, "ending_time": 1607864957506, "color":c1(3)}]},
+{"label": "estimateCoups (9)", "times": [{"starting_time": 1607864501384, "ending_time": 1607864501480, "color":c1(3)}, {"starting_time": 1607864501480, "ending_time": 1607864984480, "color":c0(3), "label": "8m 6s \/ - \/ CACHED"}, {"starting_time": 1607864984480, "ending_time": 1607864987085, "color":c1(3)}]},
+{"label": "estimateCoups (30)", "times": [{"starting_time": 1607865214160, "ending_time": 1607865214257, "color":c1(3)}, {"starting_time": 1607865214257, "ending_time": 1607865387257, "color":c0(3), "label": "2m 56s \/ - \/ CACHED"}, {"starting_time": 1607865387257, "ending_time": 1607865390583, "color":c1(3)}]},
+{"label": "estimateCoups (29)", "times": [{"starting_time": 1607865174962, "ending_time": 1607865175057, "color":c1(3)}, {"starting_time": 1607865175057, "ending_time": 1607865391057, "color":c0(3), "label": "3m 40s \/ - \/ CACHED"}, {"starting_time": 1607865391057, "ending_time": 1607865394574, "color":c1(3)}]},
+{"label": "estimateCoups (26)", "times": [{"starting_time": 1607865077739, "ending_time": 1607865077835, "color":c1(3)}, {"starting_time": 1607865077835, "ending_time": 1607865373835, "color":c0(3), "label": "5m \/ - \/ CACHED"}, {"starting_time": 1607865373835, "ending_time": 1607865377982, "color":c1(3)}]},
+{"label": "estimateCoups (21)", "times": [{"starting_time": 1607864957511, "ending_time": 1607864957609, "color":c1(3)}, {"starting_time": 1607864957609, "ending_time": 1607865318609, "color":c0(3), "label": "6m 4s \/ - \/ CACHED"}, {"starting_time": 1607865318609, "ending_time": 1607865321755, "color":c1(3)}]},
+{"label": "estimateCoups (22)", "times": [{"starting_time": 1607864959287, "ending_time": 1607864959386, "color":c1(3)}, {"starting_time": 1607864959386, "ending_time": 1607865337386, "color":c0(3), "label": "6m 21s \/ - \/ CACHED"}, {"starting_time": 1607865337386, "ending_time": 1607865340097, "color":c1(3)}]},
+{"label": "estimateCoups (6)", "times": [{"starting_time": 1607864476755, "ending_time": 1607864476793, "color":c1(3)}, {"starting_time": 1607864476793, "ending_time": 1607864719793, "color":c0(3), "label": "4m 6s \/ - \/ CACHED"}, {"starting_time": 1607864719793, "ending_time": 1607864722984, "color":c1(3)}]},
+{"label": "estimateCoups (25)", "times": [{"starting_time": 1607865068829, "ending_time": 1607865068929, "color":c1(3)}, {"starting_time": 1607865068929, "ending_time": 1607865394929, "color":c0(3), "label": "5m 30s \/ - \/ CACHED"}, {"starting_time": 1607865394929, "ending_time": 1607865398694, "color":c1(3)}]},
+{"label": "estimateCoups (28)", "times": [{"starting_time": 1607865135356, "ending_time": 1607865135452, "color":c1(3)}, {"starting_time": 1607865135452, "ending_time": 1607865385452, "color":c0(3), "label": "4m 14s \/ - \/ CACHED"}, {"starting_time": 1607865385452, "ending_time": 1607865388946, "color":c1(3)}]}
+]
+
+
+function getTickFormat() {
+  var MIN = 1000 * 60
+  var HOUR = MIN * 60
+  var DAY = HOUR * 24
+  var delta = (endingMillis - beginningMillis)
+
+  if( delta < 2 * MIN ) {
+    return {
+      format: d3.time.format("%S"),
+      tickTime: d3.time.seconds,
+      tickInterval: 5,
+      tickSize: 6
+    }
+  }
+
+  if( delta < 2 * HOUR ) {
+    return {
+      format: d3.time.format("%M"),
+      tickTime: d3.time.minutes,
+      tickInterval: 5,
+      tickSize: 6
+    }
+  }
+
+  if( delta < 2 * DAY ) {
+    return {
+      format: d3.time.format("%H:%M"),
+      tickTime: d3.time.hours,
+      tickInterval: 1,
+      tickSize: 6
+    }
+  }
+
+  if( delta <= 7 * DAY ) {
+    return {
+      format: d3.time.format("%b %e %H:%M"),
+      tickTime: d3.time.hours,
+      tickInterval: 6,
+      tickSize: 6
+    }
+  }
+
+  return {
+    format: d3.time.format("%b %e"),
+    tickTime: d3.time.days,
+    tickInterval: 1,
+    tickSize: 6
+  }
+}
+
+function getLabelMargin(scale) {
+    $('<span class="labelSpan" style="display: none"></span>').appendTo('body');
+
+    var labelMargin = 0
+    $.each(data, function (key, value) {
+      labelMargin = Math.max(labelMargin, $('.labelSpan').html(value.label).width());
+    });
+
+    $('.labelSpan').remove();
+
+    return (labelMargin * scale);
+}
+
+function render() {
+  handler=null;
+  $("#timeline").empty()
+  $('#label_elapsed').text(elapsed)
+  $('#label_launch').text( d3.time.format('%d %b %Y %H:%M')(new Date(beginningMillis)) )
+
+  var width = $(window).width();
+  var chart = d3.timeline()
+    .stack() // toggles graph stacking
+    .margin({left:getLabelMargin(0.85), right:100, top:0, bottom:0})
+    .tickFormat( getTickFormat() )
+    .rowSeperators('#f5f5f5')
+    .showTimeAxisTick()
+    ;
+  var svg = d3.select("#timeline").append("svg").attr("width", width).datum(data).call(chart);
+}
+
+function hrz() {
+if( handler != null ) clearTimeout(handler)
+  handler = setTimeout(render, 150);
+}
+
+$(document).ready(render)
+$(window).resize(hrz); // resize the applet on window resize
+</script>
+</head>
+
+<body>
+<div>
+  <h3>Processes execution timeline</h3>
+  <p>
+    Launch time: <span id='label_launch'> </span><br>
+    Elapsed time: <span id='label_elapsed'> </span><br>
+    Legend: job wall time / memory usage (RAM) <span id='label_legend'> </span>
+  </p>
+  <div id="timeline"></div>
+</div>
+
+<div id='footer'>
+  Created with Nextflow -- <a href='http://www.nextflow.io' target='_blank'>http://nextflow.io</a>
+</div>
+
+<script type="text/javascript">
+var prot = (("https:" == document.location.protocol) ? "https://" : "http://");
+document.write(unescape("%3Clink href='" + prot + "fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css' %3E%3C/link%3E"));
+</script>
+</body>
+</html>

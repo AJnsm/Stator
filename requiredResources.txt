@@ -1,0 +1,22 @@
+Some heuristics for the resources these scripts require:
+
+makeTrainingData
+	mem:64G
+	cores:1
+	total time:10hrs
+
+PCestimation (2k cells, 500 genes, alpha=0.1)
+	mem:2G
+	cores:16
+	total time: 140 hrs
+
+MCMCscheme (2k cells, 500 genes)
+	mem: 8G
+	cores: 1
+	total time: 8hrs
+
+interactionsEstimation (2k cells, 500 genes)
+	mem:4G
+	cores: 12
+	total time: 10hrs
+
