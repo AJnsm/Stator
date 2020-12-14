@@ -1,8 +1,11 @@
 library(graph)
-library(BiDAG)
 library(pcalg)
 library(igraph)
 library(stringr)
+
+if(!require("BiDAG")){
+    install.packages("BiDAG")
+library(BiDAG)
 
 args <- commandArgs(trailingOnly=TRUE)
 if (length(args)<3) {
