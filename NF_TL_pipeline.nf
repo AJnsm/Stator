@@ -4,7 +4,7 @@ cellTypes_ch = Channel.from( 7, 8, 10, 13, 18 )
 
 process makeData {
 
-    conda '/Users/s1855283/anaconda3/envs/NF_TL_env'
+    
     publishDir "${launchDir}/plots", mode: 'copy', pattern: '*.png'
         
     input:
@@ -25,7 +25,7 @@ process makeData {
 
 process estimatePCgraph {
 
-    conda '/Users/s1855283/anaconda3/envs/rEnv'
+    
     publishDir "${launchDir}/output", mode: 'copy'
 
     input:
@@ -43,7 +43,7 @@ process estimatePCgraph {
 
 process iterMCMCscheme {
 
-    conda '/Users/s1855283/anaconda3/envs/rEnv'
+    
     publishDir "${launchDir}/output", mode: 'copy'
     
     input:
@@ -63,7 +63,7 @@ data_and_graphs_ch = PC_and_ctrl_graphs_ch.mix(MCMCgraphs_ch)
 
 process estimateCoups {
 
-    conda '/Users/s1855283/anaconda3/envs/NF_TL_env'
+    
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
