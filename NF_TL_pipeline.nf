@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-celllTypes_ch = Channel.from( 7, 8, 10, 13, 18 ) 
+cellTypes_ch = Channel.from( 7, 8, 10, 13, 18 ) 
 
 process makeData {
     conda '/Users/s1855283/anaconda3/envs/NF_TL_env'
