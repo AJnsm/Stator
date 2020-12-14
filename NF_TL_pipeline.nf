@@ -1,5 +1,5 @@
 #!/usr/bin/env nextflow
-TESTETSTETS
+
 celllTypes_ch = Channel.from( 7, 8, 10, 13, 18 ) 
 
 process makeData {
