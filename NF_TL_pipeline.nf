@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
-
-cellTypes_ch = Channel.from( 7, 8, 10, 13, 18 ) 
+TESTETSTETS
+celllTypes_ch = Channel.from( 7, 8, 10, 13, 18 ) 
 
 process makeData {
     conda '/Users/s1855283/anaconda3/envs/NF_TL_env'
     publishDir "${projectDir}/plots", mode: 'copy'
-    
+        
     input:
     path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py"
     path rawData from "${projectDir}/cellData/1M_neurons_20k.h5"
