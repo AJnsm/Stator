@@ -4,6 +4,7 @@ work
 graphs/*
 plots/*.csv
 coupling_output/*
+reports/*
 .nextflow*
 .ipynb*
 *~

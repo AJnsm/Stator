@@ -9,9 +9,9 @@ process makeData {
         
     input:
     path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py"
-    path rawData from "${projectDir}/cellData/1M_neurons_20k.h5"
-    path clusters from "${projectDir}/cellData/clusters_20k.csv"
-    path bcDoublets from "${projectDir}/cellData/bcDoublets_20k.csv"
+    path rawData from params.h5File
+    path clusters from params.clusterFile
+    path bcDoublets from params.doubletFile
     val cellType from cellTypes_ch
     
     output:

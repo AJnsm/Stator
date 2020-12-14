@@ -7,7 +7,7 @@ import scipy.io
 import sys
 import os
 print('libs loaded')
-
+print('If figures come out blank, change the matplotlib backend. ')
 
 
 clusters = pd.read_csv(sys.argv[2], index_col=0)
@@ -65,7 +65,7 @@ if doubs is None:
     plt.xlabel('UMAP x')
     plt.ylabel('UMAP y')
     plt.tight_layout()
-    plt.savefig('doublets.png', dpi=None)
+    fig.savefig('doublets.png', dpi=None)
 
 
 
