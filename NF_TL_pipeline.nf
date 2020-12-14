@@ -3,6 +3,11 @@
 cellTypes_ch = Channel.from( 7, 8, 10, 13, 18 ) 
 
 process makeData {
+    executor 'sge'
+    cores 1
+    memory '64 GB'
+    time '10h'
+
     conda '/Users/s1855283/anaconda3/envs/NF_TL_env'
     publishDir "${projectDir}/plots", mode: 'copy'
     
@@ -23,23 +28,33 @@ process makeData {
 }
 
 process estimatePCgraph {
-     conda '/Users/s1855283/anaconda3/envs/rEnv'
-     publishDir "${projectDir}/output", mode: 'copy'
+    executor 'sge'
+    cores 16
+    memory '2 GB'
+    time '140h'
 
-     input:
-     path PCgraphEstScript from "${projectDir}/pipelineScripts/parallelPCscript.R"
-     path dataSet from dataSets
-     
-     output:
-     tuple path(dataSet), path('PCgraph*.csv') into PCgraphs_forMCMC_ch mode flatten
-     tuple path(dataSet), path('*graph*.csv') into PC_and_ctrl_graphs_ch mode flatten
-     
-     """
-     Rscript ${PCgraphEstScript} ${dataSet}
-     """
+    conda '/Users/s1855283/anaconda3/envs/rEnv'
+    publishDir "${projectDir}/output", mode: 'copy'
+
+    input:
+    path PCgraphEstScript from "${projectDir}/pipelineScripts/parallelPCscript.R"
+    path dataSet from dataSets
+
+    output:
+    tuple path(dataSet), path('PCgraph*.csv') into PCgraphs_forMCMC_ch mode flatten
+    tuple path(dataSet), path('*graph*.csv') into PC_and_ctrl_graphs_ch mode flatten
+
+    """
+    Rscript ${PCgraphEstScript} ${dataSet}
+    """
  }
 
 process iterMCMCscheme {
+    executor 'sge'
+    cores 1
+    memory '8 GB'
+    time '8h'
+
     conda '/Users/s1855283/anaconda3/envs/rEnv'
     publishDir "${projectDir}/output", mode: 'copy'
     
@@ -59,6 +74,11 @@ data_and_graphs_ch = PC_and_ctrl_graphs_ch.mix(MCMCgraphs_ch)
 
 
 process estimateCoups {
+    executor 'sge'
+    cores 12
+    memory '4 GB'
+    time '10h'
+
     conda '/Users/s1855283/anaconda3/envs/NF_TL_env'
     publishDir "${projectDir}/coupling_output", mode: 'copy'
 
