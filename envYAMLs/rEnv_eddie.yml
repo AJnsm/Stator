@@ -79,7 +79,6 @@ dependencies:
 - r-base=4.0.3=ha43b4e8_3
 - r-bdsmatrix=1.3_4=r40hcdcec82_1
 - r-bh=1.72.0_3=r40h6115d3f_1
-- r-biocmanager=1.30.10=r40h6115d3f_1
 - r-boot=1.3_25=r40h6115d3f_1
 - r-clue=0.3_58=r40h7f98852_0
 - r-cluster=2.1.0=r40h31ca83e_4
