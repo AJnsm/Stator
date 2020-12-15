@@ -3,7 +3,7 @@ library(graph)
 library(pcalg)
 library(igraph)
 library(stringr)
-if (!require("BiDAG")) install.packages("BiDAG")
+if (!require("BiDAG")) install.packages("BiDAG", repos='https://cloud.r-project.org')
 library(BiDAG)
 
 args <- commandArgs(trailingOnly=TRUE)
