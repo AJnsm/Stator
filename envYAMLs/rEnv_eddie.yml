@@ -90,6 +90,7 @@ dependencies:
 - r-deoptimr=1.0_8=r40h6115d3f_1003
 - r-fastica=1.2_2=r40h7fa42b6_2
 - r-ggm=2.3=r40h6115d3f_1002
+- r-glue=1.4.2=r40hcdcec82_0
 - r-igraph=1.2.6=r40hfbf21e4_1
 - r-jsonlite=1.7.2=r40hcfec24a_0
 - r-lattice=0.20_41=r40hcdcec82_2
@@ -102,6 +103,8 @@ dependencies:
 - r-rcpparmadillo=0.10.1.2.0=r40hfbb317b_0
 - r-robustbase=0.93_6=r40hc3f0d1c_2
 - r-sfsmisc=1.1_7=r40h6115d3f_0
+- r-stringi=1.5.3=r40h604b29c_0
+- r-stringr=1.4.0=r40h6115d3f_2
 - r-v8=3.4.0=r40h9ceb40d_1
 - r-vcd=1.4_8=r40h6115d3f_0
 - r-zoo=1.8_8=r40hcdcec82_0
