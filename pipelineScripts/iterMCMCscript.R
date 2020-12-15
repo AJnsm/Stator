@@ -1,3 +1,4 @@
+.libPaths(R.home("library"))
 library(graph)
 library(pcalg)
 library(igraph)

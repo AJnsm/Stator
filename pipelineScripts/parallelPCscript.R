@@ -1,3 +1,5 @@
+.libPaths(R.home("library"))
+
 library('pcalg')
 # library('Rgraphviz')
 library('igraph')
