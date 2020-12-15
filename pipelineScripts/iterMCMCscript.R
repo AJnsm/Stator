@@ -1,9 +1,14 @@
 .libPaths(R.home("library"))
 library(graph)
+cat('graph loaded')
 library(pcalg)
+cat('pcalg loaded')
 library(igraph)
+cat('igraph loaded')
 library(stringr)
+cat('stringr loaded')
 library(devtools)
+cat('devtools loaded')
 # if (!require("BiDAG")) install.packages("BiDAG", repos='https://cloud.r-project.org', INSTALL_opts = '--no-lock')
 
 if (!require("BiDAG")){
