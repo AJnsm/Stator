@@ -6,7 +6,11 @@ library(stringr)
 library(devtools)
 # if (!require("BiDAG")) install.packages("BiDAG", repos='https://cloud.r-project.org', INSTALL_opts = '--no-lock')
 
-if (!require("BiDAG")) install_github("cran/BiDAG")
+if (!require("BiDAG")){
+	install.packages("ggm", repos="https://cran.r-project.org")
+	install.packages("pcalg", repos="https://cran.r-project.org")
+	install_github("cran/BiDAG")
+}
 library(BiDAG)
 
 args <- commandArgs(trailingOnly=TRUE)
