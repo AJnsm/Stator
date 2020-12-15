@@ -3,6 +3,7 @@ library(graph)
 library(pcalg)
 library(igraph)
 library(stringr)
+library(devtools)
 # if (!require("BiDAG")) install.packages("BiDAG", repos='https://cloud.r-project.org', INSTALL_opts = '--no-lock')
 
 if (!require("BiDAG")) install_github("cran/BiDAG")
