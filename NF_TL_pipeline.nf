@@ -75,7 +75,7 @@ process estimateCoups {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 2 10 2
+    python ${estimationScript} ${dataSet} ${graph} 2 ${params.coupCores} 2
     """
 
 }
