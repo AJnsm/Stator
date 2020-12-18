@@ -1,7 +1,13 @@
-#could first create and activate env, but does not seem necessary:
-#conda create -n NF_TL_env 
-#conda activate NF_TL_env
-# See also /Users/s1855283/anaconda3/envs/NF_TL_env/conda-meta/history|grep 'cmd'
+#could first create and activate env, but does not seem necessary, can also just install in base env.
+# See also cat /Users/s1855283/anaconda3/envs/NF_TL_env/conda-meta/history|grep 'cmd'
+
+conda create -n NF_TL_env 
+conda activate NF_TL_env
+
+conda config --add channels anaconda
+conda config --add channels bioconda
+conda config --add channels conda-forge
+
 
 conda install python=3.6
 conda install numpy=1.19
