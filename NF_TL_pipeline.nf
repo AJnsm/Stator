@@ -37,7 +37,7 @@ process estimatePCgraph {
     tuple path(dataSet), path('*graph*.csv') into PC_and_ctrl_graphs_ch mode flatten
 
     """
-    Rscript ${PCgraphEstScript} ${dataSet}
+    Rscript ${PCgraphEstScript} ${dataSet} ${params.PCcores}
     """
  }
 
