@@ -232,8 +232,10 @@ def main():
         nCores = int(sys.argv[5])
         print('Starting calculation on ' + DSname)
 #         print('NOTE: low resample rate (100), should perhaps be larger.\n')                                         
-
+        
         print(f'Calculating interactions at order {intOrder}')
+        print(f'With {nResamps} bootstrap resamples')
+        print(f'Parallelised over {nCores} cores. ')
         calcInteractionsAndWriteNPYs(DSname+'_'+str(nCores)+'cores'+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, nResamps=nResamps)
           
         
