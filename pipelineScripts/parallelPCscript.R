@@ -370,17 +370,19 @@ cat('\n')
 dataPath = args[1]                   
 nC = args[2]                   
 DSname<-str_sub(str_split(dataPath, "_", n=2)[[1]][2], 1, -5)
+alpha_<-args[3]
 
-alpha_<-0.01
            
 data = read.csv(dataPath)
 cat('\n')   
 cat(dim(data))
 
 pcPar <- pc_parallel_custom(suffStat = list(dm = data, adaptDF = FALSE), binCItest, 
-         method='parallel', labels=colnames(data), alpha=alpha_, workers=NULL, num_workers=nC, identifier=DSname, conservative = FALSE, maj.rule = TRUE, solve.confl = TRUE)
+         method='parallel', labels=colnames(data), alpha=alpha_, workers=NULL, num_workers=nC, 
+         identifier=DSname, conservative = FALSE, maj.rule = TRUE, solve.confl = TRUE)
 
 # Conservative = TRUE results in almost only bidirectionals
+
 graphMat = as(pcPar@graph, 'matrix')                   
 write.csv(graphMat, paste('PCgraph_', DSname, '.csv', sep=""))   
 
