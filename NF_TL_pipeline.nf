@@ -37,7 +37,7 @@ process estimatePCgraph {
     tuple path(dataSet), path('*graph*.csv') into PC_and_ctrl_graphs_ch mode flatten
 
     """
-    Rscript ${PCgraphEstScript} ${dataSet} ${params.PCcores}
+    Rscript ${PCgraphEstScript} ${dataSet} ${params.PCcores} ${params.PCalpha}
     """
  }
 
@@ -75,7 +75,7 @@ process estimateCoups {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 2 ${params.coupCores} 2
+    python ${estimationScript} ${dataSet} ${graph} 2 ${params.bsResamps} ${params.coupCores}
     """
 
 }
