@@ -1,5 +1,5 @@
-.libPaths(c(R.home("library"), .libPaths()))
-
+# .libPaths(c(R.home("library"), .libPaths()))
+.libPaths(R.home("library"))
 library('pcalg')
 # library('Rgraphviz')
 library('igraph')
