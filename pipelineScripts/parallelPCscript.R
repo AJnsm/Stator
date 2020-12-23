@@ -1,4 +1,4 @@
-.libPaths(R.home("library"))
+.libPaths(c(R.home("library"), .libPaths))
 
 library('pcalg')
 # library('Rgraphviz')
