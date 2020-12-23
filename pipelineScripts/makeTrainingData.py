@@ -35,7 +35,7 @@ print("data loaded!")
 
 
 # ---------- Calculate doublets -----------
-if (doubs is None):
+if ((len(doubs)<nCells) | (doubs is None)):
     print('starting doublet detection')
     counts_matrix = scObj.X
     scrub = scr.Scrublet(counts_matrix, expected_doublet_rate=0.076)
