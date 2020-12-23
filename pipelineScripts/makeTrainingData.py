@@ -20,10 +20,12 @@ nGenes = int(sys.argv[3])
 nCells = int(sys.argv[4])
 cellType = int(sys.argv[5])
 
-doubs = None
-if len(sys.argv)>6:
-    doubs = pd.read_csv(sys.argv[6], index_col=0)
 
+try:
+    doubs = pd.read_csv(sys.argv[6], index_col=0)
+except:
+    doubs=None
+    
 print("loading data")
 scObj = sc.read_10x_h5(sys.argv[1])
 scObj.var_names_make_unique()
@@ -33,7 +35,7 @@ print("data loaded!")
 
 
 # ---------- Calculate doublets -----------
-if ((doubs is None) | (doubs=="")):
+if (doubs is None):
     print('starting doublet detection')
     counts_matrix = scObj.X
     scrub = scr.Scrublet(counts_matrix, expected_doublet_rate=0.076)
