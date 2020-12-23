@@ -1,13 +1,18 @@
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import numpy as np
 import scrublet as scr
 import scanpy as sc
+sc.settings.figdir = ''
 import pandas as pd
-import matplotlib.pyplot as plt
 import scipy.io
 import sys
 import os
+import seaborn
+np.random.seed(0)
 print('libs loaded')
-print('If figures come out blank, change the matplotlib backend. ')
+# print('If figures come out blank, change the matplotlib backend. ')
 
 
 clusters = pd.read_csv(sys.argv[2], index_col=0)
@@ -81,20 +86,14 @@ scObj.obs['percent_mito'] = np.sum(
 scObj.obs['n_counts'] = scObj.X.sum(axis=1).A1
 
 
-fig = plt.figure()
 sc.pl.violin(scObj, ['n_genes'],
-             jitter=0.4, multi_panel=True, ax = fig)
-fig.savefig('QC_n_genes.png')
+             jitter=0.4, multi_panel=True, save='QC_n_genes.png')
 
-fig = plt.figure()
 sc.pl.violin(scObj, ['n_counts'],
-             jitter=0.4, multi_panel=True, ax = fig)
-fig.savefig('QC_n_counts.png')
+             jitter=0.4, multi_panel=True, save='QC_n_counts.png')
 
-fig = plt.figure()
 sc.pl.violin(scObj, ['percent_mito'],
-             jitter=0.4, multi_panel=True, ax = fig)
-fig.savefig('QC_percent_mito.png')
+             jitter=0.4, multi_panel=True, save='QC_percent_mito.png')
 
 
 # ------------ Making data with only HVG for each cluster -------------
@@ -111,8 +110,7 @@ if test:
     clObj.raw = clObj
     fig = plt.figure()
     sc.pp.highly_variable_genes(clObj, min_mean=0.0125, max_mean=7, min_disp=0.2)
-    sc.pl.highly_variable_genes(clObj)
-    fig.savefig(f'QC_HVG_selection_CL{cl}.png')
+    sc.pl.highly_variable_genes(clObj, save=f'QC_HVG_selection_CL{cl}.png')
     print('selected genes: ', sum(clObj.var['highly_variable']))
     hvgObj = clObj[:,clObj.var['highly_variable'].values]
     sorted_HVG = hvgObj.var.sort_values('dispersions_norm', ascending=False).index
@@ -151,10 +149,8 @@ else:
     sc.pp.normalize_total(clObj, target_sum=1e4)
     sc.pp.log1p(clObj)
     clObj.raw = clObj
-    fig = plt.figure()
     sc.pp.highly_variable_genes(clObj, min_mean=0.0125, max_mean=7, min_disp=0.2)
-    sc.pl.highly_variable_genes(clObj)
-    fig.savefig(f'QC_HVG_selection_CL{cl}.png')
+    sc.pl.highly_variable_genes(clObj, save=f'QC_HVG_selection_CL{cl}.png')
     print('selected genes: ', sum(clObj.var['highly_variable']))
     hvgObj = clObj[:,clObj.var['highly_variable'].values]
     sorted_HVG = hvgObj.var.sort_values('dispersions_norm', ascending=False).index
