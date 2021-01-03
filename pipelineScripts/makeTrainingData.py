@@ -36,9 +36,11 @@ print("data loaded!")
 
 # ---------- Calculate doublets -----------
 if ((len(doubs)<len(scObj)) | (doubs is None)):
-    print('starting doublet detection')
+    print('constructing count matrix')
     counts_matrix = scObj.X
+    print('starting doublet detection')
     scrub = scr.Scrublet(counts_matrix, expected_doublet_rate=0.076)
+    print('calling doublets')
     doublet_scores, predicted_doublets = scrub.scrub_doublets(min_counts=2,
                                                               min_cells=3,
                                                               min_gene_variability_pctl=85,
