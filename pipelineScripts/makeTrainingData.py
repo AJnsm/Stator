@@ -31,11 +31,16 @@ scObj = sc.read_10x_h5(sys.argv[1])
 scObj.var_names_make_unique()
 scObj.obs['index'] = np.arange(len(scObj))
 print("data loaded!")
-
+scObj.obs['doublet'] = False
 
 
 # ---------- Calculate doublets -----------
 if ((len(doubs)<len(scObj)) | (doubs is None)):
+    # THIS IS A TEMPORARY BREAK, NO DOUBLETS ARE DETECTED
+    # SHOULD BE REPLACED BY MEMORY FRIENDLY DOUB DETECTION.
+    print('WARNING: aborting doublet detection, insuff. memory. Different solution should be found.')
+    break
+
     print('constructing count matrix')
     counts_matrix = scObj.X
     print('starting doublet detection')
