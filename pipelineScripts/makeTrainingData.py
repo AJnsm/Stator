@@ -32,7 +32,7 @@ scObj.var_names_make_unique()
 scObj.obs['index'] = np.arange(len(scObj))
 print("data loaded!")
 scObj.obs['doublet'] = False
-
+doubs = pd.DataFrame(scObj.obs[['doublet']])
 
 # THIS IS A TEMPORARY CLAUSE, NO DOUBLETS ARE DETECTED
 # SHOULD BE REPLACED BY MEMORY FRIENDLY DOUB DETECTION.
