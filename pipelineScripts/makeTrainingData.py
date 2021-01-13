@@ -34,52 +34,54 @@ print("data loaded!")
 scObj.obs['doublet'] = False
 
 
-# ---------- Calculate doublets -----------
-if ((len(doubs)<len(scObj)) | (doubs is None)):
-    # THIS IS A TEMPORARY BREAK, NO DOUBLETS ARE DETECTED
-    # SHOULD BE REPLACED BY MEMORY FRIENDLY DOUB DETECTION.
-    print('WARNING: aborting doublet detection, insuff. memory. Different solution should be found.')
-    break
+# THIS IS A TEMPORARY CLAUSE, NO DOUBLETS ARE DETECTED
+# SHOULD BE REPLACED BY MEMORY FRIENDLY DOUB DETECTION.
+print('WARNING: aborting doublet detection, insuff. memory. Different solution should be found.')
+if False:
 
-    print('constructing count matrix')
-    counts_matrix = scObj.X
-    print('starting doublet detection')
-    scrub = scr.Scrublet(counts_matrix, expected_doublet_rate=0.076)
-    print('calling doublets')
-    doublet_scores, predicted_doublets = scrub.scrub_doublets(min_counts=2,
-                                                              min_cells=3,
-                                                              min_gene_variability_pctl=85,
-                                                              n_prin_comps=40)
+    # ---------- Calculate doublets -----------
+    if ((len(doubs)<len(scObj)) | (doubs is None)):
+        
 
-    # NOTE: could choose to do in log-space by adding log_transform=True
+        print('constructing count matrix')
+        counts_matrix = scObj.X
+        print('starting doublet detection')
+        scrub = scr.Scrublet(counts_matrix, expected_doublet_rate=0.076)
+        print('calling doublets')
+        doublet_scores, predicted_doublets = scrub.scrub_doublets(min_counts=2,
+                                                                  min_cells=3,
+                                                                  min_gene_variability_pctl=85,
+                                                                  n_prin_comps=40)
 
-    print('No. of doublets detected: ', sum(scrub.call_doublets()))
-    scObj.obs['doublet'] = scrub.call_doublets()
-    doubs = pd.DataFrame(scObj.obs[['doublet']])
-    doubs.to_csv("bcDoublets.csv", index=0)
-    print('DONE') 
+        # NOTE: could choose to do in log-space by adding log_transform=True
 
-    fig, ax = scrub.plot_histogram()
-    fig.savefig('doubletScore_hist.png')
+        print('No. of doublets detected: ', sum(scrub.call_doublets()))
+        scObj.obs['doublet'] = scrub.call_doublets()
+        doubs = pd.DataFrame(scObj.obs[['doublet']])
+        doubs.to_csv("bcDoublets.csv", index=0)
+        print('DONE') 
 
-    print('Running UMAP...')
-    scrub.set_embedding('UMAP', scr.get_umap(scrub.manifold_obs_, 10, min_dist=0.3))
-    print('Done with UMAP.')
+        fig, ax = scrub.plot_histogram()
+        fig.savefig('doubletScore_hist.png')
+
+        print('Running UMAP...')
+        scrub.set_embedding('UMAP', scr.get_umap(scrub.manifold_obs_, 10, min_dist=0.3))
+        print('Done with UMAP.')
 
 
-    x = scrub._embeddings['UMAP'][:,0]
-    y = scrub._embeddings['UMAP'][:,1]
+        x = scrub._embeddings['UMAP'][:,0]
+        y = scrub._embeddings['UMAP'][:,1]
 
-    fig = plt.figure(figsize = (5, 5))
-    coldat = scrub.predicted_doublets_
-    o = np.argsort(coldat)
-    plt.scatter(x[o], y[o], c = coldat[o], cmap=scr.custom_cmap([[.7,.7,.7], [0,0,0]]), s = 2)
-    plt.xticks([]), plt.yticks([])
-    plt.title('Doublets: UMAP embedding')
-    plt.xlabel('UMAP x')
-    plt.ylabel('UMAP y')
-    plt.tight_layout()
-    fig.savefig('doublets.png', dpi=None)
+        fig = plt.figure(figsize = (5, 5))
+        coldat = scrub.predicted_doublets_
+        o = np.argsort(coldat)
+        plt.scatter(x[o], y[o], c = coldat[o], cmap=scr.custom_cmap([[.7,.7,.7], [0,0,0]]), s = 2)
+        plt.xticks([]), plt.yticks([])
+        plt.title('Doublets: UMAP embedding')
+        plt.xlabel('UMAP x')
+        plt.ylabel('UMAP y')
+        plt.tight_layout()
+        fig.savefig('doublets.png', dpi=None)
 
 
 
