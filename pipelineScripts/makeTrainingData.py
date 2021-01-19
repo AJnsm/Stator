@@ -91,7 +91,7 @@ print("data loaded!")
 # ---------- Standard QC -----------
 
 # First: remove cells with high mito, low counts, and doublets.
-sc.pp.filter_cells(scObj, min_genes=400)
+sc.pp.filter_cells(scObj, min_genes=600)
 sc.pp.filter_genes(scObj, min_cells=0.02*len(scObj))
 
 mito_genes = scObj.var_names.str.startswith('mt-')
