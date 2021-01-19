@@ -22,6 +22,7 @@ cellType = int(sys.argv[5])
 
 
 try:
+    print('loading doublet data')
     doubs = pd.read_csv(sys.argv[6], index_col=0)
 except:
     print('WARNING: continuing without doublet annotation.')
@@ -32,8 +33,9 @@ scObj = sc.read_10x_h5(sys.argv[1])
 scObj.var_names_make_unique()
 scObj.obs['index'] = np.arange(len(scObj))
 print("data loaded!")
-scObj.obs['doublet'] = False
-doubs = pd.DataFrame(scObj.obs[['doublet']])
+
+# scObj.obs['doublet'] = False
+# doubs = pd.DataFrame(scObj.obs[['doublet']])
 
 # THIS IS A TEMPORARY CLAUSE, NO DOUBLETS ARE DETECTED
 # SHOULD BE REPLACED BY MEMORY FRIENDLY DOUB DETECTION.
