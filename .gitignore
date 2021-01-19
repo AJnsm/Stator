@@ -1,10 +1,13 @@
 output/*
 cellData/1M*
 work
+
 graphs/*
 plots/*.csv
 coupling_output/*
 reports/*
+doubTest.py
 .nextflow*
-.ipynb*
+*.ipynb*
+*.npz
 *~

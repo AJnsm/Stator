@@ -142,7 +142,7 @@ def calcTLinteraction_expectations_withErr_parallel(args, nResamps=1000):
         
 def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order=2, nResamps=1000):
     
-    if PrintBool: print(f'Starting with {ID}...')
+    # if PrintBool: print(f'Starting with {ID}...')
     n = len(trainDat.columns)
 
 
