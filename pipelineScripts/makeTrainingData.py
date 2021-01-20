@@ -54,10 +54,10 @@ clObj.obs['percent_mito'] = np.sum(
 
 clObj = clObj[clObj.obs['percent_mito']<.12]
 
-sc.pl.violin(scObj, ['n_genes'],
+sc.pl.violin(clObj, ['n_genes'],
              jitter=0.4, multi_panel=True, save='QC_n_genes.png')
 
-sc.pl.violin(scObj, ['percent_mito'],
+sc.pl.violin(clObj, ['percent_mito'],
              jitter=0.4, multi_panel=True, save='QC_percent_mito.png')
 
 
