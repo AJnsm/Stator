@@ -14,97 +14,48 @@ np.random.seed(0)
 print('libs loaded')
 # print('If figures come out blank, change the matplotlib backend. ')
 
-
-clusters = pd.read_csv(sys.argv[2], index_col=0)
-nGenes = int(sys.argv[3])
-nCells = int(sys.argv[4])
-cellType = int(sys.argv[5])
-
-
-try:
-    print('loading doublet data')
-    doubs = pd.read_csv(sys.argv[6], index_col=0)
-except:
-    print('WARNING: continuing without doublet annotation.')
-    doubs=None
-    
 print("loading data")
 scObj = sc.read_10x_h5(sys.argv[1])
 scObj.var_names_make_unique()
 scObj.obs['index'] = np.arange(len(scObj))
 print("data loaded!")
 
-# scObj.obs['doublet'] = False
-# doubs = pd.DataFrame(scObj.obs[['doublet']])
-
-# THIS IS A TEMPORARY CLAUSE, NO DOUBLETS ARE DETECTED
-# SHOULD BE REPLACED BY MEMORY FRIENDLY DOUB DETECTION.
-# print('WARNING: aborting doublet detection, insuff. memory. Different solution should be found.')
-# if False:
-
-    # # ---------- Calculate doublets -----------
-    # if ((len(doubs)<len(scObj)) | (doubs is None)):
-        
-
-    #     print('constructing count matrix')
-    #     counts_matrix = scObj.X
-    #     print('starting doublet detection')
-    #     scrub = scr.Scrublet(counts_matrix, expected_doublet_rate=0.076)
-    #     print('calling doublets')
-    #     doublet_scores, predicted_doublets = scrub.scrub_doublets(min_counts=2,
-    #                                                               min_cells=3,
-    #                                                               min_gene_variability_pctl=85,
-    #                                                               n_prin_comps=40)
-
-    #     # NOTE: could choose to do in log-space by adding log_transform=True
-
-    #     print('No. of doublets detected: ', sum(scrub.call_doublets()))
-    #     scObj.obs['doublet'] = scrub.call_doublets()
-    #     doubs = pd.DataFrame(scObj.obs[['doublet']])
-    #     doubs.to_csv("bcDoublets.csv", index=0)
-    #     print('DONE') 
-
-    #     fig, ax = scrub.plot_histogram()
-    #     fig.savefig('doubletScore_hist.png')
-
-    #     print('Running UMAP...')
-    #     scrub.set_embedding('UMAP', scr.get_umap(scrub.manifold_obs_, 10, min_dist=0.3))
-    #     print('Done with UMAP.')
-
-
-    #     x = scrub._embeddings['UMAP'][:,0]
-    #     y = scrub._embeddings['UMAP'][:,1]
-
-    #     fig = plt.figure(figsize = (5, 5))
-    #     coldat = scrub.predicted_doublets_
-    #     o = np.argsort(coldat)
-    #     plt.scatter(x[o], y[o], c = coldat[o], cmap=scr.custom_cmap([[.7,.7,.7], [0,0,0]]), s = 2)
-    #     plt.xticks([]), plt.yticks([])
-    #     plt.title('Doublets: UMAP embedding')
-    #     plt.xlabel('UMAP x')
-    #     plt.ylabel('UMAP y')
-    #     plt.tight_layout()
-    #     fig.savefig('doublets.png', dpi=None)
-
 
 
 # ---------- Standard QC -----------
+print('adding doublet and cluster data')
+clusters = pd.read_csv(sys.argv[2], index_col=0)
+nGenes = int(sys.argv[3])
+nCells = int(sys.argv[4])
+cl = int(sys.argv[5])
 
-# First: remove cells with high mito, low counts, and doublets.
-sc.pp.filter_cells(scObj, min_genes=600)
-sc.pp.filter_genes(scObj, min_cells=0.02*len(scObj))
+scObj.obs['cluster'] = clusters
 
-mito_genes = scObj.var_names.str.startswith('mt-')
-scObj.obs['percent_mito'] = np.sum(
-    scObj[:, mito_genes].X, axis=1).A1 / np.sum(scObj.X, axis=1).A1
-scObj.obs['n_counts'] = scObj.X.sum(axis=1).A1
+try:
+    print('loading doublet data')
+    doubs = pd.read_csv(sys.argv[6], index_col=0)
+    scObj.obs['doublet'] = doubs
+except:
+    print('WARNING: continuing without doublet annotation.')
+    scObj.obs['doublet'] = False
+    
+clObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
 
+
+
+
+
+# Remove cells with high mito, low n_genes.
+sc.pp.filter_cells(clObj, min_genes=600)
+
+mito_genes = clObj.var_names.str.startswith('mt-')
+clObj.obs['percent_mito'] = np.sum(
+    clObj[:, mito_genes].X, axis=1).A1 / np.sum(clObj.X, axis=1).A1
+
+clObj = clObj[clObj.obs['percent_mito']<.12]
 
 sc.pl.violin(scObj, ['n_genes'],
              jitter=0.4, multi_panel=True, save='QC_n_genes.png')
-
-sc.pl.violin(scObj, ['n_counts'],
-             jitter=0.4, multi_panel=True, save='QC_n_counts.png')
 
 sc.pl.violin(scObj, ['percent_mito'],
              jitter=0.4, multi_panel=True, save='QC_percent_mito.png')
@@ -112,15 +63,6 @@ sc.pl.violin(scObj, ['percent_mito'],
 
 # ------------ Making data with only HVG for each cluster -------------
 
-cl = cellType
-print(cellType)
-print('\n')
-print(scObj.shape)
-print('\n')
-print('Making data from cluster ', cl)
-#     clObj = scObj[scObj.obs['doublet']==False]
-clusters_noDoubs = clusters[doubs['doublet']==False]
-clObj = scObj[clusters_noDoubs.index[clusters_noDoubs['Cluster']==cl]]
 
 sc.pp.normalize_total(clObj, target_sum=1e4)
 sc.pp.log1p(clObj)
