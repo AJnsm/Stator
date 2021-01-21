@@ -41,8 +41,11 @@ except:
     
 clObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
 
+def filterForMouseB(bcs):
+    libs_mouseB = np.array(list(map(lambda x: (x.split('-'))[1], bcs))).astype('int')>=70
+    return bcs[libs_mouseB]
 
-
+clObj = clObj[filterForMouseB(clObj.obs.index)]
 
 
 # Remove cells with high mito, low n_genes.
