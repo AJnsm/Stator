@@ -55,10 +55,10 @@ clObj.obs['percent_mito'] = np.sum(
 clObj = clObj[clObj.obs['percent_mito']<.12]
 
 sc.pl.violin(clObj, ['n_genes'],
-             jitter=0.4, multi_panel=True, save='QC_n_genes.png')
+             jitter=0.4, multi_panel=True, save='QC_n_genes'+'{:0>2}'.format(cl) + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
 
 sc.pl.violin(clObj, ['percent_mito'],
-             jitter=0.4, multi_panel=True, save='QC_percent_mito.png')
+             jitter=0.4, multi_panel=True, save='QC_percent_mito'+'{:0>2}'.format(cl) + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
 
 
 # ------------ Making data with only HVG for each cluster -------------
@@ -68,7 +68,7 @@ sc.pp.normalize_total(clObj, target_sum=1e4)
 sc.pp.log1p(clObj)
 clObj.raw = clObj
 sc.pp.highly_variable_genes(clObj, min_mean=0.0125, max_mean=7, min_disp=0.2)
-sc.pl.highly_variable_genes(clObj, save=f'QC_HVG_selection_CL{cl}.png')
+sc.pl.highly_variable_genes(clObj, save=f'QC_HVG_selection_CL'+'{:0>2}'.format(cl) + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
 print('selected genes: ', sum(clObj.var['highly_variable']))
 hvgObj = clObj[:,clObj.var['highly_variable'].values]
 sorted_HVG = hvgObj.var.sort_values('dispersions_norm', ascending=False).index
