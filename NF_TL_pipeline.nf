@@ -59,19 +59,40 @@ process iterMCMCscheme {
 }
 
 data_and_graphs_ch = PC_and_ctrl_graphs_ch.mix(MCMCgraphs_ch)
+data_and_graphs_ch.into {data_and_graphs_1pts; data_and_graphs_2pts; data_and_graphs_3pts}
 
 
-process estimateCoups {
+process estimateCoups_1pts {
 
     
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py"
-    tuple path(dataSet), path(graph) from data_and_graphs_ch
+    tuple path(dataSet), path(graph) from data_and_graphs_1pts
     
     output:
-    path 'interactions*.npy' into interaction_ch
+    path 'interactions*.npy' into interaction_1pts_ch
+    
+
+    """
+    python ${estimationScript} ${dataSet} ${graph} 1 ${params.bsResamps} ${params.coupCores}
+    """
+
+}
+
+
+process estimateCoups_2pts {
+
+    
+    publishDir "${launchDir}/coupling_output", mode: 'copy'
+
+    input:
+    path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py"
+    tuple path(dataSet), path(graph) from data_and_graphs_2pts
+    
+    output:
+    path 'interactions*.npy' into interaction_2pts_ch
     
 
     """
@@ -81,6 +102,24 @@ process estimateCoups {
 }
 
 
+process estimateCoups_3pts {
+
+    
+    publishDir "${launchDir}/coupling_output", mode: 'copy'
+
+    input:
+    path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py"
+    tuple path(dataSet), path(graph) from data_and_graphs_3pts
+    
+    output:
+    path 'interactions*.npy' into interaction_3pts_ch
+    
+
+    """
+    python ${estimationScript} ${dataSet} ${graph} 3 ${params.bsResamps} ${params.coupCores}
+    """
+
+}
 
 
 

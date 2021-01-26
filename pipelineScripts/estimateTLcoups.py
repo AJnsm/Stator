@@ -73,16 +73,27 @@ def calcTLinteraction_expectations(conditionedGenes):
     Calc the interactions from the conditioned data using expectation values. 
     Could see if using probabilities is faster. 
     Currently, orders are implemented separately.
+
+    NOTE: previously, each interactions was corrected by a factor to match the {-1, 1} basis of the Ising model.
+    I now just take logs and leave them in the {0, 1} basis, which makes more sense for gene expression.
     '''
     
     order = len(conditionedGenes.columns)
     
+    if(order==1):
+        
+        E = conditionedGenes.iloc[:].mean()[0]
+        if E==1:
+            return np.nan
+        return np.log(E/(1-E))
+
+
     if(order==2):
         E1 = conditionedGenes[conditionedGenes.iloc[:, 1]==1].iloc[:, 0].mean()
         E0 = conditionedGenes[conditionedGenes.iloc[:, 1]==0].iloc[:, 0].mean()
         if (min(E1, E0)==0) | (max(E1, E0)==1):
             return np.nan
-        return np.log(E1*(1-E0)/(E0*(1-E1)))/8
+        return np.log(E1*(1-E0)/(E0*(1-E1)))
         
     elif(order==3):
         E11 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2]]==1).all(axis=1)].iloc[:, 0].mean()
@@ -95,7 +106,7 @@ def calcTLinteraction_expectations(conditionedGenes):
             return np.nan
         
         else:
-            return np.log(E11*(1-E01)*E00*(1-E10)/(E01*(1-E11)*E10*(1-E00)))/8
+            return np.log(E11*(1-E01)*E00*(1-E10)/(E01*(1-E11)*E10*(1-E00)))
     else:
         print('Order not yet implemented')
         return np.nan
@@ -134,7 +145,7 @@ def calcTLinteraction_expectations_withErr_parallel(args, nResamps=1000):
     '''
     unpack function arguments so that it can be mapped over process pool with one arg.
     '''
-    genes, PCgraph, dataSet = args
+    genes, PCgraph, dataSet, nResamps = args
     
     return calcTLinteraction_expectations_withCI(genes, PCgraph, dataSet, nResamps=nResamps)       
                   
@@ -149,8 +160,11 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order=2, nResa
     #We're now doing every interaction twice, but that's ok since they come with different markov blankets
     #(As long as mode is not set to 'Min')
     
+    if (order==1):
+        args = [([x], graph, trainDat, nResamps) for x in range(n)]
+
     if (order==2):
-        args = [([x, y], graph, trainDat) for x in range(n) for y in range(n)]
+        args = [([x, y], graph, trainDat, nResamps) for x in range(n) for y in range(n)]
     
     if (order==3):
         trips = []
@@ -188,6 +202,12 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order=2, nResa
     resultArr = np.array(list(results), dtype=object)
     if PrintBool: print('writing files...')
     
+    if (order==1):
+        TLcoups = resultArr[:, 0]
+        TLcoups_LB = resultArr[:, 1]
+        TLcoups_UB = resultArr[:, 2]
+        TLcoups_nonZero = resultArr[:, 3]
+
     if (order==2):
         TLcoups = resultArr[:, 0].reshape([n for i in range(order)])
         TLcoups_LB = resultArr[:, 1].reshape([n for i in range(order)])
