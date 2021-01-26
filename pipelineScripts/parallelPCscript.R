@@ -375,7 +375,7 @@ alpha_<-args[3]
            
 data = read.csv(dataPath)
 cat('\n')
-cat(DSname)
+cat(dataPath)
 cat('\n')
 cat('dimension of used data:  ')   
 cat(dim(data))
