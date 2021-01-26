@@ -383,7 +383,7 @@ cat('\n')
 cat('Starting parallel PC...')
 cat('\n')
 pcPar <- pc_parallel_custom(suffStat = list(dm = data, adaptDF = FALSE), binCItest, 
-         method='parallel', labels=colnames(data), alpha=alpha_, workers=NULL, num_workers=nC, ##num_workers=detectCores(), 
+         method='parallel', labels=colnames(data), alpha=alpha_, workers=NULL, num_workers=detectCores(), ##num_workers=nC, 
          identifier=DSname, conservative = FALSE, maj.rule = TRUE, solve.confl = TRUE)
 
 # Conservative = TRUE results in almost only bidirectionals
