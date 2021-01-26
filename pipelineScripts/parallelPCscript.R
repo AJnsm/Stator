@@ -374,11 +374,12 @@ alpha_<-args[3]
 
            
 data = read.csv(dataPath)
-cat('\n')   
+cat('\n')
+cat('dimension of used data:  ')   
 cat(dim(data))
-
+cat('Starting parallel PC...')
 pcPar <- pc_parallel_custom(suffStat = list(dm = data, adaptDF = FALSE), binCItest, 
-         method='parallel', labels=colnames(data), alpha=alpha_, workers=NULL, num_workers=detectCores(), ##num_workers=nC, 
+         method='parallel', labels=colnames(data), alpha=alpha_, workers=NULL, num_workers=nC, ##num_workers=detectCores(), 
          identifier=DSname, conservative = FALSE, maj.rule = TRUE, solve.confl = TRUE)
 
 # Conservative = TRUE results in almost only bidirectionals
