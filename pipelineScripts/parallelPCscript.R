@@ -375,9 +375,13 @@ alpha_<-args[3]
            
 data = read.csv(dataPath)
 cat('\n')
+cat(DSname)
+cat('\n')
 cat('dimension of used data:  ')   
 cat(dim(data))
+cat('\n')
 cat('Starting parallel PC...')
+cat('\n')
 pcPar <- pc_parallel_custom(suffStat = list(dm = data, adaptDF = FALSE), binCItest, 
          method='parallel', labels=colnames(data), alpha=alpha_, workers=NULL, num_workers=nC, ##num_workers=detectCores(), 
          identifier=DSname, conservative = FALSE, maj.rule = TRUE, solve.confl = TRUE)
