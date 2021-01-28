@@ -78,21 +78,18 @@ sorted_HVG = hvgObj.var.sort_values('dispersions_norm', ascending=False).index
 genes = sorted_HVG[:nGenes]
 selected_genes = np.unique(genes)
 print('Final selected genes:   ', selected_genes.shape)
-
 clObjBin = clObj.copy()
 clObjBin.X = (clObjBin.X>0)*1
 
 selectedCellsAndGenes = clObjBin[:,clObjBin.var.index.isin(selected_genes)]
 clDF = pd.DataFrame(selectedCellsAndGenes.X.todense())
+print('Final data set size: ', clDF.shape)
 clDF.columns = selectedCellsAndGenes.var.index
 clDF = clDF.sample(frac=1).reset_index(drop=True) #Shufle full cluster so that any selection is randomised. 
-#         clDF.to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
+
 clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
 clDF.iloc[nCells:2*nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
-
-#     clDF.iloc[:nCells].apply(np.random.permutation, axis=1, result_type='broadcast').to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_shuffled.csv', index=False)
-#     clDF.iloc[nCells:2*nCells].apply(np.random.permutation, axis=1, result_type='broadcast').to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_shuffled.csv', index=False)
-    
+  
 print('****DONE****')
 
 
