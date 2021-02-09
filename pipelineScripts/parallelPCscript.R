@@ -367,10 +367,10 @@ cat(args)
 cat('\n')
 cat(args[1])
 cat('\n')                
-dataPath = args[1]                   
-nC = args[2]                   
-DSname<-str_sub(str_split(dataPath, "_", n=2)[[1]][2], 1, -5)
-alpha_<-args[3]
+dataPath <- args[1]                   
+nC <- args[2]                   
+DSname <- str_sub(str_split(dataPath, "_", n=2)[[1]][2], 1, -5)
+alpha_ <- args[3]
 
            
 data = read.csv(dataPath)
@@ -388,11 +388,12 @@ pcPar <- pc_parallel_custom(suffStat = list(dm = data, adaptDF = FALSE), binCIte
 
 # Conservative = TRUE results in almost only bidirectionals
 
-graphMat = as(pcPar@graph, 'matrix')                   
+graphMat <-  as(pcPar@graph, 'matrix')
+graphMat <- (graphMat>0)*1                   
 write.csv(graphMat, paste('PCgraph_', DSname, '.csv', sep=""))   
 
 # Delete all edges, and write out empty control graph
-graphMat[,]=0
+graphMat[,] <- 0
 write.csv(graphMat, paste('CTRLgraph_', DSname, '.csv', sep=""))
                    
 cat('*****DONE*****')
