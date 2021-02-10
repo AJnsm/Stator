@@ -111,8 +111,38 @@ def calcTLinteraction_expectations(conditionedGenes):
         print('Order not yet implemented')
         return np.nan
     
+def calcInteraction_binTrick(conditionedGenes):
+    order = len(conditionedGenes.columns)
+    nStates = 2**order
+    if order==1:
+        binCs = np.bincount(conditionedGenes.values, minlength=nStates)
+        return np.log(binCs[1]/binCs[0])
     
-def calcTLinteraction_expectations_withCI(genes, PCgraph, dataSet, nResamps=1000):
+    elif order==2:
+        binCs = np.bincount(2 * conditionedGenes.iloc[:, 0] +  conditionedGenes.iloc[:, 1], minlength=nStates)
+        return np.log(binCs[0]*binCs[3]/(binCs[1]*binCs[2]))
+    
+    elif order==3:
+        binCs = np.bincount(4 * conditionedGenes.iloc[:, 0] + 2 * conditionedGenes.iloc[:, 1] +  conditionedGenes.iloc[:, 2], minlength=nStates)
+        return np.log(np.prod(binCs[[1, 2, 4, 7]])/np.prod(binCs[[0, 3, 5, 6]]))
+
+    else:
+        print('Order not implemented, use order-agnostic version!')
+        return np.nan
+
+def calcInteraction_binTrick_allOrders(conditionedGenes):
+    
+    order = len(conditionedGenes.columns)
+    nStates = 2**order
+    powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
+    
+    f = lambda x: ''.join(map(str, x))
+    binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
+        
+    return np.log(np.prod(np.array([x**p for (x, p) in zip(binCounts, powers)])))
+    
+    
+def calcTLinteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=1000):
     '''
     Add 95% confidence interval bounds from bootstrap resamples,
     and the F value: the proportion of resamples with a different sign.
@@ -121,14 +151,14 @@ def calcTLinteraction_expectations_withCI(genes, PCgraph, dataSet, nResamps=1000
     
     conditionedGenes = conditionOnMB(genes, PCgraph, dataSet, mode='0')
         
-    val0 = calcTLinteraction_expectations(conditionedGenes)
+    val0 = calcTLinteraction_binTrick(conditionedGenes)
     vals = np.zeros(nResamps)
     if np.isnan(val0):
         return [np.nan, np.nan, np.nan, np.nan, genes]
     
     for i in range(nResamps):
         genes_resampled = conditionedGenes.sample(frac=1, replace=True)
-        vals[i] = calcTLinteraction_expectations(genes_resampled)
+        vals[i] = calcTLinteraction_binTrick(genes_resampled)
     
     vals.sort()
     vals_noNan = vals[~np.isnan(vals)]
@@ -141,13 +171,14 @@ def calcTLinteraction_expectations_withCI(genes, PCgraph, dataSet, nResamps=1000
     else:
         return [np.nan, np.nan, np.nan, np.nan, genes]      
     
-def calcTLinteraction_expectations_withErr_parallel(args, nResamps=1000):
+def calcTLinteraction_binTrick_withCI_parallel(args, nResamps=1000):
     '''
-    unpack function arguments so that it can be mapped over process pool with one arg.
+    wrapper to unpack function arguments so that it can be mapped over process pool with one arg.
+    (I actually think there is something like executor.starmap that could do this for us)
     '''
     genes, PCgraph, dataSet, nResamps = args
     
-    return calcTLinteraction_expectations_withCI(genes, PCgraph, dataSet, nResamps=nResamps)       
+    return calcTLinteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=nResamps)       
                   
         
         
@@ -194,7 +225,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order=2, nResa
     
     start = time.perf_counter()
     with concurrent.futures.ProcessPoolExecutor(max_workers=maxWorkers) as executor:
-        results = executor.map(calcTLinteraction_expectations_withErr_parallel, args)  
+        results = executor.map(calcTLinteraction_binTrick_withCI_parallel, args)  
     finish = time.perf_counter()
     if PrintBool: print(f'Time elapsed: {round(finish-start, 2)} secs')
     if PrintBool: print('calculation done, storing results...')
