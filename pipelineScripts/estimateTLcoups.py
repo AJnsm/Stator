@@ -68,7 +68,7 @@ def conditionOnMB(genes, PCgraph, dataSet, mode='0'):
     data_conditioned = dataSet[(dataSet.iloc[:, MB]==0).all(axis=1)] #Set whole MB to zero.     
     return data_conditioned.iloc[:, genes]
 
-def calcTLinteraction_expectations(conditionedGenes):
+def calcInteraction_expectations(conditionedGenes):
     '''
     Calc the interactions from the conditioned data using expectation values. 
     Could see if using probabilities is faster. 
@@ -115,7 +115,7 @@ def calcInteraction_binTrick(conditionedGenes):
     order = len(conditionedGenes.columns)
     nStates = 2**order
     if order==1:
-        binCs = np.bincount(conditionedGenes.values, minlength=nStates)
+        binCs = np.bincount(conditionedGenes.values.flatten(), minlength=nStates)
         return np.log(binCs[1]/binCs[0])
     
     elif order==2:
@@ -142,7 +142,7 @@ def calcInteraction_binTrick_allOrders(conditionedGenes):
     return np.log(np.prod(np.array([x**p for (x, p) in zip(binCounts, powers)])))
     
     
-def calcTLinteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=1000):
+def calcInteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=1000):
     '''
     Add 95% confidence interval bounds from bootstrap resamples,
     and the F value: the proportion of resamples with a different sign.
@@ -151,14 +151,14 @@ def calcTLinteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=1000):
     
     conditionedGenes = conditionOnMB(genes, PCgraph, dataSet, mode='0')
         
-    val0 = calcTLinteraction_binTrick(conditionedGenes)
+    val0 = calcInteraction_binTrick(conditionedGenes)
     vals = np.zeros(nResamps)
     if np.isnan(val0):
         return [np.nan, np.nan, np.nan, np.nan, genes]
     
     for i in range(nResamps):
         genes_resampled = conditionedGenes.sample(frac=1, replace=True)
-        vals[i] = calcTLinteraction_binTrick(genes_resampled)
+        vals[i] = calcInteraction_binTrick(genes_resampled)
     
     vals.sort()
     vals_noNan = vals[~np.isnan(vals)]
@@ -166,19 +166,19 @@ def calcTLinteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=1000):
 
     propDifSign = sum(np.sign(vals)==-np.sign(val0))/nResamps
     
-    if(len(vals_noNan) > nResamps/2): # no. of nans not too large
+    if(len(vals_noNan) == nResamps): # No undefined resamples allowed. This could be replaced by a threshold
         return [val0, CI[0], CI[1], propDifSign, genes]
     else:
         return [np.nan, np.nan, np.nan, np.nan, genes]      
     
-def calcTLinteraction_binTrick_withCI_parallel(args, nResamps=1000):
+def calcInteraction_binTrick_withCI_parallel(args, nResamps=1000):
     '''
     wrapper to unpack function arguments so that it can be mapped over process pool with one arg.
     (I actually think there is something like executor.starmap that could do this for us)
     '''
     genes, PCgraph, dataSet, nResamps = args
     
-    return calcTLinteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=nResamps)       
+    return calcInteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=nResamps)       
                   
         
         
@@ -225,7 +225,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order=2, nResa
     
     start = time.perf_counter()
     with concurrent.futures.ProcessPoolExecutor(max_workers=maxWorkers) as executor:
-        results = executor.map(calcTLinteraction_binTrick_withCI_parallel, args)  
+        results = executor.map(calcInteraction_binTrick_withCI_parallel, args)  
     finish = time.perf_counter()
     if PrintBool: print(f'Time elapsed: {round(finish-start, 2)} secs')
     if PrintBool: print('calculation done, storing results...')
