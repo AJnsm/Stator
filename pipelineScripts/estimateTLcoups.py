@@ -116,15 +116,24 @@ def calcInteraction_binTrick(conditionedGenes):
     nStates = 2**order
     if order==1:
         binCs = np.bincount(conditionedGenes.values.flatten(), minlength=nStates)
-        return np.log(binCs[1]/binCs[0])
+        if sum(binCs==0)>0:
+            return np.nan
+        else:
+            return np.log(binCs[1]/binCs[0])
     
     elif order==2:
         binCs = np.bincount(2 * conditionedGenes.iloc[:, 0] +  conditionedGenes.iloc[:, 1], minlength=nStates)
-        return np.log(binCs[0]*binCs[3]/(binCs[1]*binCs[2]))
+        if sum(binCs==0)>0:
+            return np.nan
+        else:
+            return np.log(binCs[0]*binCs[3]/(binCs[1]*binCs[2]))
     
     elif order==3:
         binCs = np.bincount(4 * conditionedGenes.iloc[:, 0] + 2 * conditionedGenes.iloc[:, 1] +  conditionedGenes.iloc[:, 2], minlength=nStates)
-        return np.log(np.prod(binCs[[1, 2, 4, 7]])/np.prod(binCs[[0, 3, 5, 6]]))
+        if sum(binCs==0)>0:
+            return np.nan
+        else:
+            return np.log(np.prod(binCs[[1, 2, 4, 7]])/np.prod(binCs[[0, 3, 5, 6]]))
 
     else:
         print('Order not implemented, use order-agnostic version!')
