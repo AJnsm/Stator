@@ -175,7 +175,7 @@ def calcInteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=1000):
 
     propDifSign = sum(np.sign(vals)==-np.sign(val0))/nResamps
     
-    if(len(vals_noNan) == nResamps): # No undefined resamples allowed. This could be replaced by a threshold
+    if(len(vals_noNan) >= 0.999*nResamps): # Threshold to set allowed nans in BS distribution. 
         return [val0, CI[0], CI[1], propDifSign, genes]
     else:
         return [np.nan, np.nan, np.nan, np.nan, genes]      
@@ -296,7 +296,7 @@ def main():
         print(f'Calculating interactions at order {intOrder}')
         print(f'With {nResamps} bootstrap resamples')
         print(f'Parallelised over {nCores} cores. ')
-        calcInteractionsAndWriteNPYs(DSname+'_'+str(nCores)+'cores'+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, nResamps=nResamps)
+        calcInteractionsAndWriteNPYs(DSname+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, nResamps=nResamps)
           
         
         print('***********DONE***********')
