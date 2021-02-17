@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-cellTypes_ch = Channel.from( 7, 8, 10, 13 ) 
+cellTypes_ch = Channel.from(7) 
 
 process makeData {
 
