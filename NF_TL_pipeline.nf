@@ -69,6 +69,7 @@ process estimateCoups_1pts {
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py"
+    path dipTest_pVals from "${projectDir}/dipPvals.csv"
     tuple path(dataSet), path(graph) from data_and_graphs_1pts
     
     output:
@@ -76,7 +77,7 @@ process estimateCoups_1pts {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 1 ${params.bsResamps} ${params.coupCores}
+    python ${estimationScript} ${dataSet} ${graph} 1 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals}
     """
 
 }
@@ -89,6 +90,7 @@ process estimateCoups_2pts {
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py"
+    path dipTest_pVals from "${projectDir}/dipPvals.csv"
     tuple path(dataSet), path(graph) from data_and_graphs_2pts
     
     output:
@@ -96,7 +98,7 @@ process estimateCoups_2pts {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 2 ${params.bsResamps} ${params.coupCores}
+    python ${estimationScript} ${dataSet} ${graph} 2 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals}
     """
 
 }
@@ -109,6 +111,7 @@ process estimateCoups_3pts {
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py"
+    path dipTest_pVals from "${projectDir}/dipPvals.csv"
     tuple path(dataSet), path(graph) from data_and_graphs_3pts
     
     output:
@@ -116,7 +119,7 @@ process estimateCoups_3pts {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 3 ${params.bsResamps} ${params.coupCores}
+    python ${estimationScript} ${dataSet} ${graph} 3 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals}
     """
 
 }

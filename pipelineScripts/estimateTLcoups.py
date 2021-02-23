@@ -21,7 +21,8 @@ if PrintBool: print('Modules imported \n')
     
 dataPath = sys.argv[1]
 trainDat = pd.read_csv(dataPath)
-pVals = pd.read_csv('dipPvals.csv', index_col=0)
+
+pVals = pd.read_csv(sys.argv[6], index_col=0)
 
 graphPath = sys.argv[2]
 DSname = graphPath.split('.')[0]
