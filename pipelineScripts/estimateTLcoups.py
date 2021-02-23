@@ -322,7 +322,7 @@ def main():
     # 5: number of cores
     
     
-    notes = ''
+    notes = '_dipTest099'
     
     
     if(len(sys.argv)<5):
