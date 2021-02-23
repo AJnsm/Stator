@@ -11,11 +11,17 @@ import igraph as ig
 import time
 import sys
 
+import scipy
+from scipy.stats import skew, kurtosis, skewtest, kstest
+from scipy.interpolate import interp1d
+
+import hartiganDip
+
 if PrintBool: print('Modules imported \n')
     
 dataPath = sys.argv[1]
 trainDat = pd.read_csv(dataPath)
-
+pVals = pd.read_csv('dipPvals.csv', index_col=0)
 
 graphPath = sys.argv[2]
 DSname = graphPath.split('.')[0]
@@ -171,11 +177,14 @@ def calcInteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=1000):
     
     vals.sort()
     vals_noNan = vals[~np.isnan(vals)]
+    dip = hartiganDip.diptst(vals_noNan)[0]
+    dipPval = fromD2P(dip, len(vals_noNan))
     CI = (vals_noNan[int(np.around(len(vals_noNan)/40))], vals_noNan[int(np.floor(len(vals_noNan)*39/40))])
 
     propDifSign = sum(np.sign(vals)==-np.sign(val0))/nResamps
     
-    if(len(vals_noNan) >= 0.999*nResamps): # Threshold to set allowed nans in BS distribution. 
+    # if(len(vals_noNan) >= 0.999*nResamps): # Threshold to set allowed nans in BS distribution. 
+    if(dipPval>=0.99): # If it's *really* close to a unimodal distribution.
         return [val0, CI[0], CI[1], propDifSign, genes]
     else:
         return [np.nan, np.nan, np.nan, np.nan, genes]      
@@ -269,6 +278,37 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order=2, nResa
     np.save(f'interactions_order{order}_{ID}_CI_F', TLcoups_nonZero)
 
     if PrintBool: print(f'DONE with {ID}...\n')
+
+def fromD2P(D, n):
+    if np.isnan(D):
+        return np.nan
+    if n <=3:
+        p=1
+    else:
+        Ps = pVals.columns.values.astype('float')
+        nn = pVals.index.values
+        max_n = max(nn)
+        
+        if n>max_n:
+            n1, n0 = max_n, max_n
+            i_2, i_n = len(nn), len(nn)
+            f_n = 0
+            
+        else:
+            i_n = np.argmin(list(map(lambda x: n-x if (n-x)>0 else np.nan, nn))) - 1
+            i_2 = i_n + 1 
+            n_0 = nn[i_n]
+            n_1 = nn[i_2]
+            f_n = (n-n_0)/(n_1-n_0)
+
+        y_0 = np.sqrt(n_0) * pVals.iloc[i_n, :]
+        y_1 = np.sqrt(n_1) * pVals.iloc[i_2, :]
+        sD = np.sqrt(n) * D
+        f = interp1d((y_0 + f_n * (y_1 - y_0)).values, Ps, kind='linear', fill_value=(0, 1), bounds_error=False) # fill_value='extrapolate')
+
+        p = 1-f(sD)
+
+    return p
     
 def main():
     np.random.seed(0)
