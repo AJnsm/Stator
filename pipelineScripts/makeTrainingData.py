@@ -73,6 +73,16 @@ clObj.raw = clObj
 sc.pp.highly_variable_genes(clObj, min_mean=0.0125, max_mean=7, min_disp=0.2)
 sc.pl.highly_variable_genes(clObj, save=f'QC_HVG_selection_CL'+'{:0>2}'.format(cl) + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
 print('selected genes: ', sum(clObj.var['highly_variable']))
+
+# ------------ add embedding coords -------------
+print('Running PCA...')
+sc.tl.pca(clObj, n_comps=2)
+
+print('Running UMAP...')
+sc.pp.neighbors(clObj)
+sc.tl.umap(clObj)
+print('DONE with embeddings.')
+
 hvgObj = clObj[:,clObj.var['highly_variable'].values]
 sorted_HVG = hvgObj.var.sort_values('dispersions_norm', ascending=False).index
 genes = sorted_HVG[:nGenes]
@@ -81,14 +91,24 @@ print('Final selected genes:   ', selected_genes.shape)
 clObjBin = clObj.copy()
 clObjBin.X = (clObjBin.X>0)*1
 
+sc.pp.subsample(clObjBin, fraction=1.) #Shufle full cluster so that any selection is randomised. 
+
+
 selectedCellsAndGenes = clObjBin[:,clObjBin.var.index.isin(selected_genes)]
 clDF = pd.DataFrame(selectedCellsAndGenes.X.todense())
 print('Final data set size: ', clDF.shape)
 clDF.columns = selectedCellsAndGenes.var.index
-clDF = clDF.sample(frac=1).reset_index(drop=True) #Shufle full cluster so that any selection is randomised. 
 
 clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
 clDF.iloc[nCells:2*nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
+
+pd.DataFrame(clObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
+pd.DataFrame(clObjBin.obsm['X_pca'][nCells:2*nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
+
+pd.DataFrame(clObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
+pd.DataFrame(clObjBin.obsm['X_umap'][nCells:2*nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
+
+
   
 print('****DONE****')
 

@@ -12,7 +12,7 @@ import time
 import sys
 
 import scipy
-from scipy.stats import skew, kurtosis, skewtest, kstest
+from scipy.stats import kstest
 from scipy.interpolate import interp1d
 
 import hartiganDip
@@ -178,14 +178,18 @@ def calcInteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=1000):
     
     vals.sort()
     vals_noNan = vals[~np.isnan(vals)]
+
     dip = hartiganDip.diptst(vals_noNan)[0]
     dipPval = fromD2P(dip, len(vals_noNan))
+
+    ksStat = kstest(vals_noNan, lambda x: scipy.stats.norm.cdf(x, loc=vals_noNan.mean(), scale=vals_noNan.std()))[1]
+
     CI = (vals_noNan[int(np.around(len(vals_noNan)/40))], vals_noNan[int(np.floor(len(vals_noNan)*39/40))])
 
     propDifSign = sum(np.sign(vals)==-np.sign(val0))/nResamps
     
-    # if(len(vals_noNan) >= 0.999*nResamps): # Threshold to set allowed nans in BS distribution. 
-    if(dipPval>=0.99): # If it's *really* close to a unimodal distribution.
+    # If it's *really* close to a unimodal distribution according to Dip or KS test, or doesn't have undef. resamples:
+    if((len(vals_noNan) == nResamps) | (dipPval>=0.99) | (ksStat>0.01)) : 
         return [val0, CI[0], CI[1], propDifSign, genes]
     else:
         return [np.nan, np.nan, np.nan, np.nan, genes]      
@@ -322,7 +326,7 @@ def main():
     # 5: number of cores
     
     
-    notes = '_dipTest099'
+    notes = '_dip+KS'
     
     
     if(len(sys.argv)<5):

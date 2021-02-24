@@ -6,6 +6,7 @@ process makeData {
 
     
     publishDir "${launchDir}/plots", mode: 'copy', pattern: '*.png'
+    publishDir "${launchDir}/embeddings", mode: 'copy', pattern: '*coords.csv'
         
     input:
     path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py"
@@ -15,8 +16,9 @@ process makeData {
     val cellType from cellTypes_ch
     
     output:
-    path "trainingData_CL*.csv" into dataSets mode flatten
+    path "trainingData_CL*Genes.csv" into dataSets mode flatten
     path "*.png" into plots
+    path "*coords.csv" into embeddings
     
     """
     python ${dataScript} ${rawData} ${clusters} ${params.nGenes} ${params.nCells} ${cellType} ${bcDoublets}
