@@ -3,7 +3,8 @@ cellData/1M*
 work
 
 graphs/*
-plots/*.csv
+plots/*
+embeddings/*
 coupling_output/*
 reports/*
 doubTest.py
