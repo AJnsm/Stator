@@ -94,7 +94,7 @@ def calcInteraction_expectations(conditionedGenes):
     if(order==1):
         
         E = conditionedGenes.iloc[:].mean()[0]
-        if E==1:
+        if (E==1) | (E==0):
             return np.nan
         return np.log(E/(1-E))
 
@@ -169,10 +169,10 @@ def calcInteraction_withCI(genes, graph, dataSet, estimator, nResamps=1000):
     and the F value: the proportion of resamples with a different sign.
     '''
     
-    if estimationMethod=='expectations':
+    if estimator is calcInteraction_expectations:
         MBmode = '0' # Use first gene to get MB
     else:
-        MBmode = 'All' # Use MB of all genes
+        MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
 
     conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
         
@@ -336,7 +336,7 @@ def main():
     # 6: pVal table for Hartigan Dip test
     # 7: string to determine estimation method
     
-    notes = '_dip+KS'
+    notes = ''
     
     if estimationMethod == 'probabilities':
         estimator = calcInteraction_binTrick
@@ -353,11 +353,11 @@ def main():
         nCores = int(sys.argv[5])
         print('Starting calculation on ' + DSname)
         print('Using estimation method:  ', estimationMethod)
-                
+
         print(f'Calculating interactions at order {intOrder}')
         print(f'With {nResamps} bootstrap resamples')
         print(f'Parallelised over {nCores} cores. ')
-        calcInteractionsAndWriteNPYs(DSname+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
+        calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
           
         
         print('***********DONE***********')
