@@ -18,20 +18,24 @@ from scipy.interpolate import interp1d
 import hartiganDip
 
 if PrintBool: print('Modules imported \n')
+
     
+if(len(sys.argv)<7):
+    print('Not enough arguments -- terminating...')
 dataPath = sys.argv[1]
-trainDat = pd.read_csv(dataPath)
-
-pVals = pd.read_csv(sys.argv[6], index_col=0)
-
 graphPath = sys.argv[2]
+intOrder = int(sys.argv[3])
+nResamps = int(sys.argv[4])
+nCores = int(sys.argv[5])   
+pValPath = sys.argv[6]
+estimationMethod = sys.argv[7]
+
+
+trainDat = pd.read_csv(dataPath)
+pVals = pd.read_csv(pValPath, index_col=0)
 DSname = graphPath.split('.')[0]
 adjMat = pd.read_csv(graphPath, index_col=0)
-  
-    
 graph = ig.Graph.Adjacency(adjMat.values.tolist()) 
-
-estimationMethod = sys.argv[7]
 
 # Creating empty control graph
 graph_ctrl = graph.copy()
@@ -336,31 +340,39 @@ def main():
     # 6: pVal table for Hartigan Dip test
     # 7: string to determine estimation method
     
+    print('Starting calculation on ' + DSname)
+    print('Using estimation method:  ', estimationMethod)
+
+    print(f'Calculating interactions at order {intOrder}')
+    print(f'With {nResamps} bootstrap resamples')
+    print(f'Parallelised over {nCores} cores. ')
+
+
+
     notes = ''
     
-    if estimationMethod == 'probabilities':
+
+    if estimationMethod == 'both':
         estimator = calcInteraction_binTrick
+        calcInteractionsAndWriteNPYs(DSname+'_'+'probabilities'+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
+        estimator = calcInteraction_expectations
+        calcInteractionsAndWriteNPYs(DSname+'_'+'expectations'+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
+
+    elif estimationMethod == 'probabilities':
+        estimator = calcInteraction_binTrick
+        calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
+
     elif estimationMethod == 'expectations':
         estimator = calcInteraction_expectations
-    else:
-        print('Invalid estimation method -- terminating...')
-    
-    if(len(sys.argv)<7):
-        print('Not enough arguments -- terminating...')
-    else:        
-        intOrder = int(sys.argv[3])
-        nResamps = int(sys.argv[4])
-        nCores = int(sys.argv[5])
-        print('Starting calculation on ' + DSname)
-        print('Using estimation method:  ', estimationMethod)
-
-        print(f'Calculating interactions at order {intOrder}')
-        print(f'With {nResamps} bootstrap resamples')
-        print(f'Parallelised over {nCores} cores. ')
         calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
-          
+    else:
+        print('Invalid estimation method -- terminating...')        
+        return 1
         
-        print('***********DONE***********')
+    
+      
+    
+    print('***********DONE***********')
 
 if __name__=="__main__":
     main()
