@@ -79,7 +79,7 @@ process estimateCoups_1pts {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 1 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals}
+    python ${estimationScript} ${dataSet} ${graph} 1 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals} ${params.estimationMethod}
     """
 
 }
@@ -100,7 +100,7 @@ process estimateCoups_2pts {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 2 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals}
+    python ${estimationScript} ${dataSet} ${graph} 2 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals} ${params.estimationMethod}
     """
 
 }
@@ -121,7 +121,7 @@ process estimateCoups_3pts {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 3 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals}
+    python ${estimationScript} ${dataSet} ${graph} 3 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals} ${params.estimationMethod}
     """
 
 }

@@ -31,6 +31,7 @@ adjMat = pd.read_csv(graphPath, index_col=0)
     
 graph = ig.Graph.Adjacency(adjMat.values.tolist()) 
 
+estimationMethod = sys.argv[7]
 
 # Creating empty control graph
 graph_ctrl = graph.copy()
@@ -55,22 +56,25 @@ def findMarkovBlanket(v, g):
     return list(set(parents + children + spouses)) #Sets to keep uniques
    
     
-def conditionOnMB(genes, PCgraph, dataSet, mode='0'):
+def conditionOnMB(genes, graph, dataSet, mode='0'):
     '''
     Calculate the MB for each gene in genes, and set all to zero. 
     mode=='Min' uses the smallest blanket, 
     while an integer specifies a particular gene's MB
     '''
-    MBs = [findMarkovBlanket(gene, PCgraph) for gene in genes]
+    MBs = [findMarkovBlanket(gene, graph) for gene in genes]
     
-    if (mode=='Min'):
-        MB=min(MBs, key=len)        
+    if (mode == 'Min'):
+        MB = min(MBs, key=len) 
+    elif (mode == 'All'):
+        MB = [gene for MB in MBs for gene in MB]      
     else:
         try:
             MB = MBs[int(mode)]
         except:
             print('Invalid mode')
-    
+
+
     MB = list(set(MB) - set(genes)) #Remove the interacting genes from the markov Blanket.     
     data_conditioned = dataSet[(dataSet.iloc[:, MB]==0).all(axis=1)] #Set whole MB to zero.     
     return data_conditioned.iloc[:, genes]
@@ -115,7 +119,7 @@ def calcInteraction_expectations(conditionedGenes):
         else:
             return np.log(E11*(1-E01)*E00*(1-E10)/(E01*(1-E11)*E10*(1-E00)))
     else:
-        print('Order not yet implemented')
+        print('Order not yet implemented, change estimation method to probabilities.')
         return np.nan
     
 def calcInteraction_binTrick(conditionedGenes):
@@ -143,8 +147,9 @@ def calcInteraction_binTrick(conditionedGenes):
             return np.log(np.prod(binCs[[1, 2, 4, 7]])/np.prod(binCs[[0, 3, 5, 6]]))
 
     else:
-        print('Order not implemented, use order-agnostic version!')
-        return np.nan
+        print('Order not implemented, using slower order-agnostic version!')
+
+        return calcInteraction_binTrick_allOrders(conditionedGenes)
 
 def calcInteraction_binTrick_allOrders(conditionedGenes):
     
@@ -158,23 +163,27 @@ def calcInteraction_binTrick_allOrders(conditionedGenes):
     return np.log(np.prod(np.array([x**p for (x, p) in zip(binCounts, powers)])))
     
     
-def calcInteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=1000):
+def calcInteraction_withCI(genes, graph, dataSet, estimator, nResamps=1000):
     '''
     Add 95% confidence interval bounds from bootstrap resamples,
     and the F value: the proportion of resamples with a different sign.
     '''
     
-    
-    conditionedGenes = conditionOnMB(genes, PCgraph, dataSet, mode='0')
+    if estimationMethod=='expectations':
+        MBmode = '0' # Use first gene to get MB
+    else:
+        MBmode = 'All' # Use MB of all genes
+
+    conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
         
-    val0 = calcInteraction_binTrick(conditionedGenes)
+    val0 = estimator(conditionedGenes)
     vals = np.zeros(nResamps)
     if np.isnan(val0):
         return [np.nan, np.nan, np.nan, np.nan, genes]
     
     for i in range(nResamps):
         genes_resampled = conditionedGenes.sample(frac=1, replace=True)
-        vals[i] = calcInteraction_binTrick(genes_resampled)
+        vals[i] = estimator(genes_resampled)
     
     vals.sort()
     vals_noNan = vals[~np.isnan(vals)]
@@ -194,18 +203,18 @@ def calcInteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=1000):
     else:
         return [np.nan, np.nan, np.nan, np.nan, genes]      
     
-def calcInteraction_binTrick_withCI_parallel(args, nResamps=1000):
+def calcInteraction_withCI_parallel(args, nResamps=1000):
     '''
     wrapper to unpack function arguments so that it can be mapped over process pool with one arg.
     (I actually think there is something like executor.starmap that could do this for us)
     '''
-    genes, PCgraph, dataSet, nResamps = args
+    genes, graph, dataSet, estimator, nResamps = args
     
-    return calcInteraction_binTrick_withCI(genes, PCgraph, dataSet, nResamps=nResamps)       
+    return calcInteraction_withCI(genes, graph, dataSet, estimator, nResamps=nResamps)       
                   
         
         
-def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order=2, nResamps=1000):
+def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimator, nResamps=1000):
     
     # if PrintBool: print(f'Starting with {ID}...')
     n = len(trainDat.columns)
@@ -215,10 +224,10 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order=2, nResa
     #(As long as mode is not set to 'Min')
     
     if (order==1):
-        args = [([x], graph, trainDat, nResamps) for x in range(n)]
+        args = [([x], graph, trainDat, estimator, nResamps) for x in range(n)]
 
     if (order==2):
-        args = [([x, y], graph, trainDat, nResamps) for x in range(n) for y in range(n)]
+        args = [([x, y], graph, trainDat, estimator, nResamps) for x in range(n) for y in range(n)]
     
     if (order==3):
         trips = []
@@ -244,11 +253,11 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order=2, nResa
 #         trips = [list(trip) for trip in trips]
 #         print(f'{len(trips)} triplets generated')
         
-        args = [(triplet, graph, trainDat, nResamps) for triplet in trips]
+        args = [(triplet, graph, trainDat, estimator, nResamps) for triplet in trips]
     
     start = time.perf_counter()
     with concurrent.futures.ProcessPoolExecutor(max_workers=maxWorkers) as executor:
-        results = executor.map(calcInteraction_binTrick_withCI_parallel, args)  
+        results = executor.map(calcInteraction_withCI_parallel, args)  
     finish = time.perf_counter()
     if PrintBool: print(f'Time elapsed: {round(finish-start, 2)} secs')
     if PrintBool: print('calculation done, storing results...')
@@ -324,24 +333,31 @@ def main():
     # 3: order of interaction
     # 4: number of bootstrap resamples
     # 5: number of cores
-    
+    # 6: pVal table for Hartigan Dip test
+    # 7: string to determine estimation method
     
     notes = '_dip+KS'
     
+    if estimationMethod == 'probabilities':
+        estimator = calcInteraction_binTrick
+    elif estimationMethod == 'expectations':
+        estimator = calcInteraction_expectations
+    else:
+        print('Invalid estimation method -- terminating...')
     
-    if(len(sys.argv)<5):
-        print('Not enough arguments, terminating...')
+    if(len(sys.argv)<7):
+        print('Not enough arguments -- terminating...')
     else:        
         intOrder = int(sys.argv[3])
         nResamps = int(sys.argv[4])
         nCores = int(sys.argv[5])
         print('Starting calculation on ' + DSname)
-#         print('NOTE: low resample rate (100), should perhaps be larger.\n')                                         
-        
+        print('Using estimation method:  ', estimationMethod)
+                
         print(f'Calculating interactions at order {intOrder}')
         print(f'With {nResamps} bootstrap resamples')
         print(f'Parallelised over {nCores} cores. ')
-        calcInteractionsAndWriteNPYs(DSname+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, nResamps=nResamps)
+        calcInteractionsAndWriteNPYs(DSname+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
           
         
         print('***********DONE***********')
