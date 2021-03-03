@@ -65,6 +65,7 @@ data_and_graphs_ch.into {data_and_graphs_1pts; data_and_graphs_2pts; data_and_gr
 
 
 process estimateCoups_1pts {
+    label 'interactionEstimation'    
     
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
@@ -85,6 +86,7 @@ process estimateCoups_1pts {
 
 
 process estimateCoups_2pts {
+    label 'interactionEstimation'
     
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
@@ -105,6 +107,7 @@ process estimateCoups_2pts {
 
 
 process estimateCoups_3pts {
+    label 'interactionEstimation'
     
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
