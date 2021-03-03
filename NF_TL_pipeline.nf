@@ -79,7 +79,6 @@ process estimateCoups_1pts {
     
 
     """
-    mkdir THISWORKS1
     python ${estimationScript} ${dataSet} ${graph} 1 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals} ${params.estimationMethod}
     """
 
@@ -101,7 +100,6 @@ process estimateCoups_2pts {
     
 
     """
-    mkdir THISWORKS2
     python ${estimationScript} ${dataSet} ${graph} 2 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals} ${params.estimationMethod}
     """
 
@@ -123,7 +121,6 @@ process estimateCoups_3pts {
     
 
     """
-    mkdir THISWORKS3
     python ${estimationScript} ${dataSet} ${graph} 3 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals} ${params.estimationMethod}
     """
 
