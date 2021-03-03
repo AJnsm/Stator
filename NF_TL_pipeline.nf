@@ -6,7 +6,6 @@ process makeData {
 
     
     publishDir "${launchDir}/plots", mode: 'copy', pattern: '*.png'
-    publishDir "${launchDir}/embeddings", mode: 'copy', pattern: '*coords.csv'
         
     input:
     path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py"
