@@ -15,12 +15,12 @@ import scipy
 from scipy.stats import kstest
 from scipy.interpolate import interp1d
 
-import hartiganDip
+# import hartiganDip
 
 if PrintBool: print('Modules imported \n')
 
     
-if(len(sys.argv)<7):
+if(len(sys.argv)<8):
     print('Not enough arguments -- terminating...')
 dataPath = sys.argv[1]
 graphPath = sys.argv[2]
@@ -79,7 +79,7 @@ def conditionOnMB(genes, graph, dataSet, mode='0'):
             print('Invalid mode')
 
 
-    MB = list(set(MB) - set(genes)) #Remove the interacting genes from the markov Blanket.     
+    MB = list(set(MB) - set(genes)) #Remove the interacting genes from the markov Blanket.    
     data_conditioned = dataSet[(dataSet.iloc[:, MB]==0).all(axis=1)] #Set whole MB to zero.     
     return data_conditioned.iloc[:, genes]
 
@@ -191,9 +191,8 @@ def calcInteraction_withCI(genes, graph, dataSet, estimator, nResamps=1000):
     
     vals.sort()
     vals_noNan = vals[~np.isnan(vals)]
-
-    dip = hartiganDip.diptst(vals_noNan)[0]
-    dipPval = fromD2P(dip, len(vals_noNan))
+    # dip = hartiganDip.diptst(vals_noNan)[0]
+    # dipPval = fromD2P(dip, len(vals_noNan))
 
     ksStat = kstest(vals_noNan, lambda x: scipy.stats.norm.cdf(x, loc=vals_noNan.mean(), scale=vals_noNan.std()))[1]
 
@@ -201,8 +200,11 @@ def calcInteraction_withCI(genes, graph, dataSet, estimator, nResamps=1000):
 
     propDifSign = sum(np.sign(vals)==-np.sign(val0))/nResamps
     
-    # If it's *really* close to a unimodal distribution according to Dip or KS test, or doesn't have undef. resamples:
-    if((len(vals_noNan) == nResamps) | (dipPval>=0.99) | (ksStat>0.01)) : 
+    # # If it's *really* close to a unimodal distribution according to Dip or KS test, or doesn't have undef. resamples:
+    # if((len(vals_noNan) == nResamps) | (dipPval>=0.99) | (ksStat>0.01)) : 
+
+    if((len(vals_noNan) == nResamps) | (ksStat>0.01)) : 
+
         return [val0, CI[0], CI[1], propDifSign, genes]
     else:
         return [np.nan, np.nan, np.nan, np.nan, genes]      
