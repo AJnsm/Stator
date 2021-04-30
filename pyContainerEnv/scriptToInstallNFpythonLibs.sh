@@ -18,3 +18,4 @@ conda install -c bioconda scanpy
 conda install -c bioconda scrublet
 conda install -c anaconda mkl
 conda install -c conda-forge python-igraph
+conda install -c conda-forge loompy

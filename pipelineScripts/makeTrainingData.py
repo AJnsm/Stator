@@ -21,26 +21,29 @@ def none_or_str(value):
     return value
 
 
-my_parser = argparse.ArgumentParser(description='Prepare the training data')
+parser = argparse.ArgumentParser(description='Prepare the training data')
 
-parser.add_argument("dataSource", type=str, nargs='?', help="From which experiment does the data come (10X/Zeisel)")
-parser.add_argument("rawData", type=str, nargs='1', help="Path to the raw data file")
-parser.add_argument("clusters", type=str, nargs='?', help="Path to file with cluster annotation")
-parser.add_argument("nGenes", type=int, nargs='?', help="Number of genes to keep")
-parser.add_argument("nCells", type=int, nargs='1', help="Number of cells to keep")
-parser.add_argument("cellType", type=int, nargs='?', help="Which cluster/cell Type to use")
-parser.add_argument("bcDoublets", type=str, nargs='?', help="Path to file with barcodes of doublets")
+parser.add_argument("--dataType", type=str, nargs='?', help="From which experiment does the data come (10X/Zeisel)")
+parser.add_argument("--rawData", type=str, nargs=1, help="Path to the raw data file")
+parser.add_argument("--clusters", type=str, nargs='?', help="Path to file with cluster annotation")
+parser.add_argument("--nGenes", type=int, nargs='?', help="Number of genes to keep")
+parser.add_argument("--nCells", type=int, nargs='?', help="Number of cells to keep")
+parser.add_argument("--cellType", type=int, nargs='?', help="Which cluster/cell Type to use")
+parser.add_argument("--bcDoublets", type=str, nargs='?', help="Path to file with barcodes of doublets")
 
 args = parser.parse_args()
 
 
 
-
 # ****************** 10X QC analysis and selection: ******************
-if args.dataSource=='10X':
-
+if args.dataType=='10X':
+    rawData = args.rawData[0]
+    nGenes = args.nGenes
+    nCells = args.nCells
+    cellType = args.cellType
+    bcDoublets = args.bcDoublets[0]
     print("loading data")
-    scObj = sc.read_10x_h5(args.rawData)
+    scObj = sc.read_10x_h5(rawData)
     scObj.var_names_make_unique()
     scObj.obs['index'] = np.arange(len(scObj))
     print("data loaded!")
@@ -57,14 +60,13 @@ if args.dataSource=='10X':
 
     try:
         print('loading doublet data')
-        doubs = pd.read_csv(sys.argv[6], index_col=0)
+        doubs = pd.read_csv(bcDoublets, index_col=0)
         scObj.obs['doublet'] = doubs
     except:
         print('WARNING: continuing without doublet annotation.')
         scObj.obs['doublet'] = False
         
     clObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
-
     def filterForMouseB(bcs):
         libs_mouseB = np.array(list(map(lambda x: (x.split('-'))[1], bcs))).astype('int')>=70
         return bcs[libs_mouseB]
@@ -144,9 +146,11 @@ if args.dataSource=='10X':
 
 # ****************** ZEISEL selection: ******************
 
-elif args.dataSource=='Zeisel':
-    neurons = sc.read_loom(args.rawData+"/ZEISEL_neuronsCNS.loom")
-    astrocytes = sc.read_loom(args.rawData+"/ZEISEL_astrocytes.loom")
+elif args.dataType=='Zeisel':
+    nCells = args.nCells
+    nGenes = args.nGenes
+    neurons = sc.read_loom(args.rawData[0]+"/ZEISEL_neuronsCNS.loom")
+    astrocytes = sc.read_loom(args.rawData[0]+"/ZEISEL_astrocytes.loom")
     # neuroblasts_G = sc.read_loom(args.rawData+"/ZEISEL_neuroblastsGlut.loom")
     # neuroblasts_NG = sc.read_loom(args.rawData+"/ZEISEL_neuroblastsNon-Glut.loom")
 
@@ -161,9 +165,10 @@ elif args.dataSource=='Zeisel':
 
     # neuroblasts_NG.obs_names_make_unique()
     # neuroblasts_NG.var_names_make_unique()
-
-    genesNeurons = np.array(pd.read_csv(args.rawData+'/trainingData_CL07_DS1_10000Cells_0500Genes.csv').columns)
-    genesAstros = np.array(pd.read_csv(args.rawData+'/trainingData_CL10_DS1_10000Cells_0500Genes.csv').columns)
+    nG = '{:0>4}'.format(str(nGenes))
+    nC = '{:0>5}'.format(str(nCells))
+    genesNeurons = np.array(pd.read_csv(args.rawData[0]+f'/trainingData_CL07_DS1_{nC}Cells_{nG}Genes.csv').columns)
+    genesAstros = np.array(pd.read_csv(args.rawData[0]+f'/trainingData_CL10_DS1_{nC}Cells_{nG}Genes.csv').columns)
 
 
     def f(x):
@@ -187,17 +192,14 @@ elif args.dataSource=='Zeisel':
 
     astros_combined_bin = (astros500Genes>0)*1
 
-    neurons_combined_bin.iloc[:args.nCells].to_csv(f'../NF_TL/output/trainingData_ZEISEL_neurons_DS1_{args.nCells}Cells_0500Genes.csv', index=False)
-    neurons_combined_bin.iloc[args.nCells:].to_csv(f'../NF_TL/output/trainingData_ZEISEL_neurons_DS2_{args.nCells}Cells_0500Genes.csv', index=False)
-
-
     N = args.nCells
     if args.nCells>int(len(astros_combined_bin)/2):
-        
         N = int(len(astros_combined_bin)/2)
-    print('Keeping {N} astrocytes')    
-    neurons_combined_bin.iloc[:N].to_csv(f'../NF_TL/output/trainingData_ZEISEL_astrocytes_DS1_{N}Cells_0500Genes.csv', index=False)
-    neurons_combined_bin.iloc[N:2*N].to_csv(f'../NF_TL/output/trainingData_ZEISEL_astrocytes_DS2_{N}Cells_0500Genes.csv', index=False)
+
+    print(f'Keeping {N} astrocytes')    
+
+    neurons_combined_bin.iloc[:N].to_csv(f'trainingData_ZEISEL_astrocytes_DS1_{nC}Cells_{nG}Genes.csv', index=False)
+    neurons_combined_bin.iloc[N:2*N].to_csv(f'trainingData_ZEISEL_astrocytes_DS2_{nC}Cells_{nG}Genes.csv', index=False)
 
 else:
     print('ERROR: invalid data type, choose 10X or Zeisel.')

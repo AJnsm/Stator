@@ -14,18 +14,18 @@ process makeData {
     
     output:
     path "trainingData_*Genes.csv" into dataSets mode flatten
-    path "*.png" into plots
-    path "*coords.csv" into embeddings
+    path "*.png" optional true into plots
+    path "*coords.csv" optional true into embeddings
     
 
     script: 
-    if( dataType == '10X' )
+    if( params.dataType == '10X' )
         """
-        python ${dataScript} ${dataType} ${params.rawData} ${params.clusterFile} ${params.nGenes} ${params.nCells} ${cellType} ${params.doubletFile}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${params.rawData} --clusters ${params.clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cellType ${cellType} --bcDoublets ${params.doubletFile}
         """
-    else if( dataType == 'Zeisel' )
+    else if( params.dataType == 'Zeisel' )
         """
-        python ${dataScript} ${dataType} ${params.rawData} ${params.nCells}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${params.rawData} --nCells ${params.nCells} --nGenes ${params.nGenes}
         """
     else
         error "Invalid data type: choose 10X or Zeisel"
