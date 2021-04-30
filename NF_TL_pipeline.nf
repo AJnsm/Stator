@@ -10,19 +10,25 @@ process makeData {
 
     input:
     path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py"
-    path rawData from params.h5File
-    path clusters from params.clusterFile
-    path bcDoublets from params.doubletFile
     val cellType from cellTypes_ch
     
     output:
-    path "trainingData_CL*Genes.csv" into dataSets mode flatten
+    path "trainingData_*Genes.csv" into dataSets mode flatten
     path "*.png" into plots
     path "*coords.csv" into embeddings
     
-    """
-    python ${dataScript} ${rawData} ${clusters} ${params.nGenes} ${params.nCells} ${cellType} ${bcDoublets}
-    """
+
+    script: 
+    if( dataType == '10X' )
+        """
+        python ${dataScript} ${dataType} ${params.rawData} ${params.clusterFile} ${params.nGenes} ${params.nCells} ${cellType} ${params.doubletFile}
+        """
+    else if( dataType == 'Zeisel' )
+        """
+        python ${dataScript} ${dataType} ${params.rawData} ${params.nCells}
+        """
+    else
+        error "Invalid data type: choose 10X or Zeisel"
 }
 
 process estimatePCgraph {
