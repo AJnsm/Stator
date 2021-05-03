@@ -21,11 +21,11 @@ process makeData {
     script: 
     if( params.dataType == '10X' )
         """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${params.rawData} --clusters ${params.clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cellType ${cellType} --bcDoublets ${params.doubletFile}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${params.rawDataPath} --clusters ${params.clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cellType ${cellType} --bcDoublets ${params.doubletFile}
         """
     else if( params.dataType == 'Zeisel' )
         """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${params.rawData} --nCells ${params.nCells} --nGenes ${params.nGenes}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${params.rawDataPath} --nCells ${params.nCells} --nGenes ${params.nGenes}
         """
     else
         error "Invalid data type: choose 10X or Zeisel"
