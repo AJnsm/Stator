@@ -11,6 +11,9 @@ process makeData {
     input:
     path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py"
     val cellType from cellTypes_ch
+    path rawData from params.rawDataPath
+    path clusters from params.clusterFile
+    path bcDoublets from params.doubletFile
     
     output:
     path "trainingData_*Genes.csv" into dataSets mode flatten
@@ -21,11 +24,11 @@ process makeData {
     script: 
     if( params.dataType == '10X' )
         """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${params.rawDataPath} --clusters ${params.clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cellType ${cellType} --bcDoublets ${params.doubletFile}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cellType ${cellType} --bcDoublets ${bcDoublets}
         """
     else if( params.dataType == 'Zeisel' )
         """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${params.rawDataPath} --nCells ${params.nCells} --nGenes ${params.nGenes}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --nCells ${params.nCells} --nGenes ${params.nGenes}
         """
     else
         error "Invalid data type: choose 10X or Zeisel"
