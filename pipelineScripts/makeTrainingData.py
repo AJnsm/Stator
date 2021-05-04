@@ -165,6 +165,8 @@ elif args.dataType=='Zeisel':
 
     # neuroblasts_NG.obs_names_make_unique()
     # neuroblasts_NG.var_names_make_unique()
+
+
     nG = '{:0>4}'.format(str(nGenes))
     nC = '{:0>5}'.format(str(nCells))
     genesNeurons = np.array(pd.read_csv(args.rawData[0]+f'/trainingData_CL07_DS1_{nC}Cells_{nG}Genes.csv').columns)
@@ -193,11 +195,12 @@ elif args.dataType=='Zeisel':
     astros_combined_bin = (astros500Genes>0)*1
 
     N = args.nCells
-    if args.nCells>int(len(astros_combined_bin)/2):
-        N = int(len(astros_combined_bin)/2)
+    neurons_combined_bin.iloc[:N].to_csv(f'trainingData_ZEISEL_neurons_DS1_{nC}Cells_{nG}Genes.csv', index=False)
+    neurons_combined_bin.iloc[N:2*N].to_csv(f'trainingData_ZEISEL_neurons_DS2_{nC}Cells_{nG}Genes.csv', index=False)
+
+    N = min(args.nCells, int(len(astros_combined_bin)/2))
 
     print(f'Keeping {N} astrocytes')    
-
     neurons_combined_bin.iloc[:N].to_csv(f'trainingData_ZEISEL_astrocytes_DS1_{nC}Cells_{nG}Genes.csv', index=False)
     neurons_combined_bin.iloc[N:2*N].to_csv(f'trainingData_ZEISEL_astrocytes_DS2_{nC}Cells_{nG}Genes.csv', index=False)
 
