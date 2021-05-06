@@ -201,8 +201,8 @@ elif args.dataType=='Zeisel':
     N = min(args.nCells, int(len(astros_combined_bin)/2))
 
     print(f'Keeping {N} astrocytes')    
-    neurons_combined_bin.iloc[:N].to_csv(f'trainingData_ZEISEL_astrocytes_DS1_{nC}Cells_{nG}Genes.csv', index=False)
-    neurons_combined_bin.iloc[N:2*N].to_csv(f'trainingData_ZEISEL_astrocytes_DS2_{nC}Cells_{nG}Genes.csv', index=False)
+    astros_combined_bin.iloc[:N].to_csv(f'trainingData_ZEISEL_astrocytes_DS1_{nC}Cells_{nG}Genes.csv', index=False)
+    astros_combined_bin.iloc[N:2*N].to_csv(f'trainingData_ZEISEL_astrocytes_DS2_{nC}Cells_{nG}Genes.csv', index=False)
 
 else:
     print('ERROR: invalid data type, choose 10X or Zeisel.')
