@@ -26,7 +26,7 @@ process makeData {
         """
         python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cellType ${cellType} --bcDoublets ${bcDoublets}
         """
-    if( params.dataType == '10X' )
+    else if( params.dataType == '10X' )
         """
         python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cellType ${cellType} --bcDoublets ${bcDoublets}
         """
