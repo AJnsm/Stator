@@ -24,11 +24,11 @@ process makeData {
     script:
     if( params.dataType == 'agnostic' )
         """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cellType ${cellType} --bcDoublets ${bcDoublets}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${bcDoublets}
         """
     else if( params.dataType == '10X' )
         """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cellType ${cellType} --bcDoublets ${bcDoublets}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${bcDoublets}
         """
     else if( params.dataType == 'Zeisel' )
         """
