@@ -26,21 +26,129 @@ parser = argparse.ArgumentParser(description='Prepare the training data')
 parser.add_argument("--dataType", type=str, nargs='?', help="From which experiment does the data come (10X/Zeisel)")
 parser.add_argument("--rawData", type=str, nargs=1, help="Path to the raw data file")
 parser.add_argument("--clusters", type=str, nargs='?', help="Path to file with cluster annotation")
-parser.add_argument("--nGenes", type=int, nargs='?', help="Number of genes to keep")
-parser.add_argument("--nCells", type=int, nargs='?', help="Number of cells to keep")
-parser.add_argument("--cellType", type=int, nargs='?', help="Which cluster/cell Type to use")
-parser.add_argument("--bcDoublets", type=str, nargs='?', help="Path to file with barcodes of doublets")
+parser.add_argument("--nGenes", type=int, nargs=1, help="Number of genes to keep")
+parser.add_argument("--userGenes", type=int, nargs='?', help="List of genes to always include")
+parser.add_argument("--nCells", type=int, nargs=1, help="Number of cells to keep")
+parser.add_argument("--cluster", type=int, nargs='?', help="Which cluster/cell Type to use")
+parser.add_argument("--bcDoublets", type=str, nargs='?', help="Path to file with booleans for doublets")
 
 args = parser.parse_args()
+
+# ****************** data-agnostic QC analysis and selection: ******************
+
+
+if args.dataType=='agnostic':
+    rawData = args.rawData[0]
+    nGenes = int(args.nGenes[0])
+    nCells = int(args.nCells[0])
+    
+
+    print("loading data")
+    scObj = sc.read_csv(rawData).transpose()
+    print("data loaded!")
+
+    scObj.var_names_make_unique()
+    scObj.obs['index'] = np.arange(len(scObj))
+
+
+    print('loading user-defined genes')
+    try:
+        print('loading user-defined genes')
+        userGenes = pd.read_csv(args.userGenes)
+    except:
+        userGenes = np.array([])
+
+
+    print('adding doublet and cluster data')
+
+
+    try:
+        print('loading cluster data')
+        clusters = pd.read_csv(args.clusters, index_col=0)
+        scObj.obs['cluster'] = clusters.values
+        cl = int(args.cluster)
+
+    except:
+        print('WARNING: continuing without cluster file.')
+        scObj.obs['doublet'] = False
+        scObj.obs['cluster'] = 1
+        cl = 1
+
+
+
+
+    try:
+        print('loading doublet data')
+        doubs = pd.read_csv(args.bcDoublets[0], index_col=0)
+        scObj.obs['doublet'] = doubs
+    except:
+        print('WARNING: continuing without doublet annotation.')
+        scObj.obs['doublet'] = False
+        
+    clObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
+
+
+    sc.pp.normalize_total(clObj, target_sum=1e6)
+    sc.pp.log1p(clObj)
+    clObj.raw = clObj
+    sc.pp.highly_variable_genes(clObj, min_mean=0.0125, max_mean=7, min_disp=0.2)
+    sc.pl.highly_variable_genes(clObj, save=f'QC_HVG_selection_CL'+'{:0>2}'.format(cl) + '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
+    print('selected genes: ', sum(clObj.var['highly_variable']))
+
+    # # ------------ add embedding coords -------------
+    # print('Running PCA...')
+    # sc.tl.pca(clObj, n_comps=2)
+
+    # print('Running UMAP...')
+    # sc.pp.neighbors(clObj)
+    # sc.tl.umap(clObj)
+    # print('DONE with embeddings.')
+
+    hvgObj = clObj[:,clObj.var['highly_variable'].values]
+    sorted_HVG = hvgObj.var.sort_values('dispersions_norm', ascending=False).index
+    selected_genes = np.hstack([userGenes, [s for s in sorted_HVG if not s in userGenes]])
+    selected_genes = selected_genes[:nGenes]
+    print('Number of genes selected:   ', selected_genes.shape)
+    clObjBin = clObj.copy()
+    clObjBin.X = (clObjBin.X>0)*1
+
+    sc.pp.subsample(clObjBin, fraction=1.) #Shufle full cluster so that any selection is randomised. 
+
+
+    selectedCellsAndGenes = clObjBin[:,clObjBin.var.index.isin(selected_genes)]
+    clDF = pd.DataFrame(selectedCellsAndGenes.X.toarray())
+    clDF.columns = selectedCellsAndGenes.var.index
+    print('Final data set size: ', clDF.shape)
+
+    clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
+    clDF.iloc[nCells:2*nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
+
+    # pd.DataFrame(clObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
+    # pd.DataFrame(clObjBin.obsm['X_pca'][nCells:2*nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
+
+    # pd.DataFrame(clObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
+    # pd.DataFrame(clObjBin.obsm['X_umap'][nCells:2*nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
+
+
+      
+    print('****DONE****')
+
+
+
+
+
+
+
+
 
 
 
 # ****************** 10X QC analysis and selection: ******************
-if args.dataType=='10X':
+elif args.dataType=='10X':
     rawData = args.rawData[0]
     nGenes = args.nGenes
     nCells = args.nCells
-    cellType = args.cellType
+    cluster = args.cluster
     bcDoublets = args.bcDoublets[0]
     print("loading data")
     scObj = sc.read_10x_h5(rawData)
@@ -54,7 +162,7 @@ if args.dataType=='10X':
     clusters = pd.read_csv(args.clusters, index_col=0)
     nGenes = int(args.nGenes)
     nCells = int(args.nCells)
-    cl = int(args.cellType)
+    cl = int(args.cluster)
 
     scObj.obs['cluster'] = clusters
 
