@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-cellTypes_ch = Channel.from(1) 
+cellTypes_ch = Channel.from(params.clusterArray) 
 
 process makeData {
 

@@ -1,0 +1,8 @@
+{
+    "dataType" : "agnostic",
+    "rawDataPath" : "/Users/s1855283/Desktop/PhD/NF_TL/LukeLiverData/fullCounts.csv",
+    "clusterFile" : "/Users/s1855283/Desktop/PhD/NF_TL/LukeLiverData/clusters.csv",
+    "nGenes" : 10,
+    "nCells" : 20,
+    "clusterArray" : [1, 2]
+}
