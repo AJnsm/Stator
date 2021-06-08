@@ -21,7 +21,11 @@ process makeData {
     path "*coords.csv" optional true into embeddings
     
 
-    script: 
+    script:
+    if( params.dataType == 'agnostic' )
+        """
+        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cellType ${cellType} --bcDoublets ${bcDoublets}
+        """
     if( params.dataType == '10X' )
         """
         python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cellType ${cellType} --bcDoublets ${bcDoublets}
