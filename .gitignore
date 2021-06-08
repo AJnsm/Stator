@@ -2,6 +2,8 @@ __pycache__/
 output/*
 cellData/1M*
 cellData/ZeiselCells/*
+cellData/Luke*
+
 work
 
 graphs/*
