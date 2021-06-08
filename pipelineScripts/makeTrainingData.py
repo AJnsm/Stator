@@ -54,7 +54,7 @@ if args.dataType=='agnostic':
     print('loading user-defined genes')
     try:
         print('loading user-defined genes')
-        userGenes = pd.read_csv(args.userGenes)
+        userGenes = pd.read_csv(args.userGenes).columns.values
     except:
         userGenes = np.array([])
 
