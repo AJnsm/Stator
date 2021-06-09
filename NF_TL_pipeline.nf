@@ -52,7 +52,7 @@ process estimatePCgraph {
     tuple path(dataSet), path('*graph*.csv') into PC_and_ctrl_graphs_ch mode flatten
 
     """
-    Rscript ${PCgraphEstScript} ${dataSet} ${params.PCcores} ${params.PCalpha}
+    Rscript ${PCgraphEstScript} ${dataSet} ${params.cores_PC} ${params.PCalpha}
     """
  }
 
@@ -92,7 +92,7 @@ process estimateCoups_1pts {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 1 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals} ${params.estimationMethod}
+    python ${estimationScript} ${dataSet} ${graph} 1 ${params.bsResamps} ${params.cores_1pt} ${dipTest_pVals} ${params.estimationMethod}
     """
 
 }
@@ -113,7 +113,7 @@ process estimateCoups_2pts {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 2 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals} ${params.estimationMethod}
+    python ${estimationScript} ${dataSet} ${graph} 2 ${params.bsResamps} ${params.cores_2pt} ${dipTest_pVals} ${params.estimationMethod}
     """
 
 }
@@ -134,7 +134,7 @@ process estimateCoups_3pts {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 3 ${params.bsResamps} ${params.coupCores} ${dipTest_pVals} ${params.estimationMethod}
+    python ${estimationScript} ${dataSet} ${graph} 3 ${params.bsResamps} ${params.cores_3pt} ${dipTest_pVals} ${params.estimationMethod}
     """
 
 }
