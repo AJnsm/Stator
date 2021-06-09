@@ -1063,13 +1063,118 @@ body .markdown-body
 .highlight .vi{color:teal}
 .highlight .il{color:#009999}
 .highlight .gc{color:#999;background-color:#EAF2F5}
-</style><title>README</title></head><body><article class="markdown-body"><h1 id="cocomics">CoComics<a class="headerlink" href="#cocomics" title="Permanent link"></a></h1>
-<p><strong>Co</strong>nditional <strong>Co</strong>uplings in (transcript-)omics data. </p>
+</style><title>README</title></head><body><article class="markdown-body"><h1 id="cocomix">CoComix<a class="headerlink" href="#cocomix" title="Permanent link"></a></h1>
+<p><strong>Co</strong>nditional <strong>Co</strong>uplings in (transcript-)<strong>omics</strong> data. </p>
 <h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link"></a></h2>
-<p>This pipeline takes in single cell RNA-seq count matrices, and estimates interactions between the expressed genes. Once nextflow is installed on your machine, the pipeline can be pulled from Github, and runs in a Docker/Singularity container on the data you provide it with. It can run on your local machine, or on a cluster with the Sun Grid Engine scheduling system (like Eddie). </p>
+<p>This pipeline takes in single cell RNA-seq count matrices, and estimates gene-interactions at first, second, and third order. 
+The pipeline can be run directly from the command line. It pulls all code from Github, and the container from Dockerhub. It can run on your local machine, or on a cluster with the Sun Grid Engine scheduling system (like Eddie). </p>
+<h2 id="designdag">Design/DAG<a class="headerlink" href="#designdag" title="Permanent link"></a></h2>
+<p><img alt="Pipeline flow" src="/Users/s1855283/Desktop/PhD/NF_TL/diagram.pdf" /></p>
 <h2 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link"></a></h2>
 <p>Nextflow needs to be installed on the machine you want to run the pipeline on, which is as simple as running:</p>
 <div class="highlight"><pre>curl -s https://get.nextflow.io <span class="p">|</span> bash
 </pre></div>
 
-<p>Secondly, you must have access to either Docker or Singularity. Most clusters use Singularity for security reasons, but both will automatically pull the right container from DockerHub. (Conda environments are supported, but not recommended or guaranteed to work.)</p></article></body></html>
+<p>Secondly, you must have access to either Docker or Singularity. Most clusters (like Eddie) use Singularity for security reasons, but both will automatically pull the right container from DockerHub. (Conda environments are supported, but not recommended or guaranteed to work.)</p>
+<h2 id="input-files">Input files<a class="headerlink" href="#input-files" title="Permanent link"></a></h2>
+<ul>
+<li>A count matrix in csv format, where the rows are genes, and the columns cells. The index column should contain the gene names (does not matter in which format), and the first row/header should contain cell identifiers (either barcodes or an index). </li>
+<li>A list of integer cluster annotations per cell in csv format: This should be in the same order as the cells in the count matrix. </li>
+<li>(optional) A list of genes that should be included in the final analysis, irrespective of their variability.  </li>
+<li>(optional) A list of booleans on whether or not a cell should be included (e.g. on the basis of being a suspected doublet), in the same order as the cells in the count matrix. </li>
+</ul>
+<h2 id="output-files">Output files<a class="headerlink" href="#output-files" title="Permanent link"></a></h2>
+<ul>
+<li>.png plot with the mean-variance relationship among the genes (in <code>plots/</code>)</li>
+<li>.csv files with the nGenes x nCells count matrices after filtering (in <code>output/</code>). </li>
+<li>.csv files with the nGenes x nGenes adjacency matrices for the graphs used in the estimation steps (in <code>output/</code>). </li>
+<li>.npy files with the interactions at each order for each of the data sets (in <code>coupling_output/</code>). </li>
+<li>.npy files with the 95% confidence interval of the error on the interactions at each order for each of the data sets (in <code>coupling_output/</code>). </li>
+<li>.npy files with the interactions at each order for each of the data sets (in <code>coupling_output/</code>). </li>
+<li>some reports from Nextflow on resource usage etc. (in <code>reports/</code>).</li>
+</ul>
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link"></a></h2>
+<p>The pipeline takes in a number of parameters, which can be set by the user in the params.json file. </p>
+<table>
+<thead>
+<tr>
+<th align="left">Parameter</th>
+<th align="left">Default</th>
+<th align="left">Description</th>
+<th align="left">Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">rawDataPath</td>
+<td align="left">&lsquo; &lsquo;</td>
+<td align="left">absolute path to count matrix .csv</td>
+<td align="left">Yes</td>
+</tr>
+<tr>
+<td align="left">clusterFile</td>
+<td align="left">&lsquo; &lsquo;</td>
+<td align="left">absolute path to cluster annotation .csv</td>
+<td align="left">No</td>
+</tr>
+<tr>
+<td align="left">userGenes</td>
+<td align="left">&lsquo; &lsquo;</td>
+<td align="left">absolute path to list of required genes .csv</td>
+<td align="left">No</td>
+</tr>
+<tr>
+<td align="left">nGenes</td>
+<td align="left">5</td>
+<td align="left">Number of genes to keep</td>
+<td align="left">Yes</td>
+</tr>
+<tr>
+<td align="left">nCells</td>
+<td align="left">20</td>
+<td align="left">Number of cells to keep</td>
+<td align="left">Yes</td>
+</tr>
+<tr>
+<td align="left">clusterArray</td>
+<td align="left">0</td>
+<td align="left">List of which clusters to keep</td>
+<td align="left">No</td>
+</tr>
+<tr>
+<td align="left">pcAlpha</td>
+<td align="left">0.05</td>
+<td align="left">Significance threshold to use for the PC-algorithm</td>
+<td align="left">Yes</td>
+</tr>
+<tr>
+<td align="left">bsResamps</td>
+<td align="left">1000</td>
+<td align="left">Number of bootstrap resamples to use when calculating confidence intervals on interactions</td>
+<td align="left">Yes</td>
+</tr>
+<tr>
+<td align="left">nCells</td>
+<td align="left">20</td>
+<td align="left">Number of cells to keep</td>
+<td align="left">Yes</td>
+</tr>
+<tr>
+<td align="left">nCells</td>
+<td align="left">20</td>
+<td align="left">Number of cells to keep</td>
+<td align="left">Yes</td>
+</tr>
+</tbody>
+</table>
+<!--
+
+| dataType | 'agnostic'| Which QC steps to take (I recommend to leave this to default) | Yes 
+| fastq_screen_cache | `"${launchDir}/assets/fastq_screen"` | Path to folder containing fastq screen reference genomes, as generated by running the command fastq_screen --get_genomes. The folder must contain a folder named `FastQ_Screen_Genomes`, which again must contain a copy of `fastq_screen.conf`. The pipeline will automatically download these genomes if not specified. | No
+| bowtie2_index | `"s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/"` | Location of bowtie2 index files if using local cache | No
+| genome | `"genome"`| Name of the reference genome used for mapping. This should correspond to the file name for your local copy of hg19, if changed. | No 
+| fastqc_conf_pre | `"${workflow.projectDir}/data/before_limits.txt"` | `fastqc` configuration used for pre-screening| No
+| fastqc_conf_post | `"${workflow.projectDir}/data/after_limits.txt"`| `fastqc` configuration used after adapter trimming | No
+| report_dir | `"${workflow.launchDir}/reports/"`| Directory to place all reports in, defaults to a subfolder named `reports` in the launch directory. | No
+| run_gat | `true` | Whether to run GAT enrichment analysis against the ENSEMBL genome annotations | No
+| baal_chip_env | null | Only required when using the conda profile. Path to conda environment containing BaalChIP | Yes, if using the conda profile --></article></body></html>

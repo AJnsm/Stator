@@ -3,7 +3,7 @@ output/*
 cellData/1M*
 cellData/ZeiselCells/*
 Luke*
-
+*.pages
 work
 
 graphs/*
