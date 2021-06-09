@@ -4,10 +4,6 @@ cellTypes_ch = Channel.from(params.clusterArray)
 
 process makeData {
 
-    executor params.executor
-    cpus params.cores_makeData
-    memory params.mem_makeData
-
     publishDir "${launchDir}/plots", mode: 'copy', pattern: '*.png'
     publishDir "${launchDir}/embeddings", mode: 'copy', pattern: '*coords.csv'
 
