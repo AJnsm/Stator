@@ -9,7 +9,7 @@ The pipeline can be run directly from the command line. It pulls all code from G
 
 ## Design/DAG
 
-![Pipeline flow](diagram.pdf)
+![Pipeline flow](diagram.png)
 
 ## Requirements
 
