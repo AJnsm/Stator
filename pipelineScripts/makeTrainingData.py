@@ -31,17 +31,29 @@ parser.add_argument("--userGenes", type=int, nargs='?', help="List of genes to a
 parser.add_argument("--nCells", type=int, nargs=1, help="Number of cells to keep")
 parser.add_argument("--cluster", type=int, nargs='?', help="Which cluster/cell Type to use")
 parser.add_argument("--bcDoublets", type=str, nargs='?', help="Path to file with booleans for doublets")
+parser.add_argument("--twoReplicates", type=bool, nargs='?', const = False, help="Boolean for constructing two replicates")
 
 args = parser.parse_args()
+
+
+rawData = args.rawData[0]
+nGenes = int(args.nGenes[0])
+nCells = int(args.nCells[0])
+twoReps = args.twoReplicates
+
+try:
+    print('loading user-defined genes')
+    userGenes = pd.read_csv(args.userGenes).columns.values
+except:
+    print('NOTE: continuing without user-defined genes')
+    userGenes = np.array([])
+
 
 # ****************** data-agnostic QC analysis and selection: ******************
 
 
 if args.dataType=='agnostic':
-    rawData = args.rawData[0]
-    nGenes = int(args.nGenes[0])
-    nCells = int(args.nCells[0])
-    
+
 
     print("loading data")
     scObj = sc.read_csv(rawData).transpose()
@@ -51,7 +63,6 @@ if args.dataType=='agnostic':
     scObj.obs['index'] = np.arange(len(scObj))
 
 
-    print('loading user-defined genes')
     try:
         print('loading user-defined genes')
         userGenes = pd.read_csv(args.userGenes).columns.values
@@ -69,7 +80,7 @@ if args.dataType=='agnostic':
         cl = int(args.cluster)
 
     except:
-        print('WARNING: continuing without cluster file.')
+        print('NOTE: continuing without cluster file.')
         scObj.obs['doublet'] = False
         scObj.obs['cluster'] = 1
         cl = 1
@@ -82,7 +93,7 @@ if args.dataType=='agnostic':
         doubs = pd.read_csv(args.bcDoublets[0], index_col=0)
         scObj.obs['doublet'] = doubs
     except:
-        print('WARNING: continuing without doublet annotation.')
+        print('NOTE: continuing without doublet annotation.')
         scObj.obs['doublet'] = False
         
     clObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
@@ -118,7 +129,9 @@ if args.dataType=='agnostic':
     selectedCellsAndGenes = clObjBin[:,clObjBin.var.index.isin(selected_genes)]
     clDF = pd.DataFrame(selectedCellsAndGenes.X.toarray())
     clDF.columns = selectedCellsAndGenes.var.index
-    print('Final data set size: ', clDF.shape)
+    print('Final QCd data set size: ', clDF.shape)
+
+
 
     clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
     clDF.iloc[nCells:2*nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
@@ -171,7 +184,7 @@ elif args.dataType=='10X':
         doubs = pd.read_csv(bcDoublets, index_col=0)
         scObj.obs['doublet'] = doubs
     except:
-        print('WARNING: continuing without doublet annotation.')
+        print('NOTE: continuing without doublet annotation.')
         scObj.obs['doublet'] = False
         
     clObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
