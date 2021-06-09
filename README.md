@@ -24,3 +24,5 @@ curl -s https://get.nextflow.io | bash
 Secondly, you must have access to either Docker or Singularity. Most clusters (like Eddie) use Singularity for security reasons, but both will automatically pull the right container from DockerHub. (Conda environments are supported, but not recommended or guaranteed to work.)
 
 ## Input files
+
+* count matrices in csv format. 
