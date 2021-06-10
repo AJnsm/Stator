@@ -54,10 +54,9 @@ These affect the calculation and the results:
 | pcAlpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
 | bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Yes |
 | twoReplicates | false | Boolean to decide on constructing two replicates from the data | Yes |
-| nCells | 20 | Number of cells to keep | Yes |
 
 
-And these only affect the resources accessible to each of the processes:
+And these affect the resources accessible to each of the processes, but shouldn't affect the results:
 | Parameter | Default | Description | Required? | 
 | :----- | :----- | :----- | :-- |
 | executor | 'local' | How to execute the pipeline ('sge' for cluster usage) | Yes |
