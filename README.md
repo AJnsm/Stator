@@ -75,7 +75,7 @@ First, you need to pull the latest version of the pipeline from Github. This is 
 
 
 ```bash
-nextflow pull AJnsm/NF_TL_pipeline
+nextflow pull AJnsm/NF_TL_pipeline -r develop
 ```
 Currently, the branch to use is called `develop`. On a cluster, you need to load Singularity. On Eddie this is done with 
 
