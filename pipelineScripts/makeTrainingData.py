@@ -56,7 +56,7 @@ if args.dataType=='agnostic':
 
 
     print("loading data")
-    scObj = sc.read_csv(rawData).transpose()
+    scObj = sc.read_csv(rawData)
     print("data loaded!")
 
     scObj.var_names_make_unique()
