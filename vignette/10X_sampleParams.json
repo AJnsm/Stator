@@ -1,0 +1,36 @@
+{
+      "dataType"    : "agnostic",
+      "rawDataPath" : "/exports/igmm/eddie/ponting-lab/abel/10X_cells/NF_TL/vignette/10X_sampleData.csv",
+      "clusterFile" : "/exports/igmm/eddie/ponting-lab/abel/10X_cells/NF_TL/vignette/10X_sampleClusters.csv",
+      "userGenes"   : "/exports/igmm/eddie/ponting-lab/abel/10X_cells/NF_TL/vignette/10X_userGenes.csv",
+      "nGenes"      : 10,
+      "nCells"      : 20,
+      "clusterArray": [7, 10],
+      "PCalpha"     : 0.05,
+      "bsResamps"   : 500,
+      "twoReplicates": false,
+
+      "executor"    : "local",
+      "maxQueueSize"  : 25,
+
+      "cores_makeData": 1,
+      "cores_PC"      : 2,
+      "cores_MCMC"    : 2,
+      "cores_1pt"     : 2,
+      "cores_2pt"     : 2,
+      "cores_3pt"     : 2,
+
+      "mem_makeData"  : "4G",
+      "mem_PC"        : "4G",
+      "mem_MCMC"      : "4G",
+      "mem_1pt"       : "4G",
+      "mem_2pt"       : "4G",
+      "mem_3pt"       : "4G",
+
+      "time_makeData" : "1h",
+      "time_PC"       : "1h",
+      "time_MCMC"     : "1h",
+      "time_1pt"      : "1h",
+      "time_2pt"      : "1h",
+      "time_3pt"      : "1h"
+  }

@@ -103,8 +103,10 @@ Some explanation:
 We are now ready to run the pipeline. Make sure you are on a node of the scheduler that allows for automated job submission (e.g. the wild-west nodes on Eddie), and that you are in the right directory:
 
 ```bash
+[you@wild-west-node]$ pwd
+> /absolute/path/to/this/vignette/
 [you@wild-west-node]$ ls
-> 10X_sampleClusters.csv  10X_sampleData.csv  10X_userGenes.csv  params_test.json  
+> 10X_sampleClusters.csv  10X_sampleData.csv  10X_userGenes.csv  10X_sampleParams.json  Vignette.md  
 
 ```
 
