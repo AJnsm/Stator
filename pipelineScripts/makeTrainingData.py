@@ -31,7 +31,7 @@ parser.add_argument("--userGenes", type=str, nargs='?', help="List of genes to a
 parser.add_argument("--nCells", type=int, nargs=1, help="Number of cells to keep")
 parser.add_argument("--cluster", type=int, nargs='?', help="Which cluster/cell Type to use")
 parser.add_argument("--bcDoublets", type=str, nargs='?', help="Path to file with booleans for doublets")
-parser.add_argument("--twoReplicates", type=bool, nargs='?', const = False, help="Boolean for constructing two replicates")
+parser.add_argument("--twoReplicates", type=bool, nargs='?', help="Boolean for constructing two replicates")
 
 args = parser.parse_args()
 

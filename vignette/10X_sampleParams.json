@@ -8,7 +8,7 @@
       "clusterArray": [7, 10],
       "PCalpha"     : 0.05,
       "bsResamps"   : 500,
-      "twoReplicates": false,
+      "twoReplicates": "False",
 
       "executor"    : "local",
       "maxQueueSize"  : 25,
