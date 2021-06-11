@@ -129,7 +129,7 @@ if args.dataType=='agnostic':
     clDF.columns = selectedCellsAndGenes.var.index
     print('Final QCd data set size: ', clDF.shape)
 
-
+    print('Two replicates?  ', twoReps)
     if twoReps:
         clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
         clDF.iloc[nCells:2*nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
