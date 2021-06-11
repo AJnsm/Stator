@@ -22,7 +22,7 @@ process makeData {
     script:
     if( params.dataType == 'agnostic' )
         """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${params.doubletFile}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${params.doubletFile} --userGenes ${params.userGenes} --twoReplicates ${params.twoReplicates}
         """
     else if( params.dataType == '10X' )
         """
