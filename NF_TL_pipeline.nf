@@ -12,6 +12,7 @@ process makeData {
     val cellType from cellTypes_ch
     path rawData from params.rawDataPath
     path clusters from params.clusterFile
+    path userGenes from params.userGenes
     
     output:
     path "trainingData_*Genes.csv" into dataSets mode flatten
@@ -22,7 +23,7 @@ process makeData {
     script:
     if( params.dataType == 'agnostic' )
         """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${params.doubletFile} --userGenes ${params.userGenes} --twoReplicates ${params.twoReplicates}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${params.doubletFile} --userGenes ${userGenes} --twoReplicates ${params.twoReplicates}
         """
     else if( params.dataType == '10X' )
         """
