@@ -66,7 +66,7 @@ if args.dataType=='agnostic':
     try:
         print('loading user-defined genes')
         userGenes = pd.read_csv(args.userGenes).columns.values
-        nGenes = min(nGenes, len(userGenes))
+        nGenes = max(nGenes, len(userGenes))
     except:
         userGenes = np.array([])
 
@@ -85,9 +85,6 @@ if args.dataType=='agnostic':
         scObj.obs['doublet'] = False
         scObj.obs['cluster'] = 1
         cl = 1
-
-
-
 
     try:
         print('loading doublet data')

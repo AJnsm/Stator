@@ -1,6 +1,10 @@
 # CoComix
 **Co**nditional **Co**uplings in (transcript-)**omics** data. 
 
+or maybe:
+# SCIBERNets
+
+**S**ingle **C**ell **I**nteractions as **B**oolean **E**xpression **R**egulation **Net**works. 
 
 ## Introduction
 This pipeline takes in single cell RNA-seq count matrices, and estimates gene-interactions at first, second, and third order. 
