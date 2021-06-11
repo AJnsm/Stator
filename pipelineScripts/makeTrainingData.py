@@ -27,7 +27,7 @@ parser.add_argument("--dataType", type=str, nargs='?', help="From which experime
 parser.add_argument("--rawData", type=str, nargs=1, help="Path to the raw data file")
 parser.add_argument("--clusters", type=str, nargs='?', help="Path to file with cluster annotation")
 parser.add_argument("--nGenes", type=int, nargs=1, help="Number of genes to keep")
-parser.add_argument("--userGenes", type=int, nargs='?', help="List of genes to always include")
+parser.add_argument("--userGenes", type=str, nargs='?', help="List of genes to always include")
 parser.add_argument("--nCells", type=int, nargs=1, help="Number of cells to keep")
 parser.add_argument("--cluster", type=int, nargs='?', help="Which cluster/cell Type to use")
 parser.add_argument("--bcDoublets", type=str, nargs='?', help="Path to file with booleans for doublets")
