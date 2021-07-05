@@ -66,6 +66,7 @@ if args.dataType=='agnostic':
     try:
         print('loading user-defined genes')
         userGenes = pd.read_csv(args.userGenes).columns.values
+        userGenes = [g for g in userGenes if g in scObj.var.index]
         nGenes = max(nGenes, len(userGenes))
     except:
         userGenes = np.array([])
