@@ -300,7 +300,11 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
     np.save(f'interactions_order{order}_{ID}_CI_F', TLcoups_nonZero)
 
 
+
     # ********** writing Cytoscape files ************
+    
+    print(TLcoups.shape)
+    print(TLcoups.columns)
     def compTups(t1, t2):
         for i in range(len(t1)):
             if t1[i]!=t2[i]:
@@ -328,7 +332,6 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
             mostSig = np.argmin(dups['F'])
             us_mostSig.append(dups.iloc[mostSig])
         df = pd.DataFrame(data = us_mostSig)
-        df.reset_index(drop=True)
         return df
 
 
@@ -368,6 +371,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
         with open("edgeList_interactions_order{order}_collapsed_{ID}.csv", 'w', encoding = 'utf-8') as f:
             f.write('S1,C1,S2,C2\n')
             arr = onlyUniques_mostSig(arr2SIF(TLcoups, TLcoups_nonZero, alpha = edgeListAlpha))
+            print(arr)
             geneSets = [set(x) for x in arr['genes']]
             
             for i in range(len(geneSets)):
