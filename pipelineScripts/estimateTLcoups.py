@@ -372,22 +372,23 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
             f.write('S1,C1,S2,C2\n')
             arr = onlyUniques_mostSig(arr2SIF(TLcoups, TLcoups_nonZero, alpha = edgeListAlpha))
             print(arr)
-            geneSets = [set(x) for x in arr['genes']]
-            
-            for i in range(len(geneSets)):
-                for j in range(i+1, len(geneSets)):
-                    g1 = list(geneSets[i])
-                    g2 = list(geneSets[j])
-                    for k in range(len(geneSets[i].intersection(geneSets[j]))):
-                        f.write(f'{genes[g1[0]]};{genes[g1[1]]};{genes[g1[2]]}')
-                        f.write(',')
-                        f.write(str(round(arr.iloc[i]['coup'], 5)))
-                        f.write(',')
-                        
-                        f.write(f'{genes[g2[0]]};{genes[g2[1]]};{genes[g2[2]]}')
-                        f.write(',')
-                        f.write(str(round(arr.iloc[i]['coup'], 5)))
-                        f.write('\n')
+            if len(arr)>0:
+                geneSets = [set(x) for x in arr['genes']]
+                
+                for i in range(len(geneSets)):
+                    for j in range(i+1, len(geneSets)):
+                        g1 = list(geneSets[i])
+                        g2 = list(geneSets[j])
+                        for k in range(len(geneSets[i].intersection(geneSets[j]))):
+                            f.write(f'{genes[g1[0]]};{genes[g1[1]]};{genes[g1[2]]}')
+                            f.write(',')
+                            f.write(str(round(arr.iloc[i]['coup'], 5)))
+                            f.write(',')
+                            
+                            f.write(f'{genes[g2[0]]};{genes[g2[1]]};{genes[g2[2]]}')
+                            f.write(',')
+                            f.write(str(round(arr.iloc[i]['coup'], 5)))
+                            f.write('\n')
 
 
 
