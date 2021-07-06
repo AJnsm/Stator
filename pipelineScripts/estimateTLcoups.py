@@ -29,7 +29,7 @@ nResamps = int(sys.argv[4])
 nCores = int(sys.argv[5])   
 pValPath = sys.argv[6]
 estimationMethod = sys.argv[7]
-edgeListAlpha = sys.argv[8]
+edgeListAlpha = float(sys.argv[8])
 
 
 trainDat = pd.read_csv(dataPath)
