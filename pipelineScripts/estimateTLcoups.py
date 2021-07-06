@@ -304,7 +304,6 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
     # ********** writing Cytoscape files ************
     
     print(TLcoups.shape)
-    print(TLcoups.columns)
     def compTups(t1, t2):
         for i in range(len(t1)):
             if t1[i]!=t2[i]:
