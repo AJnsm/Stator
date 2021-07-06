@@ -303,8 +303,6 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
 
     # ********** writing Cytoscape files ************
     
-    print(TLcoups.shape)
-    print(edgeListAlpha)
     def compTups(t1, t2):
         for i in range(len(t1)):
             if t1[i]!=t2[i]:
@@ -336,7 +334,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
 
 
     if (order==2):
-        with open("edgeList_interactions_order{order}_{ID}.csv", 'w', encoding = 'utf-8') as f:
+        with open(f"edgeList_interactions_order{order}_{ID}.csv", 'w', encoding = 'utf-8') as f:
             f.write('G1,G2,coup,1-F\n')
             for i, row in onlyUniques_mostSig(arr2SIF(TLcoups, TLcoups_nonZero, alpha = edgeListAlpha)).iterrows():
                 s = f"{genes[row['genes'][0]]},{genes[row['genes'][1]]},"
@@ -346,7 +344,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
                 f.write('\n')
 
     if (order==3):
-        with open("edgeList_interactions_order{order}_{ID}.csv", 'w', encoding = 'utf-8') as f:
+        with open(f"edgeList_interactions_order{order}_{ID}.csv", 'w', encoding = 'utf-8') as f:
             f.write('G1,G2,coup,1-F\n')
             for i, row in onlyUniques_mostSig(arr2SIF(TLcoups, TLcoups_nonZero, alpha = edgeListAlpha)).iterrows():
                 s = f"{genes[row['genes'][0]]},{genes[row['genes'][1]]},"
@@ -368,10 +366,9 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
                 f.write('\n')
 
 
-        with open("edgeList_interactions_order{order}_collapsed_{ID}.csv", 'w', encoding = 'utf-8') as f:
+        with open(f"edgeList_interactions_order{order}_collapsed_{ID}.csv", 'w', encoding = 'utf-8') as f:
             f.write('S1,C1,S2,C2\n')
             arr = onlyUniques_mostSig(arr2SIF(TLcoups, TLcoups_nonZero, alpha = edgeListAlpha))
-            print(arr)
             if len(arr)>0:
                 geneSets = [set(x) for x in arr['genes']]
                 
