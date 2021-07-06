@@ -223,10 +223,11 @@ def calcInteraction_withCI_parallel(args, nResamps=1000):
 def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimator, nResamps=1000):
     
     # if PrintBool: print(f'Starting with {ID}...')
-    n = len(trainDat.columns)
+    genes = trainDat.columns
+    n = len(genes)
 
 
-    #We're now doing every interaction twice, but that's ok since they come with different markov blankets
+    #We're now doing every interaction multiple times, but that's ok since they come with different markov blankets
     #(As long as mode is not set to 'Min')
     
     if (order==1):
@@ -296,6 +297,94 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
     np.save(f'interactions_order{order}_{ID}_CI_LB', TLcoups_LB)
     np.save(f'interactions_order{order}_{ID}_CI_UB', TLcoups_UB)
     np.save(f'interactions_order{order}_{ID}_CI_F', TLcoups_nonZero)
+
+
+    # ********** writing Cytoscape files ************
+    def compTups(t1, t2):
+        for i in range(len(t1)):
+            if t1[i]!=t2[i]:
+                return False
+        else:
+            return True
+
+    def arr2SIF(coups, Fs, alpha = 0.05):    
+        nanMask = (~np.isnan(coups))
+        fMask = (Fs<=alpha)
+        
+        sigCoups = np.array(np.where(nanMask & fMask)).T
+        
+        
+        return pd.DataFrame.from_dict({'genes' : [sigCoup for sigCoup in sigCoups],
+                   'coup' : [coups[tuple(sigCoup)] for sigCoup in sigCoups],
+                   'F' : [Fs[tuple(sigCoup)] for sigCoup in sigCoups]})
+
+    def onlyUniques_mostSig(sigArr):
+        us_mostSig = []
+        trips = [tuple(np.sort(gs)) for gs in sigArr['genes'].values]
+        us, inds, cs = np.unique(trips, axis=0, return_index=True, return_counts=True)
+        for i, u in enumerate(us):
+            dups = sigArr[[compTups(x, u) for x in trips]]
+            mostSig = np.argmin(dups['F'])
+            us_mostSig.append(dups.iloc[mostSig])
+        df = pd.DataFrame(data = us_mostSig)
+        df.reset_index(drop=True)
+        return df
+
+
+    if (order==2):
+        with open("edgeList_interactions_order{order}_{ID}.csv", 'w', encoding = 'utf-8') as f:
+            f.write('G1,G2,coup,1-F\n')
+            for i, row in onlyUniques_mostSig(arr2SIF(TLcoups, TLcoups_nonZero, alpha = edgeListAlpha)).iterrows():
+                s = f"{genes[row['genes'][0]]},{genes[row['genes'][1]]},"
+                f.write(s)
+                f.write(str(round(row['coup'], 5)) + ',')
+                f.write(str(round(1-row['F'], 5)))
+                f.write('\n')
+
+    if (order==3):
+        with open("edgeList_interactions_order{order}_{ID}.csv", 'w', encoding = 'utf-8') as f:
+            f.write('G1,G2,coup,1-F\n')
+            for i, row in onlyUniques_mostSig(arr2SIF(TLcoups, TLcoups_nonZero, alpha = edgeListAlpha)).iterrows():
+                s = f"{genes[row['genes'][0]]},{genes[row['genes'][1]]},"
+                f.write(s)
+                f.write(str(round(row['coup'], 5)) + ',')
+                f.write(str(round(1-row['F'], 5)))
+                f.write('\n')
+                
+                s = f"{genes[row['genes'][1]]},{genes[row['genes'][2]]},"
+                f.write(s)
+                f.write(str(round(row['coup'], 5)) + ',')
+                f.write(str(round(1-row['F'], 5)))
+                f.write('\n')
+                
+                s = f"{genes[row['genes'][0]]},{genes[row['genes'][2]]},"
+                f.write(s)
+                f.write(str(round(row['coup'], 5)) + ',')
+                f.write(str(round(1-row['F'], 5)))
+                f.write('\n')
+
+
+        with open("edgeList_interactions_order{order}_collapsed_{ID}.csv", 'w', encoding = 'utf-8') as f:
+            f.write('S1,C1,S2,C2\n')
+            arr = onlyUniques_mostSig(arr2SIF(TLcoups, TLcoups_nonZero, alpha = edgeListAlpha))
+            geneSets = [set(x) for x in arr['genes']]
+            
+            for i in range(len(geneSets)):
+                for j in range(i+1, len(geneSets)):
+                    g1 = list(geneSets[i])
+                    g2 = list(geneSets[j])
+                    for k in range(len(geneSets[i].intersection(geneSets[j]))):
+                        f.write(f'{genes[g1[0]]};{genes[g1[1]]};{genes[g1[2]]}')
+                        f.write(',')
+                        f.write(str(round(arr.iloc[i]['coup'], 5)))
+                        f.write(',')
+                        
+                        f.write(f'{genes[g2[0]]};{genes[g2[1]]};{genes[g2[2]]}')
+                        f.write(',')
+                        f.write(str(round(arr.iloc[i]['coup'], 5)))
+                        f.write('\n')
+
+
 
     if PrintBool: print(f'DONE with {ID}...\n')
 

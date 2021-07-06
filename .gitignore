@@ -15,4 +15,5 @@ doubTest.py
 .nextflow*
 *.ipynb*
 *.npz
+*.icloud
 *~
