@@ -309,7 +309,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
             return True
 
     def arr2SIF(coups, Fs, alpha = 0.05):    
-        nanMask = (~np.isnan(coups))
+        nanMask = (~np.isnan(np.array(coups).astype(float)))
         fMask = (Fs<=alpha)
         
         sigCoups = np.array(np.where(nanMask & fMask)).T
