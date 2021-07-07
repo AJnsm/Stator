@@ -384,7 +384,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
                             
                             f.write(f'{genes[g2[0]]};{genes[g2[1]]};{genes[g2[2]]}')
                             f.write(',')
-                            f.write(str(round(arr.iloc[i]['coup'], 5)))
+                            f.write(str(round(arr.iloc[j]['coup'], 5)))
                             f.write('\n')
 
 
