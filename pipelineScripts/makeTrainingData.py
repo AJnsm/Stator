@@ -95,37 +95,37 @@ if args.dataType=='agnostic':
         print('NOTE: continuing without doublet annotation.')
         scObj.obs['doublet'] = False
         
-    clObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
+    scObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
 
 
-    sc.pp.normalize_total(clObj, target_sum=1e6)
-    sc.pp.log1p(clObj)
-    clObj.raw = clObj
-    sc.pp.highly_variable_genes(clObj, min_mean=0.0125, max_mean=7, min_disp=0.2)
-    sc.pl.highly_variable_genes(clObj, save=f'QC_HVG_selection_CL'+'{:0>2}'.format(cl) + '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
-    print('selected genes: ', sum(clObj.var['highly_variable']))
+    sc.pp.normalize_total(scObj, target_sum=1e6)
+    sc.pp.log1p(scObj)
+    scObj.raw = scObj
+    sc.pp.highly_variable_genes(scObj, min_mean=0.0125, max_mean=7, min_disp=0.2)
+    sc.pl.highly_variable_genes(scObj, save=f'QC_HVG_selection_CL'+'{:0>2}'.format(cl) + '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
+    print('selected genes: ', sum(scObj.var['highly_variable']))
 
     # # ------------ add embedding coords -------------
     # print('Running PCA...')
-    # sc.tl.pca(clObj, n_comps=2)
+    # sc.tl.pca(scObj, n_comps=2)
 
     # print('Running UMAP...')
-    # sc.pp.neighbors(clObj)
-    # sc.tl.umap(clObj)
+    # sc.pp.neighbors(scObj)
+    # sc.tl.umap(scObj)
     # print('DONE with embeddings.')
 
-    hvgObj = clObj[:,clObj.var['highly_variable'].values]
+    hvgObj = scObj[:,scObj.var['highly_variable'].values]
     sorted_HVG = hvgObj.var.sort_values('dispersions_norm', ascending=False).index
     selected_genes = np.hstack([userGenes, [s for s in sorted_HVG if not s in userGenes]])
     selected_genes = selected_genes[:nGenes]
     print('Number of genes selected:   ', selected_genes.shape)
-    clObjBin = clObj.copy()
-    clObjBin.X = (clObjBin.X>0)*1
+    scObjBin = scObj.copy()
+    scObjBin.X = (scObjBin.X>0)*1
 
-    sc.pp.subsample(clObjBin, fraction=1.) #Shufle full cluster so that any selection is randomised. 
+    sc.pp.subsample(scObjBin, fraction=1.) #Shufle full cluster so that any selection is randomised. 
 
 
-    selectedCellsAndGenes = clObjBin[:,clObjBin.var.index.isin(selected_genes)]
+    selectedCellsAndGenes = scObjBin[:,scObjBin.var.index.isin(selected_genes)]
     clDF = pd.DataFrame(selectedCellsAndGenes.X.toarray())
     clDF.columns = selectedCellsAndGenes.var.index
     print('Final QCd data set size: ', clDF.shape)
@@ -139,11 +139,11 @@ if args.dataType=='agnostic':
         clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
 
 
-    # pd.DataFrame(clObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
-    # pd.DataFrame(clObjBin.obsm['X_pca'][nCells:2*nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
+    # pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
+    # pd.DataFrame(scObjBin.obsm['X_pca'][nCells:2*nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
 
-    # pd.DataFrame(clObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
-    # pd.DataFrame(clObjBin.obsm['X_umap'][nCells:2*nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
+    # pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS1_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
+    # pd.DataFrame(scObjBin.obsm['X_umap'][nCells:2*nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_DS2_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
 
 
       
