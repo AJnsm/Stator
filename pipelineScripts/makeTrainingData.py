@@ -41,16 +41,7 @@ nGenes = int(args.nGenes[0])
 nCells = int(args.nCells[0])
 twoReps = bool(args.twoReplicates)
 
-try:
-    print('loading user-defined genes (make sure dataType is agnostic!)')
-    print('file with user genes:  ', args.userGenes)
-    userGenes = pd.read_csv(args.userGenes).columns.values
-    userGenes = [g for g in userGenes if g in scObj.var.index]
-    nGenes = max(nGenes, len(userGenes))
-except Exception as e:
-    print(e)
-    print('NOTE: continuing without user-defined genes')
-    userGenes = np.array([])
+
 
 
 # ****************** data-agnostic QC analysis and selection: ******************
@@ -67,13 +58,16 @@ if args.dataType=='agnostic':
     scObj.obs['index'] = np.arange(len(scObj))
 
 
-    # try:
-    #     print('loading user-defined genes')
-    #     userGenes = pd.read_csv(args.userGenes).columns.values
-    #     userGenes = [g for g in userGenes if g in scObj.var.index]
-    #     nGenes = max(nGenes, len(userGenes))
-    # except:
-    #     userGenes = np.array([])
+    try:
+        print('loading user-defined genes')
+        print('file with user genes:  ', args.userGenes)
+        userGenes = pd.read_csv(args.userGenes).columns.values
+        userGenes = [g for g in userGenes if g in scObj.var.index]
+        nGenes = max(nGenes, len(userGenes))
+    except Exception as e:
+        print(e)
+        print('NOTE: continuing without user-defined genes')
+        userGenes = np.array([])
 
 
     print('adding doublet and cluster data')
