@@ -47,7 +47,8 @@ try:
     userGenes = pd.read_csv(args.userGenes).columns.values
     userGenes = [g for g in userGenes if g in scObj.var.index]
     nGenes = max(nGenes, len(userGenes))
-except:
+except Exception as e:
+    print(e)
     print('NOTE: continuing without user-defined genes')
     userGenes = np.array([])
 
@@ -66,13 +67,13 @@ if args.dataType=='agnostic':
     scObj.obs['index'] = np.arange(len(scObj))
 
 
-    try:
-        print('loading user-defined genes')
-        userGenes = pd.read_csv(args.userGenes).columns.values
-        userGenes = [g for g in userGenes if g in scObj.var.index]
-        nGenes = max(nGenes, len(userGenes))
-    except:
-        userGenes = np.array([])
+    # try:
+    #     print('loading user-defined genes')
+    #     userGenes = pd.read_csv(args.userGenes).columns.values
+    #     userGenes = [g for g in userGenes if g in scObj.var.index]
+    #     nGenes = max(nGenes, len(userGenes))
+    # except:
+    #     userGenes = np.array([])
 
 
     print('adding doublet and cluster data')
