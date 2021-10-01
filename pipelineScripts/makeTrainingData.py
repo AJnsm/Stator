@@ -42,8 +42,11 @@ nCells = int(args.nCells[0])
 twoReps = bool(args.twoReplicates)
 
 try:
-    print('loading user-defined genes')
+    print('loading user-defined genes (make sure dataType is agnostic!)')
+    print('file with user genes:  ', args.userGenes)
     userGenes = pd.read_csv(args.userGenes).columns.values
+    userGenes = [g for g in userGenes if g in scObj.var.index]
+    nGenes = max(nGenes, len(userGenes))
 except:
     print('NOTE: continuing without user-defined genes')
     userGenes = np.array([])
