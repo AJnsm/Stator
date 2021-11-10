@@ -123,6 +123,56 @@ def calcInteraction_expectations(conditionedGenes):
         
         else:
             return np.log(E11*(1-E01)*E00*(1-E10)/(E01*(1-E11)*E10*(1-E00)))
+        
+    elif(order==4):
+        E111 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3]]==1).all(axis=1)].iloc[:, 0].mean()
+        E000 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3]]==0).all(axis=1)].iloc[:, 0].mean()
+        
+        E001 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3]]==[0, 0, 1]).all(axis=1)].iloc[:, 0].mean()
+        E010 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3]]==[0, 1, 0]).all(axis=1)].iloc[:, 0].mean()
+        E100 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3]]==[1, 0, 0]).all(axis=1)].iloc[:, 0].mean()
+        
+        E011 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3]]==[0, 1, 1]).all(axis=1)].iloc[:, 0].mean()
+        E101 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3]]==[1, 0, 1]).all(axis=1)].iloc[:, 0].mean()
+        E110 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3]]==[1, 1, 0]).all(axis=1)].iloc[:, 0].mean()
+        
+       
+        if (min(E111, E000, E001, E010, E100, E011, E101, E110)==0) | (max(E111, E000, E001, E010, E100, E011, E101, E110)==1):
+            return np.nan
+        
+        else:
+            return np.log(E111*(1-E011)*(1-E101)*E001*E010*(1-E110)*E100*(1-E000)/((1-E111)*E011*E101*(1-E001)*(1-E010)*E110*(1-E100)*E000))
+        
+        
+    elif(order==5):
+        E1111 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==1).all(axis=1)].iloc[:, 0].mean()
+        E0000 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==0).all(axis=1)].iloc[:, 0].mean()
+        
+        E0001 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[0, 0, 0, 1]).all(axis=1)].iloc[:, 0].mean()
+        E0010 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[0, 0, 1, 0]).all(axis=1)].iloc[:, 0].mean()
+        E0100 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[0, 1, 0, 0]).all(axis=1)].iloc[:, 0].mean()
+        E1000 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[1, 0, 0, 0]).all(axis=1)].iloc[:, 0].mean()
+        
+        E0011 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[0, 0, 1, 1]).all(axis=1)].iloc[:, 0].mean()
+        E0101 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[0, 1, 0, 1]).all(axis=1)].iloc[:, 0].mean()
+        E0110 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[0, 1, 1, 0]).all(axis=1)].iloc[:, 0].mean()
+        E1010 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[1, 0, 1, 0]).all(axis=1)].iloc[:, 0].mean()
+        E1100 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[1, 1, 0, 0]).all(axis=1)].iloc[:, 0].mean()
+        E1001 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[1, 0, 0, 1]).all(axis=1)].iloc[:, 0].mean()
+        
+        E1110 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[1, 1, 1, 0]).all(axis=1)].iloc[:, 0].mean()
+        E1101 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[1, 1, 0, 1]).all(axis=1)].iloc[:, 0].mean()
+        E1011 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[1, 0, 1, 1]).all(axis=1)].iloc[:, 0].mean()
+        E0111 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[0, 1, 1, 1]).all(axis=1)].iloc[:, 0].mean()
+        
+        
+        allEs = [E1111, E0000, E0001, E0010, E0100, E1000, E0011, E0101, E0110, E1010, E1100, E1001, E1110, E1101, E1011, E011]
+        if (min(allEs)==0) | (max(allEs)==1):
+            return np.nan
+        else:
+            return np.log(E1111*E1100*E1010*E0110*E0101*E0011*E1001*E0000/((1-E1111)*(1-E1100)*(1-E1010)*(1-E0110)*(1-E0101)*(1-E0011)*(1-E1001)*(1-E0000)) \
+                          * (1-E0111)*(1-E1011)*(1-E1101)*(1-E1110)*(1-E0001)*(1-E0010)*(1-E0100)*(1-E1000)/(E0111*E1011*E1101*E1110*E0001*E0010*E0100*E1000))
+
     else:
         print('Order not yet implemented, change estimation method to probabilities.')
         return np.nan
@@ -199,7 +249,7 @@ def calcInteraction_withCI(genes, graph, dataSet, estimator, nResamps=1000):
 
     CI = (vals_noNan[int(np.around(len(vals_noNan)/40))], vals_noNan[int(np.floor(len(vals_noNan)*39/40))])
 
-    propDifSign = sum(np.sign(vals)==-np.sign(val0))/nResamps
+    propDifSign = sum(np.sign(vals_noNan)==-np.sign(vals_noNan))/len(vals_noNan)
     
     # # If it's *really* close to a unimodal distribution according to Dip or KS test, or doesn't have undef. resamples:
     # if((len(vals_noNan) == nResamps) | (dipPval>=0.99) | (ksStat>0.01)) : 
