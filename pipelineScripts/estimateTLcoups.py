@@ -280,10 +280,9 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
 
     propDifSign = sum(np.sign(vals_noNan)==-np.sign(val0))/len(vals_noNan)
     
-    # # If it's *really* close to a unimodal distribution according to Dip or KS test, or doesn't have undef. resamples:
-    # if((len(vals_noNan) == nResamps) | (dipPval>=0.99) | (ksStat>0.01)) : 
+    # # If it's *really* close to a unimodal distribution according to KS test, or doesn't have undef. resamples:
 
-    if((len(vals_noNan) == nResamps) | (ksStat>0.01)) : 
+    if((len(vals_noNan) >= 0.9*nResamps) | (ksStat>0.01)) : 
         return [val0, CI[0], CI[1], propDifSign, genes, boundVal]
     else:
         return [np.nan, np.nan, np.nan, np.nan, genes, boundVal]      
