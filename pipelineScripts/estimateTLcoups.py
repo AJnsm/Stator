@@ -290,7 +290,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     # In numerator: states where the number of ones has same parity as order itself. 
     # In denom: When this is not the case.
     powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
-    
+    nStates = 2**order
     f = lambda x: ''.join(map(str, x))
     binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
 
