@@ -203,8 +203,14 @@ def calcInteraction_binTrick(conditionedGenes):
 
 def calcInteraction_binTrick_allOrders(conditionedGenes):
     
+    # This function is relatively slow compared to using expectation values, but will work for any order of interactions. 
+
     order = len(conditionedGenes.columns)
     nStates = 2**order
+
+    # This assigns every state to numerator or denominator, depending on the number of 1s:
+    # In numerator: states where the number of ones has same parity as order itself. 
+    # In denom: When this is not the case.
     powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
     
     f = lambda x: ''.join(map(str, x))
@@ -254,6 +260,78 @@ def calcInteraction_withCI(genes, graph, dataSet, estimator, nResamps=1000):
         return [val0, CI[0], CI[1], propDifSign, genes]
     else:
         return [np.nan, np.nan, np.nan, np.nan, genes]      
+
+
+def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=1000):
+    '''
+    Add 95% confidence interval bounds from bootstrap resamples,
+    and the F value: the proportion of resamples with a different sign.
+    '''
+    
+    if estimator is calcInteraction_expectations:
+        MBmode = '0' # Use first gene to get MB
+    else:
+        MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
+
+    conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
+        
+    val0 = estimator(conditionedGenes)
+    vals = np.zeros(nResamps)
+    
+    # Stores if estimate is real val: 0, or UB/LB: 1/-1
+    boundVal = 0
+
+    if np.isnan(val0):
+        # Then both num and denom are zero and we can't do anything
+        return [np.nan, np.nan, np.nan, np.nan, genes, np.nan]
+
+    order = len(genes)
+    # This assigns every state to numerator or denominator, depending on the number of 1s:
+    # In numerator: states where the number of ones has same parity as order itself. 
+    # In denom: When this is not the case.
+    powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
+    
+    f = lambda x: ''.join(map(str, x))
+    binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
+
+    
+    if all(powers[np.where(binCounts==0)[0]]>0):
+        boundVal = 1
+        statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
+        conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
+
+    elif all(powers[np.where(binCounts==0)[0]]<0):
+        boundVal = -1
+        statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
+        conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
+
+    # Check if indeed all empty bins appear with same power (should be redundant):
+    elif not all(powers[np.where(binCounts==0)[0]]==powers[np.where(binCounts==0)[0]][0]):
+        print("not all empty bins have same power (this should not happen, something is wrong!!!)")
+        return [np.nan, np.nan, np.nan, np.nan, genes, np.nan]
+    
+    for i in range(nResamps):
+        genes_resampled = conditionedGenes.sample(frac=1, replace=True)
+        vals[i] = estimator(genes_resampled)
+    
+    vals.sort()
+    vals_noNan = vals[~np.isnan(vals)]
+
+    ksStat = kstest(vals_noNan, lambda x: scipy.stats.norm.cdf(x, loc=vals_noNan.mean(), scale=vals_noNan.std()))[1]
+
+    CI = (vals_noNan[int(np.around(len(vals_noNan)/40))], vals_noNan[int(np.floor(len(vals_noNan)*39/40))])
+
+    propDifSign = sum(np.sign(vals_noNan)==-np.sign(val0))/len(vals_noNan)
+    
+    # # If it's *really* close to a unimodal distribution according to Dip or KS test, or doesn't have undef. resamples:
+    # if((len(vals_noNan) == nResamps) | (dipPval>=0.99) | (ksStat>0.01)) : 
+
+    if((len(vals_noNan) == nResamps) | (ksStat>0.01)) : 
+        return [val0, CI[0], CI[1], propDifSign, genes, boundVal]
+    else:
+        return [np.nan, np.nan, np.nan, np.nan, genes, boundVal]      
+
+
     
 def calcInteraction_withCI_parallel(args, nResamps=1000):
     '''
@@ -262,7 +340,7 @@ def calcInteraction_withCI_parallel(args, nResamps=1000):
     '''
     genes, graph, dataSet, estimator, nResamps = args
     
-    return calcInteraction_withCI(genes, graph, dataSet, estimator, nResamps=nResamps)       
+    return calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=nResamps)       
                   
         
         
@@ -323,26 +401,30 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
         TLcoups_LB = resultArr[:, 1]
         TLcoups_UB = resultArr[:, 2]
         TLcoups_nonZero = resultArr[:, 3]
+        boundArr = resultArr[:, 5]
 
     if (order==2):
         TLcoups = resultArr[:, 0].reshape([n for i in range(order)])
         TLcoups_LB = resultArr[:, 1].reshape([n for i in range(order)])
         TLcoups_UB = resultArr[:, 2].reshape([n for i in range(order)])
         TLcoups_nonZero = resultArr[:, 3].reshape([n for i in range(order)])
+        boundArr = resultArr[:, 5]
 
     elif (order==3):
-        TLcoups, TLcoups_LB, TLcoups_UB, TLcoups_nonZero = np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n))
-        TLcoups[:], TLcoups_LB[:], TLcoups_UB[:], TLcoups_nonZero[:] = np.nan, np.nan, np.nan, np.nan
+        TLcoups, TLcoups_LB, TLcoups_UB, TLcoups_nonZero, boundArr = np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n))
+        TLcoups[:], TLcoups_LB[:], TLcoups_UB[:], TLcoups_nonZero[:], boundArr[:] = np.nan, np.nan, np.nan, np.nan, np.nan
         for r in resultArr:
-            TLcoups[tuple(r[-1])] = r[0]
-            TLcoups_LB[tuple(r[-1])] = r[1]
-            TLcoups_UB[tuple(r[-1])] = r[2]
-            TLcoups_nonZero[tuple(r[-1])] = r[3]
+            TLcoups[tuple(r[4])] = r[0]
+            TLcoups_LB[tuple(r[4])] = r[1]
+            TLcoups_UB[tuple(r[4])] = r[2]
+            TLcoups_nonZero[tuple(r[4])] = r[3]
+            boundArr[tuple(r[4])] = r[5]
             
     np.save(f'interactions_order{order}_{ID}', TLcoups)
     np.save(f'interactions_order{order}_{ID}_CI_LB', TLcoups_LB)
     np.save(f'interactions_order{order}_{ID}_CI_UB', TLcoups_UB)
     np.save(f'interactions_order{order}_{ID}_CI_F', TLcoups_nonZero)
+    np.save(f'interactions_order{order}_{ID}_boundVal', boundArr)
 
 
 
@@ -435,37 +517,6 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
 
 
     if PrintBool: print(f'DONE with {ID}...\n')
-
-def fromD2P(D, n):
-    if np.isnan(D):
-        return np.nan
-    if n <=3:
-        p=1
-    else:
-        Ps = pVals.columns.values.astype('float')
-        nn = pVals.index.values
-        max_n = max(nn)
-        
-        if n>max_n:
-            n1, n0 = max_n, max_n
-            i_2, i_n = len(nn), len(nn)
-            f_n = 0
-            
-        else:
-            i_n = np.argmin(list(map(lambda x: n-x if (n-x)>0 else np.nan, nn))) - 1
-            i_2 = i_n + 1 
-            n_0 = nn[i_n]
-            n_1 = nn[i_2]
-            f_n = (n-n_0)/(n_1-n_0)
-
-        y_0 = np.sqrt(n_0) * pVals.iloc[i_n, :]
-        y_1 = np.sqrt(n_1) * pVals.iloc[i_2, :]
-        sD = np.sqrt(n) * D
-        f = interp1d((y_0 + f_n * (y_1 - y_0)).values, Ps, kind='linear', fill_value=(0, 1), bounds_error=False) # fill_value='extrapolate')
-
-        p = 1-f(sD)
-
-    return p
     
 def main():
     np.random.seed(0)
