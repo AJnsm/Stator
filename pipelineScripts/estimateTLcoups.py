@@ -216,50 +216,7 @@ def calcInteraction_binTrick_allOrders(conditionedGenes):
     f = lambda x: ''.join(map(str, x))
     binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
         
-    return np.log(np.prod(np.array([x**p for (x, p) in zip(binCounts, powers)])))
-    
-    
-def calcInteraction_withCI(genes, graph, dataSet, estimator, nResamps=1000):
-    '''
-    Add 95% confidence interval bounds from bootstrap resamples,
-    and the F value: the proportion of resamples with a different sign.
-    '''
-    
-    if estimator is calcInteraction_expectations:
-        MBmode = '0' # Use first gene to get MB
-    else:
-        MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
-
-    conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
-        
-    val0 = estimator(conditionedGenes)
-    vals = np.zeros(nResamps)
-    if np.isnan(val0):
-        return [np.nan, np.nan, np.nan, np.nan, genes]
-    
-    for i in range(nResamps):
-        genes_resampled = conditionedGenes.sample(frac=1, replace=True)
-        vals[i] = estimator(genes_resampled)
-    
-    vals.sort()
-    vals_noNan = vals[~np.isnan(vals)]
-    # dip = hartiganDip.diptst(vals_noNan)[0]
-    # dipPval = fromD2P(dip, len(vals_noNan))
-
-    ksStat = kstest(vals_noNan, lambda x: scipy.stats.norm.cdf(x, loc=vals_noNan.mean(), scale=vals_noNan.std()))[1]
-
-    CI = (vals_noNan[int(np.around(len(vals_noNan)/40))], vals_noNan[int(np.floor(len(vals_noNan)*39/40))])
-
-    propDifSign = sum(np.sign(vals_noNan)==-np.sign(vals_noNan))/len(vals_noNan)
-    
-    # # If it's *really* close to a unimodal distribution according to Dip or KS test, or doesn't have undef. resamples:
-    # if((len(vals_noNan) == nResamps) | (dipPval>=0.99) | (ksStat>0.01)) : 
-
-    if((len(vals_noNan) == nResamps) | (ksStat>0.01)) : 
-
-        return [val0, CI[0], CI[1], propDifSign, genes]
-    else:
-        return [np.nan, np.nan, np.nan, np.nan, genes]      
+    return np.log(np.prod(np.array([x**p for (x, p) in zip(binCounts, powers)])))  
 
 
 def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=1000):
@@ -285,30 +242,30 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         # Then both num and denom are zero and we can't do anything
         return [np.nan, np.nan, np.nan, np.nan, genes, np.nan]
 
-    order = len(genes)
-    # This assigns every state to numerator or denominator, depending on the number of 1s:
-    # In numerator: states where the number of ones has same parity as order itself. 
-    # In denom: When this is not the case.
-    powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
-    nStates = 2**order
-    f = lambda x: ''.join(map(str, x))
-    binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
 
-    
-    if all(powers[np.where(binCounts==0)[0]]>0):
-        boundVal = 1
-        statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
-        conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
+    if np.isinf(val0):
 
-    elif all(powers[np.where(binCounts==0)[0]]<0):
-        boundVal = -1
-        statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
-        conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
+        # if empirical is +/- inf, then we can add artificial cells to put bounds:
 
-    # Check if indeed all empty bins appear with same power (should be redundant):
-    elif not all(powers[np.where(binCounts==0)[0]]==powers[np.where(binCounts==0)[0]][0]):
-        print("not all empty bins have same power (this should not happen, something is wrong!!!)")
-        return [np.nan, np.nan, np.nan, np.nan, genes, np.nan]
+        order = len(genes)
+        # This assigns every state to numerator or denominator, depending on the number of 1s:
+        # In numerator: states where the number of ones has same parity as order itself. 
+        # In denom: When this is not the case.
+        powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
+        nStates = 2**order
+        f = lambda x: ''.join(map(str, x))
+        binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
+
+        # find the binary rep of the state that was missing, and see if we can put upper/lower bound
+        if all(powers[np.where(binCounts==0)[0]]>0):
+            boundVal = 1
+            statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
+            conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
+
+        elif all(powers[np.where(binCounts==0)[0]]<0):
+            boundVal = -1
+            statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
+            conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
     
     for i in range(nResamps):
         genes_resampled = conditionedGenes.sample(frac=1, replace=True)
