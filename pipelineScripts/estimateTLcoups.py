@@ -97,19 +97,16 @@ def calcInteraction_expectations(conditionedGenes):
     order = len(conditionedGenes.columns)
     
     if(order==1):
-        
         E = conditionedGenes.iloc[:].mean()[0]
-        if (E==1) | (E==0):
-            return np.nan
-        return np.log(E/(1-E))
-
-
-    if(order==2):
+        num = E
+        denom = 1-E
+        
+    elif(order==2):
         E1 = conditionedGenes[conditionedGenes.iloc[:, 1]==1].iloc[:, 0].mean()
         E0 = conditionedGenes[conditionedGenes.iloc[:, 1]==0].iloc[:, 0].mean()
-        if (min(E1, E0)==0) | (max(E1, E0)==1):
-            return np.nan
-        return np.log(E1*(1-E0)/(E0*(1-E1)))
+
+        num = E1*(1-E0)
+        denom = E0*(1-E1)
         
     elif(order==3):
         E11 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2]]==1).all(axis=1)].iloc[:, 0].mean()
@@ -117,12 +114,9 @@ def calcInteraction_expectations(conditionedGenes):
         
         E10 = conditionedGenes[(conditionedGenes.iloc[:, 1]==1) & (conditionedGenes.iloc[:, 2]==0)].iloc[:, 0].mean()
         E01 = conditionedGenes[(conditionedGenes.iloc[:, 1]==0) & (conditionedGenes.iloc[:, 2]==1)].iloc[:, 0].mean()
-    
-        if (min(E11, E00, E10, E01)==0) | (max(E11, E00, E10, E01)==1):
-            return np.nan
         
-        else:
-            return np.log(E11*(1-E01)*E00*(1-E10)/(E01*(1-E11)*E10*(1-E00)))
+        num = E11*(1-E01)*E00*(1-E10)
+        denom = E01*(1-E11)*E10*(1-E00)
         
     elif(order==4):
         E111 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3]]==1).all(axis=1)].iloc[:, 0].mean()
@@ -137,12 +131,8 @@ def calcInteraction_expectations(conditionedGenes):
         E110 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3]]==[1, 1, 0]).all(axis=1)].iloc[:, 0].mean()
         
        
-        if (min(E111, E000, E001, E010, E100, E011, E101, E110)==0) | (max(E111, E000, E001, E010, E100, E011, E101, E110)==1):
-            return np.nan
-        
-        else:
-            return np.log(E111*(1-E011)*(1-E101)*E001*E010*(1-E110)*E100*(1-E000)/((1-E111)*E011*E101*(1-E001)*(1-E010)*E110*(1-E100)*E000))
-        
+        num = E111*(1-E011)*(1-E101)*E001*E010*(1-E110)*E100*(1-E000)
+        denom = (1-E111)*E011*E101*(1-E001)*(1-E010)*E110*(1-E100)*E000
         
     elif(order==5):
         E1111 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==1).all(axis=1)].iloc[:, 0].mean()
@@ -165,17 +155,22 @@ def calcInteraction_expectations(conditionedGenes):
         E1011 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[1, 0, 1, 1]).all(axis=1)].iloc[:, 0].mean()
         E0111 = conditionedGenes[(conditionedGenes.iloc[:, [1, 2, 3, 4]]==[0, 1, 1, 1]).all(axis=1)].iloc[:, 0].mean()
         
-        
-        allEs = [E1111, E0000, E0001, E0010, E0100, E1000, E0011, E0101, E0110, E1010, E1100, E1001, E1110, E1101, E1011, E011]
-        if (min(allEs)==0) | (max(allEs)==1):
-            return np.nan
-        else:
-            return np.log(E1111*E1100*E1010*E0110*E0101*E0011*E1001*E0000/((1-E1111)*(1-E1100)*(1-E1010)*(1-E0110)*(1-E0101)*(1-E0011)*(1-E1001)*(1-E0000)) \
-                          * (1-E0111)*(1-E1011)*(1-E1101)*(1-E1110)*(1-E0001)*(1-E0010)*(1-E0100)*(1-E1000)/(E0111*E1011*E1101*E1110*E0001*E0010*E0100*E1000))
+        num = E1111*E1100*E1010*E0110*E0101*E0011*E1001*E0000 * (1-E0111)*(1-E1011)*(1-E1101)*(1-E1110)*(1-E0001)*(1-E0010)*(1-E0100)*(1-E1000)
+        denom = (1-E1111)*(1-E1100)*(1-E1010)*(1-E0110)*(1-E0101)*(1-E0011)*(1-E1001)*(1-E0000)*(E0111*E1011*E1101*E1110*E0001*E0010*E0100*E1000)
 
     else:
         print('Order not yet implemented, change estimation method to probabilities.')
         return np.nan
+
+    if ((num==0) & (denom==0)):
+            return np.nan 
+    elif num==0:
+        return -np.inf
+    elif denom==0:
+        return np.inf
+    else:
+        return np.log(num/denom)
+    
     
 def calcInteraction_binTrick(conditionedGenes):
     order = len(conditionedGenes.columns)
