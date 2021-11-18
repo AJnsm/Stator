@@ -251,21 +251,16 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         # This assigns every state to numerator or denominator, depending on the number of 1s:
         # In numerator: states where the number of ones has same parity as order itself. 
         # In denom: When this is not the case.
-        powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
+        # powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
         nStates = 2**order
         f = lambda x: ''.join(map(str, x))
         binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
 
         # find the binary rep of the state that was missing, and see if we can put upper/lower bound
-        if all(powers[np.where(binCounts==0)[0]]>0):
-            boundVal = 1
-            statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
-            conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
-
-        elif all(powers[np.where(binCounts==0)[0]]<0):
-            boundVal = -1
-            statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
-            conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
+        boundVal = int(np.sign(val0))
+        statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
+        conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
+        
     
     for i in range(nResamps):
         genes_resampled = conditionedGenes.sample(frac=1, replace=True)
@@ -282,7 +277,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     
     # # If it's *really* close to a unimodal distribution according to KS test, or doesn't have undef. resamples:
 
-    if((len(vals_noNan) >= 0.9*nResamps) | (ksStat>0.01)) : 
+    if((len(vals_noNan) == nResamps) | (ksStat>0.01)) : 
         return [val0, CI[0], CI[1], propDifSign, genes, boundVal]
     else:
         return [np.nan, np.nan, np.nan, np.nan, genes, boundVal]      
