@@ -360,7 +360,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
         TLcoups_LB = resultArr[:, 1].reshape([n for i in range(order)])
         TLcoups_UB = resultArr[:, 2].reshape([n for i in range(order)])
         TLcoups_nonZero = resultArr[:, 3].reshape([n for i in range(order)])
-        boundArr = resultArr[:, 5]
+        boundArr = resultArr[:, 5].reshape([n for i in range(order)])
 
     elif (order==3):
         TLcoups, TLcoups_LB, TLcoups_UB, TLcoups_nonZero, boundArr = np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n))
