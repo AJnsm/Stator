@@ -12,8 +12,8 @@ import time
 import sys
 
 import scipy
-from scipy.stats import kstest
-from scipy.interpolate import interp1d
+# from scipy.stats import kstest
+# from scipy.interpolate import interp1d
 
 # import hartiganDip
 
@@ -257,7 +257,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
 
         # find the binary rep of the state that was missing, and see if we can put upper/lower bound
-        boundVal = int(np.sign(val0))
+        boundVal = -1*int(np.sign(val0))
         statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
         conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
         
@@ -269,7 +269,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     vals.sort()
     vals_noNan = vals[~np.isnan(vals)]
 
-    ksStat = kstest(vals_noNan, lambda x: scipy.stats.norm.cdf(x, loc=vals_noNan.mean(), scale=vals_noNan.std()))[1]
+    # ksStat = kstest(vals_noNan, lambda x: scipy.stats.norm.cdf(x, loc=vals_noNan.mean(), scale=vals_noNan.std()))[1]
 
     CI = (vals_noNan[int(np.around(len(vals_noNan)/40))], vals_noNan[int(np.floor(len(vals_noNan)*39/40))])
 
@@ -277,7 +277,8 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     
     # # If it's *really* close to a unimodal distribution according to KS test, or doesn't have undef. resamples:
 
-    if((len(vals_noNan) == nResamps) | (ksStat>0.01)) : 
+    # if((len(vals_noNan) == nResamps) | (ksStat>0.01)) : 
+    if(len(vals_noNan) == nResamps):
         return [val0, CI[0], CI[1], propDifSign, genes, boundVal]
     else:
         return [np.nan, np.nan, np.nan, np.nan, genes, boundVal]      
