@@ -278,7 +278,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     # # If it's *really* close to a unimodal distribution according to KS test, or doesn't have undef. resamples:
 
     # if((len(vals_noNan) == nResamps) | (ksStat>0.01)) : 
-    if(len(vals_noNan) == nResamps):
+    if(len(vals_noNan) >= nResamps*0.95):
         return [val0, CI[0], CI[1], propDifSign, genes, boundVal]
     else:
         return [np.nan, np.nan, np.nan, np.nan, genes, boundVal]      
