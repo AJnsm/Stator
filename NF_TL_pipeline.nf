@@ -25,6 +25,12 @@ process makeData {
         """
         python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${params.doubletFile} --userGenes ${userGenes} --twoReplicates ${params.twoReplicates}
         """
+
+    else if( params.dataType == 'expression' )
+        """
+        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${params.doubletFile} --userGenes ${userGenes} --twoReplicates ${params.twoReplicates}
+        """
+
     else if( params.dataType == '10X' )
         """
         python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusters} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${params.doubletFile}
@@ -34,7 +40,7 @@ process makeData {
         python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --nCells ${params.nCells} --nGenes ${params.nGenes}
         """
     else
-        error "Invalid data type: choose 10X or Zeisel"
+        error "Invalid data type"
 }
 
 process estimatePCgraph {
