@@ -153,9 +153,9 @@ if args.dataType=='agnostic':
 # ****************** General expression-data QC analysis and selection: ******************
 
 
-if args.dataType=='expression':
+elif args.dataType=='expression':
 
-print("loading data")
+    print("loading data")
     scObj = sc.read_csv(rawData)
     print("data loaded!")
 
