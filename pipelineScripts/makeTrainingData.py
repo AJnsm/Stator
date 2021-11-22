@@ -440,7 +440,7 @@ elif args.dataType=='Zeisel':
     astros_combined_bin.iloc[N:2*N].to_csv(f'trainingData_ZEISEL_astrocytes_DS2_{nC}Cells_{nG}Genes.csv', index=False)
 
 else:
-    print('ERROR: invalid data type, choose 10X or Zeisel.')
+    print('ERROR: invalid data type, choose 10X, Zeisel. agnostic or expression.')
     sys.exit()
 
 
