@@ -27,9 +27,15 @@ PCgraph_csv <- args[1]
 PCadjMat <- read.csv(PCgraph_csv, row.names=1)
 # PCgraph  <- graph_from_adjacency_matrix(as(PCadjMat , 'matrix'), mode="directed")
 
+
+
 dataPath <- args[2]
 dataSet <- read.csv(dataPath, header=T)
-                   
+    
+# This is safer, since sometimes there are more userGenes than nGenes:
+
+nGenes <- dim(dataSet)[2]
+
 DSname<-str_sub(str_split(dataPath, "_", n=2)[[1]][2], 1, -5)
 
 print(paste('Starting MCMC MAP estimation on cluster', DSname))
