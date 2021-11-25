@@ -377,6 +377,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
         TLcoups, TLcoups_LB, TLcoups_UB, TLcoups_nonZero, TLcoups_undef, TLcoups_inf, boundArr = np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n))
         TLcoups[:], TLcoups_LB[:], TLcoups_UB[:], TLcoups_nonZero[:], TLcoups_undef[:], TLcoups_inf[:], boundArr[:] = np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
         for r in resultArr:
+            print(r)
             TLcoups[tuple(r[-1])] = r[0]
             TLcoups_LB[tuple(r[-1])] = r[1]
             TLcoups_UB[tuple(r[-1])] = r[2]
