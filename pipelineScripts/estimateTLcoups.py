@@ -274,14 +274,21 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     CI = (vals_noNan[int(np.around(len(vals_noNan)/40))], vals_noNan[int(np.floor(len(vals_noNan)*39/40))])
 
     propDifSign = sum(np.sign(vals_noNan)==-np.sign(val0))/len(vals_noNan)
-    
+    propUndefined = sum(np.isnan(vals))/len(vals)
+    propInfinite = sum(np.isinf(vals))/len(vals)
+
+
+
+    return [val0, CI[0], CI[1], propDifSign, propUndefined, propInfinite, boundVal, genes]
+
+
     # # If it's *really* close to a unimodal distribution according to KS test, or doesn't have undef. resamples:
 
-    # if((len(vals_noNan) == nResamps) | (ksStat>0.01)) : 
-    if(len(vals_noNan) >= nResamps*0.95):
-        return [val0, CI[0], CI[1], propDifSign, genes, boundVal]
-    else:
-        return [np.nan, np.nan, np.nan, np.nan, genes, boundVal]      
+    # # if((len(vals_noNan) == nResamps) | (ksStat>0.01)) : 
+    # if(len(vals_noNan) >= nResamps*0.95):
+    #     return [val0, CI[0], CI[1], propDifSign, propUndefined, propInfinite, genes, boundVal]
+    # else:
+    #     return [np.nan, np.nan, np.nan, np.nan, genes, boundVal]      
 
 
     
@@ -353,29 +360,37 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
         TLcoups_LB = resultArr[:, 1]
         TLcoups_UB = resultArr[:, 2]
         TLcoups_nonZero = resultArr[:, 3]
-        boundArr = resultArr[:, 5]
+        TLcoups_undef = resultArr[:, 4]
+        TLcoups_inf = resultArr[:, 5]
+        boundArr = resultArr[:, 6]
 
     if (order==2):
         TLcoups = resultArr[:, 0].reshape([n for i in range(order)])
         TLcoups_LB = resultArr[:, 1].reshape([n for i in range(order)])
         TLcoups_UB = resultArr[:, 2].reshape([n for i in range(order)])
         TLcoups_nonZero = resultArr[:, 3].reshape([n for i in range(order)])
-        boundArr = resultArr[:, 5].reshape([n for i in range(order)])
+        TLcoups_undef = resultArr[:, 4].reshape([n for i in range(order)])
+        TLcoups_inf = resultArr[:, 5].reshape([n for i in range(order)])
+        boundArr = resultArr[:, 6].reshape([n for i in range(order)])
 
     elif (order==3):
-        TLcoups, TLcoups_LB, TLcoups_UB, TLcoups_nonZero, boundArr = np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n))
-        TLcoups[:], TLcoups_LB[:], TLcoups_UB[:], TLcoups_nonZero[:], boundArr[:] = np.nan, np.nan, np.nan, np.nan, np.nan
+        TLcoups, TLcoups_LB, TLcoups_UB, TLcoups_nonZero, TLcoups_undef, TLcoups_inf, boundArr = np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n))
+        TLcoups[:], TLcoups_LB[:], TLcoups_UB[:], TLcoups_nonZero[:], TLcoups_undef[:], TLcoups_inf[:], boundArr[:] = np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
         for r in resultArr:
-            TLcoups[tuple(r[4])] = r[0]
-            TLcoups_LB[tuple(r[4])] = r[1]
-            TLcoups_UB[tuple(r[4])] = r[2]
-            TLcoups_nonZero[tuple(r[4])] = r[3]
-            boundArr[tuple(r[4])] = r[5]
+            TLcoups[tuple(r[-1])] = r[0]
+            TLcoups_LB[tuple(r[-1])] = r[1]
+            TLcoups_UB[tuple(r[-1])] = r[2]
+            TLcoups_nonZero[tuple(r[-1])] = r[3]
+            TLcoups_undef[tuple(r[-1])] = r[4]
+            TLcoups_inf[tuple(r[-1])] = r[5]
+            boundArr[tuple(r[-1])] = r[6]
             
     np.save(f'interactions_order{order}_{ID}', TLcoups)
     np.save(f'interactions_order{order}_{ID}_CI_LB', TLcoups_LB)
     np.save(f'interactions_order{order}_{ID}_CI_UB', TLcoups_UB)
     np.save(f'interactions_order{order}_{ID}_CI_F', TLcoups_nonZero)
+    np.save(f'interactions_order{order}_{ID}_undef', TLcoups_undef)
+    np.save(f'interactions_order{order}_{ID}_inf', TLcoups_inf)
     np.save(f'interactions_order{order}_{ID}_boundVal', boundArr)
 
 
