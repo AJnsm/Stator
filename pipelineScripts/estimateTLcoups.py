@@ -240,7 +240,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
 
     if np.isnan(val0):
         # Then both num and denom are zero and we can't do anything
-        return [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, genes]
+        return [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, genes]
 
 
     if np.isinf(val0):
