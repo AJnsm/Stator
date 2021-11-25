@@ -240,7 +240,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
 
     if np.isnan(val0):
         # Then both num and denom are zero and we can't do anything
-        return [np.nan, np.nan, np.nan, np.nan, genes, np.nan]
+        return [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, genes]
 
 
     if np.isinf(val0):
@@ -377,7 +377,6 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
         TLcoups, TLcoups_LB, TLcoups_UB, TLcoups_nonZero, TLcoups_undef, TLcoups_inf, boundArr = np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n))
         TLcoups[:], TLcoups_LB[:], TLcoups_UB[:], TLcoups_nonZero[:], TLcoups_undef[:], TLcoups_inf[:], boundArr[:] = np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
         for r in resultArr:
-            print(r)
             TLcoups[tuple(r[-1])] = r[0]
             TLcoups_LB[tuple(r[-1])] = r[1]
             TLcoups_UB[tuple(r[-1])] = r[2]
