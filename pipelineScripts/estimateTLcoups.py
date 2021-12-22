@@ -171,7 +171,95 @@ def calcInteraction_expectations(conditionedGenes):
     else:
         return np.log(num/denom)
     
+def calcInteraction_expectations_np(conditionedGenes):
+    '''
+    Same as calcInteraction_expectations, but might be 10x faster?!
+    '''
     
+    order = len(conditionedGenes.columns)
+    
+    conditionedGenes_np = conditionedGenes.values
+    
+    
+    if(order==1):
+        E = conditionedGenes_np[:].mean()[0]
+        num = E
+        denom = 1-E
+        
+    elif(order==2):
+        E1 = conditionedGenes_np[conditionedGenes_np[:, 1]==1][:, 0].mean()
+        E0 = conditionedGenes_np[conditionedGenes_np[:, 1]==0][:, 0].mean()
+
+        num = E1*(1-E0)
+        denom = E0*(1-E1)
+        
+    elif(order==3):
+        E11 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2]]==1).all(axis=1)][:, 0].mean()
+        E00 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2]]==0).all(axis=1)][:, 0].mean()
+        
+        E10 = conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0)][:, 0].mean()
+        E01 = conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1)][:, 0].mean()
+        
+        num = E11*(1-E01)*E00*(1-E10)
+        denom = E01*(1-E11)*E10*(1-E00)
+        
+    elif(order==4):
+        E111 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3]]==1).all(axis=1)][:, 0].mean()
+        E000 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3]]==0).all(axis=1)][:, 0].mean()
+        
+        E001 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3]]==[0, 0, 1]).all(axis=1)][:, 0].mean()
+        E010 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3]]==[0, 1, 0]).all(axis=1)][:, 0].mean()
+        E100 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3]]==[1, 0, 0]).all(axis=1)][:, 0].mean()
+        
+        E011 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3]]==[0, 1, 1]).all(axis=1)][:, 0].mean()
+        E101 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3]]==[1, 0, 1]).all(axis=1)][:, 0].mean()
+        E110 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3]]==[1, 1, 0]).all(axis=1)][:, 0].mean()
+        
+       
+        num = E111*(1-E011)*(1-E101)*E001*E010*(1-E110)*E100*(1-E000)
+        denom = (1-E111)*E011*E101*(1-E001)*(1-E010)*E110*(1-E100)*E000
+        
+    elif(order==5):
+        E1111 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==1).all(axis=1)][:, 0].mean()
+        E0000 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==0).all(axis=1)][:, 0].mean()
+        
+        E0001 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[0, 0, 0, 1]).all(axis=1)][:, 0].mean()
+        E0010 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[0, 0, 1, 0]).all(axis=1)][:, 0].mean()
+        E0100 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[0, 1, 0, 0]).all(axis=1)][:, 0].mean()
+        E1000 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[1, 0, 0, 0]).all(axis=1)][:, 0].mean()
+        
+        E0011 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[0, 0, 1, 1]).all(axis=1)][:, 0].mean()
+        E0101 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[0, 1, 0, 1]).all(axis=1)][:, 0].mean()
+        E0110 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[0, 1, 1, 0]).all(axis=1)][:, 0].mean()
+        E1010 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[1, 0, 1, 0]).all(axis=1)][:, 0].mean()
+        E1100 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[1, 1, 0, 0]).all(axis=1)][:, 0].mean()
+        E1001 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[1, 0, 0, 1]).all(axis=1)][:, 0].mean()
+        
+        E1110 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[1, 1, 1, 0]).all(axis=1)][:, 0].mean()
+        E1101 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[1, 1, 0, 1]).all(axis=1)][:, 0].mean()
+        E1011 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[1, 0, 1, 1]).all(axis=1)][:, 0].mean()
+        E0111 = conditionedGenes_np[(conditionedGenes_np[:, [1, 2, 3, 4]]==[0, 1, 1, 1]).all(axis=1)][:, 0].mean()
+        
+        num = E1111*E1100*E1010*E0110*E0101*E0011*E1001*E0000 * (1-E0111)*(1-E1011)*(1-E1101)*(1-E1110)*(1-E0001)*(1-E0010)*(1-E0100)*(1-E1000)
+        denom = (1-E1111)*(1-E1100)*(1-E1010)*(1-E0110)*(1-E0101)*(1-E0011)*(1-E1001)*(1-E0000)*(E0111*E1011*E1101*E1110*E0001*E0010*E0100*E1000)
+
+    else:
+        print('Order not yet implemented, change estimation method to probabilities.')
+        return np.nan
+
+    if ((num==0) & (denom==0)):
+            return np.nan 
+    elif num==0:
+        return -np.inf
+    elif denom==0:
+        return np.inf
+    else:
+        return np.log(num/denom)
+    
+    
+
+
+
 def calcInteraction_binTrick(conditionedGenes):
     order = len(conditionedGenes.columns)
     nStates = 2**order
@@ -226,6 +314,8 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     '''
     
     if estimator is calcInteraction_expectations:
+        MBmode = '0' # Use first gene to get MB
+    elif estimator is calcInteraction_expectations_np:
         MBmode = '0' # Use first gene to get MB
     else:
         MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
@@ -512,7 +602,7 @@ def main():
     if estimationMethod == 'both':
         estimator = calcInteraction_binTrick
         calcInteractionsAndWriteNPYs(DSname+'_'+'probabilities'+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
-        estimator = calcInteraction_expectations
+        estimator = calcInteraction_expectations_np
         calcInteractionsAndWriteNPYs(DSname+'_'+'expectations'+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
 
     elif estimationMethod == 'probabilities':
@@ -520,7 +610,7 @@ def main():
         calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
 
     elif estimationMethod == 'expectations':
-        estimator = calcInteraction_expectations
+        estimator = calcInteraction_expectations_np
         calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
     else:
         print('Invalid estimation method -- terminating...')        
