@@ -182,7 +182,7 @@ def calcInteraction_expectations_np(conditionedGenes):
     
     
     if(order==1):
-        E = conditionedGenes_np[:].mean()[0]
+        E = conditionedGenes_np[:].mean()
         num = E
         denom = 1-E
         
