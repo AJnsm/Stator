@@ -413,7 +413,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         print(estimator)
         print(calcInteraction_expectations_numba)
         print(estimator==calcInteraction_expectations_numba)
-
+        print(estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code)
 
     if estimator is calcInteraction_expectations:
         if PrintBool: print('A')
