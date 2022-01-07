@@ -729,7 +729,7 @@ def main():
         calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
 
     elif estimationMethod == 'expectations':
-        estimator = calcInteraction_expectations_np
+        estimator = calcInteraction_expectations_numba
         calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
     else:
         print('Invalid estimation method -- terminating...')        
