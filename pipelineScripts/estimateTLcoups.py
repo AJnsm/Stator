@@ -409,19 +409,13 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     and the F value: the proportion of resamples with a different sign.
     '''
     
-    if PrintBool:
-        print(estimator)
-        print(calcInteraction_expectations_numba)
-        print(estimator==calcInteraction_expectations_numba)
-        print(estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code)
-
-    if estimator is calcInteraction_expectations:
+    if estimator.__code__.co_code == calcInteraction_expectations.__code__.co_code:
         if PrintBool: print('A')
         MBmode = '0' # Use first gene to get MB
-    elif estimator is calcInteraction_expectations_np:
+    elif estimator.__code__.co_code == calcInteraction_expectations_np.__code__.co_code:
         if PrintBool: print('B')
         MBmode = '0' # Use first gene to get MB
-    elif estimator is calcInteraction_expectations_numba:
+    elif estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
         if PrintBool: print('C')
         MBmode = '0' # Use first gene to get MB
 
@@ -433,7 +427,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     
     if PrintBool: print(estimator)
 
-    if estimator is calcInteraction_expectations_numba:
+    if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
         if PrintBool: print('running numba')
         val0 = estimator(conditionedGenes.values)
 
@@ -469,7 +463,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
         
     
-    if estimator is calcInteraction_expectations_numba:
+    if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
         if PrintBool: print('running numba BS')
         rng = np.random.default_rng()
         conditionedGenes_np = conditionedGenes.values
