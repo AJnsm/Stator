@@ -419,11 +419,12 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         MBmode = '0' # Use first gene to get MB
 
     else:
+        if PrintBool: print('Warning, using ALL mode for MB selection, make sure you want this. ')
         MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
 
     conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
     
-    if PrintBool: print(estimator)
+    
 
     if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
         val0 = estimator(conditionedGenes.values)
@@ -725,7 +726,7 @@ def main():
         calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
 
     elif estimationMethod == 'expectations':
-        estimator = calcInteraction_expectations_numba
+        estimator = calcInteraction_expectations
         calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
     else:
         print('Invalid estimation method -- terminating...')        
