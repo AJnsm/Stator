@@ -412,10 +412,13 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     '''
     
     if estimator.__code__.co_code == calcInteraction_expectations.__code__.co_code:
+        if PrintBool: print('Detected old')
         MBmode = '0' # Use first gene to get MB
     elif estimator.__code__.co_code == calcInteraction_expectations_np.__code__.co_code:
+        if PrintBool: print('Detected numpy')
         MBmode = '0' # Use first gene to get MB
     elif estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
+        if PrintBool: print('Detected numba')
         MBmode = '0' # Use first gene to get MB
 
     else:
@@ -726,7 +729,7 @@ def main():
         calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
 
     elif estimationMethod == 'expectations':
-        estimator = calcInteraction_expectations
+        estimator = calcInteraction_expectations_np
         calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
     else:
         print('Invalid estimation method -- terminating...')        
