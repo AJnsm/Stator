@@ -422,9 +422,11 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
     
     if estimator is calcInteraction_expectations_numba:
+        if PrintBool: print('running numba')
         val0 = estimator(conditionedGenes.values)
 
     else:
+        if PrintBool: print('running other')
         val0 = estimator(conditionedGenes)
     vals = np.zeros(nResamps)
     
@@ -456,6 +458,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         
     
     if estimator is calcInteraction_expectations_numba:
+        if PrintBool: print('running numba BS')
         rng = np.random.default_rng()
         conditionedGenes_np = conditionedGenes.values
         for i in range(nResamps):
@@ -465,6 +468,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
 
     else:
         for i in range(nResamps):
+            if PrintBool: print('running other BS')
             genes_resampled = conditionedGenes.sample(frac=1, replace=True)
             vals[i] = estimator(genes_resampled)
         vals.sort()
