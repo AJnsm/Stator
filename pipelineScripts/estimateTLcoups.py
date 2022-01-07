@@ -410,13 +410,17 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     '''
     
     if estimator is calcInteraction_expectations:
+        if PrintBool: print('A')
         MBmode = '0' # Use first gene to get MB
     elif estimator is calcInteraction_expectations_np:
+        if PrintBool: print('B')
         MBmode = '0' # Use first gene to get MB
     elif estimator is calcInteraction_expectations_numba:
+        if PrintBool: print('C')
         MBmode = '0' # Use first gene to get MB
 
     else:
+        if PrintBool: print('D')
         MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
 
     conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
