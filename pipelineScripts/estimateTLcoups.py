@@ -420,8 +420,12 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
 
     conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
-        
-    val0 = estimator(conditionedGenes)
+    
+    if estimator is calcInteraction_expectations_numba:
+        val0 = estimator(conditionedGenes.values)
+
+    else:
+        val0 = estimator(conditionedGenes)
     vals = np.zeros(nResamps)
     
     # Stores if estimate is real val: 0, or UB/LB: 1/-1
