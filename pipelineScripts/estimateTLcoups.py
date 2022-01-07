@@ -409,6 +409,12 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     and the F value: the proportion of resamples with a different sign.
     '''
     
+    if PrintBool:
+        print(estimator)
+        print(calcInteraction_expectations_numba)
+        print(estimator==calcInteraction_expectations_numba)
+
+
     if estimator is calcInteraction_expectations:
         if PrintBool: print('A')
         MBmode = '0' # Use first gene to get MB
