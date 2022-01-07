@@ -411,14 +411,14 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     Note that to check for function equality, you need to use bytecode
     '''
     
-    if estimator == calcInteraction_expectations:
-        if PrintBool: print('Detected old')
+    if estimator.__code__.co_code == calcInteraction_expectations.__code__.co_code:
+        # if PrintBool: print('Detected old')
         MBmode = '0' # Use first gene to get MB
-    elif estimator == calcInteraction_expectations_np:
-        if PrintBool: print('Detected numpy')
+    elif estimator.__code__.co_code == calcInteraction_expectations_np.__code__.co_code:
+        # if PrintBool: print('Detected numpy')
         MBmode = '0' # Use first gene to get MB
-    elif estimator == calcInteraction_expectations_numba:
-        if PrintBool: print('Detected numba')
+    elif estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
+        # if PrintBool: print('Detected numba')
         MBmode = '0' # Use first gene to get MB
 
     else:
