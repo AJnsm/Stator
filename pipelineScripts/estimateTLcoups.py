@@ -451,12 +451,20 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
         
     
-    for i in range(nResamps):
-        genes_resampled = conditionedGenes.sample(frac=1, replace=True)
-        vals[i] = estimator(genes_resampled)
-    
-    vals.sort()
-    vals_noNan = vals[~np.isnan(vals)]
+    if estimator is calcInteraction_expectations_numba:
+        rng = np.random.default_rng()
+        conditionedGenes_np = conditionedGenes.values
+        for i in range(nResamps):
+            resampled = conditionedGenes_np[rng.choice(len(conditionedGenes_np), len(conditionedGenes_np), replace=True)]
+            vals[i] = estimator(resampled)
+        vals.sort()
+
+    else:
+        for i in range(nResamps):
+            genes_resampled = conditionedGenes.sample(frac=1, replace=True)
+            vals[i] = estimator(genes_resampled)
+        vals.sort()
+        vals_noNan = vals[~np.isnan(vals)]
 
     # ksStat = kstest(vals_noNan, lambda x: scipy.stats.norm.cdf(x, loc=vals_noNan.mean(), scale=vals_noNan.std()))[1]
 
