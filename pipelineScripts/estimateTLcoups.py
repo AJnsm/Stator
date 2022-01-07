@@ -421,6 +421,8 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
 
     conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
     
+    if PrintBool: print(estimator)
+
     if estimator is calcInteraction_expectations_numba:
         if PrintBool: print('running numba')
         val0 = estimator(conditionedGenes.values)
