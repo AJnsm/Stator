@@ -407,20 +407,18 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     '''
     Add 95% confidence interval bounds from bootstrap resamples,
     and the F value: the proportion of resamples with a different sign.
+
+    Note that to check for function equality, you need to use bytecode
     '''
     
     if estimator.__code__.co_code == calcInteraction_expectations.__code__.co_code:
-        if PrintBool: print('A')
         MBmode = '0' # Use first gene to get MB
     elif estimator.__code__.co_code == calcInteraction_expectations_np.__code__.co_code:
-        if PrintBool: print('B')
         MBmode = '0' # Use first gene to get MB
     elif estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
-        if PrintBool: print('C')
         MBmode = '0' # Use first gene to get MB
 
     else:
-        if PrintBool: print('D')
         MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
 
     conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
@@ -428,11 +426,9 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     if PrintBool: print(estimator)
 
     if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
-        if PrintBool: print('running numba')
         val0 = estimator(conditionedGenes.values)
 
     else:
-        if PrintBool: print('running other')
         val0 = estimator(conditionedGenes)
     vals = np.zeros(nResamps)
     
@@ -464,7 +460,6 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         
     
     if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
-        if PrintBool: print('running numba BS')
         rng = np.random.default_rng()
         conditionedGenes_np = conditionedGenes.values
         for i in range(nResamps):
@@ -474,11 +469,10 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
 
     else:
         for i in range(nResamps):
-            if PrintBool: print('running other BS')
             genes_resampled = conditionedGenes.sample(frac=1, replace=True)
             vals[i] = estimator(genes_resampled)
         vals.sort()
-        vals_noNan = vals[~np.isnan(vals)]
+    vals_noNan = vals[~np.isnan(vals)]
 
     # ksStat = kstest(vals_noNan, lambda x: scipy.stats.norm.cdf(x, loc=vals_noNan.mean(), scale=vals_noNan.std()))[1]
 
