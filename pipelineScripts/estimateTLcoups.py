@@ -10,6 +10,8 @@ import pandas as pd
 import igraph as ig
 import time
 import sys
+import numba
+from numba import njit
 
 import scipy
 # from scipy.stats import kstest
@@ -256,8 +258,102 @@ def calcInteraction_expectations_np(conditionedGenes):
     else:
         return np.log(num/denom)
     
-    
+@njit
+def safeMean(a):
+    if len(a)>0:
+        return a.mean()
+    else:
+        return 0
 
+@njit
+def calcInteraction_expectations_numba(conditionedGenes_np):
+    '''
+    Calc the interactions from the conditioned data using expectation values. 
+    Could see if using probabilities is faster. 
+    Currently, orders are implemented separately.
+
+    NOTE: previously, each interactions was corrected by a factor to match the {-1, 1} basis of the Ising model.
+    I now just take logs and leave them in the {0, 1} basis, which makes more sense for gene expression.
+    '''
+    if (len(conditionedGenes_np)==0):
+        return np.nan
+    
+    order = conditionedGenes_np.shape[-1]
+    
+    
+    
+    if(order==1):
+        E = conditionedGenes_np[:].mean()
+        num = E
+        denom = 1-E
+        
+    elif(order==2):
+        E1 = safeMean(conditionedGenes_np[conditionedGenes_np[:, 1]==1][:, 0])
+        E0 = safeMean(conditionedGenes_np[conditionedGenes_np[:, 1]==0][:, 0])
+
+        num = E1*(1-E0)
+        denom = E0*(1-E1)
+        
+    elif(order==3):
+        E11 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1)][:, 0])
+        E00 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0)][:, 0])
+        E10 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0)][:, 0])
+        E01 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1)][:, 0])
+        num = E11*(1-E01)*E00*(1-E10)
+        denom = E01*(1-E11)*E10*(1-E00)
+        
+    elif(order==4):
+        E111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1)][:, 0])
+        E000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0)][:, 0])
+        
+        E001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1)][:, 0])
+        E010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0)][:, 0])
+        E100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0)][:, 0])
+        
+        E011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1)][:, 0])
+        E101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1)][:, 0])
+        E110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0)][:, 0])
+        
+       
+        num = E111*(1-E011)*(1-E101)*E001*E010*(1-E110)*E100*(1-E000)
+        denom = (1-E111)*E011*E101*(1-E001)*(1-E010)*E110*(1-E100)*E000
+        
+    elif(order==5):
+        E1111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1)][:, 0])  
+        E0000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0)][:, 0])  
+        
+        E0001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1)][:, 0])  
+        E0010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0)][:, 0])  
+        E0100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0)][:, 0])  
+        E1000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0)][:, 0])  
+        
+        E0011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1)][:, 0])  
+        E0101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1)][:, 0])  
+        E0110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0)][:, 0])  
+        E1010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0)][:, 0])  
+        E1100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0)][:, 0])  
+        E1001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1)][:, 0])  
+        
+        E1110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0)][:, 0])  
+        E1101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1)][:, 0])  
+        E1011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1)][:, 0])  
+        E0111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1)][:, 0])  
+        
+        num = E1111*E1100*E1010*E0110*E0101*E0011*E1001*E0000 * (1-E0111)*(1-E1011)*(1-E1101)*(1-E1110)*(1-E0001)*(1-E0010)*(1-E0100)*(1-E1000)
+        denom = (1-E1111)*(1-E1100)*(1-E1010)*(1-E0110)*(1-E0101)*(1-E0011)*(1-E1001)*(1-E0000)*(E0111*E1011*E1101*E1110*E0001*E0010*E0100*E1000)
+
+    else:
+        print('Order not yet implemented, change estimation method to probabilities.')
+        return np.nan
+    
+    if ((num==0) & (denom==0)):
+            return np.nan 
+    elif num==0:
+        return -np.inf
+    elif denom==0:
+        return np.inf
+    else:
+        return np.log(num/denom)
 
 
 def calcInteraction_binTrick(conditionedGenes):
@@ -317,6 +413,9 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         MBmode = '0' # Use first gene to get MB
     elif estimator is calcInteraction_expectations_np:
         MBmode = '0' # Use first gene to get MB
+    elif estimator is calcInteraction_expectations_numba:
+        MBmode = '0' # Use first gene to get MB
+
     else:
         MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
 
@@ -602,7 +701,7 @@ def main():
     if estimationMethod == 'both':
         estimator = calcInteraction_binTrick
         calcInteractionsAndWriteNPYs(DSname+'_'+'probabilities'+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
-        estimator = calcInteraction_expectations_np
+        estimator = calcInteraction_expectations_numba
         calcInteractionsAndWriteNPYs(DSname+'_'+'expectations'+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
 
     elif estimationMethod == 'probabilities':
@@ -610,7 +709,7 @@ def main():
         calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
 
     elif estimationMethod == 'expectations':
-        estimator = calcInteraction_expectations_np
+        estimator = calcInteraction_expectations_numba
         calcInteractionsAndWriteNPYs(DSname+'_'+estimationMethod+notes, graph, trainDat, maxWorkers=nCores, order = intOrder, estimator = estimator, nResamps=nResamps)
     else:
         print('Invalid estimation method -- terminating...')        
