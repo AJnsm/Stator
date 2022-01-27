@@ -55,6 +55,8 @@ graph = ig.Graph.Adjacency(adjMat.values.tolist())
 try:
     if PrintBool: print('Loading genes to condition on 1')
     genesToOne = pd.read_csv(args.genesToOnePath).columns.values
+    if PrintBool: print(genesToOne)
+    if PrintBool: print([gene in genesToOne for gene in trainDat.columns.values])
     genesToOneIndices = np.where([gene in genesToOne for gene in trainDat.columns.values])[0]
     if PrintBool: print(f'{len(genesToOneIndices)} will be conditioned on 1')
 except:
