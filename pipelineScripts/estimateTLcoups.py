@@ -87,7 +87,7 @@ def findMarkovBlanket(v, g):
     return list(set(parents + children + spouses)) #Sets to keep uniques
    
     
-def conditionOnMB_new(genes, graph, dataSet, mode='0', genesToOne=genesToOneIndices):
+def conditionOnMB(genes, graph, dataSet, mode='0', genesToOne=genesToOneIndices):
     '''
     Calculate the MB for each gene in genes, and set all to zero. 
     mode=='Min' uses the smallest blanket, 
