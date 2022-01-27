@@ -49,9 +49,17 @@ trainDat = pd.read_csv(dataPath)
 DSname = graphPath.split('.')[0]
 adjMat = pd.read_csv(graphPath, index_col=0)
 graph = ig.Graph.Adjacency(adjMat.values.tolist()) 
-genesToOne = pd.read_csv(args.genesToOnePath).columns.values
 
-genesToOneIndices = np.where([gene in genesToOne for gene in geneNames])[0]
+try:
+    if PrintBool: print('Loading genes to condition on 1')
+    genesToOne = pd.read_csv(args.genesToOnePath).columns.values
+    genesToOneIndices = np.where([gene in genesToOne for gene in geneNames])[0]
+
+except:
+    if PrintBool: print('NOTE: all genes conditioned on 0s.')
+    genesToOneIndices
+
+
 
 
 # Creating empty control graph
