@@ -54,12 +54,9 @@ graph = ig.Graph.Adjacency(adjMat.values.tolist())
 
 try:
     if PrintBool: print('Loading genes to condition on 1')
-    if PrintBool: print('From path: ', genesToOnePath)
     genesToOne = pd.read_csv(genesToOnePath).columns.values
-    if PrintBool: print(genesToOne)
-    if PrintBool: print([gene in genesToOne for gene in trainDat.columns.values])
     genesToOneIndices = np.where([gene in genesToOne for gene in trainDat.columns.values])[0]
-    if PrintBool: print(f'{len(genesToOneIndices)} genes will be conditioned on 1')
+    if PrintBool: print(f'{len(genesToOneIndices)} genes will be conditioned on a 1')
 except Exception as e:
     print(e)
     if PrintBool: print('NOTE: all genes conditioned on 0s.')
@@ -113,7 +110,6 @@ def conditionOnMB(genes, graph, dataSet, mode='0', genesToOne=genesToOneIndices)
     
     condState = [1 if gene in genesToOne else 0 for gene in MB]
 
-    print('conditioning on:  ', condState)
     data_conditioned = dataSet[(dataSet.iloc[:, MB]==condState).all(axis=1)] #Set whole MB to conditioned state.     
     return data_conditioned.iloc[:, genes]
 
