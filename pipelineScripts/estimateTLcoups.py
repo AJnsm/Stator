@@ -35,11 +35,11 @@ parser.add_argument("--edgeListAlpha", type=str, nargs='?', help="Significance t
 parser.add_argument("--genesToOne", type=int, nargs='?', help="Path to list of genes that should be set to 1")
 
 dataPath = args.dataPath
-graphPath = args.graphPath
+graphPath = args.graphPath[0]
 intOrder = args.intOrder
-nResamps = args.nResamps
+nResamps = args.nResamps[0]
 nCores = args.nCores
-estimationMethod = args.estimationMethod
+estimationMethod = args.estimationMethod[0]
 edgeListAlpha = args.edgeListAlpha
 genesToOnePath = args.genesToOne
 

@@ -89,7 +89,6 @@ process estimateCoups_1pts {
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py"
-    path dipTest_pVals from "${projectDir}/dipPvals.csv"
     tuple path(dataSet), path(graph) from data_and_graphs_1pts
     
     output:
@@ -97,7 +96,7 @@ process estimateCoups_1pts {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 1 ${params.bsResamps} ${params.cores_1pt} ${dipTest_pVals} ${params.estimationMethod} ${params.edgeListAlpha} ${params.genesToOneList}
+    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 1 --nResamps ${params.bsResamps} --nCores${params.cores_1pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${params.genesToOne}
     """
 
 }
@@ -110,7 +109,6 @@ process estimateCoups_2pts {
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py"
-    path dipTest_pVals from "${projectDir}/dipPvals.csv"
     tuple path(dataSet), path(graph) from data_and_graphs_2pts
     
     output:
@@ -118,7 +116,7 @@ process estimateCoups_2pts {
     path 'edgeList*.csv' into interaction_2pts_ch_edgeList
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 2 ${params.bsResamps} ${params.cores_2pt} ${dipTest_pVals} ${params.estimationMethod} ${params.edgeListAlpha} ${params.genesToOneList}
+    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 2 --nResamps ${params.bsResamps} --nCores${params.cores_2pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${params.genesToOne}
     """
 
 }
@@ -131,7 +129,6 @@ process estimateCoups_3pts {
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py"
-    path dipTest_pVals from "${projectDir}/dipPvals.csv"
     tuple path(dataSet), path(graph) from data_and_graphs_3pts
     
     output:
@@ -139,7 +136,7 @@ process estimateCoups_3pts {
     path 'edgeList*.csv' into interaction_3pts_ch_edgeList
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 3 ${params.bsResamps} ${params.cores_3pt} ${dipTest_pVals} ${params.estimationMethod} ${params.edgeListAlpha} ${params.genesToOneList}
+    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 3 --nResamps ${params.bsResamps} --nCores${params.cores_3pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${params.genesToOne}
     """
 
 }
