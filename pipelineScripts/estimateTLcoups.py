@@ -112,6 +112,8 @@ def conditionOnMB(genes, graph, dataSet, mode='0', genesToOne=genesToOneIndices)
     MB = list(set(MB) - set(genes)) #Remove the interacting genes from the markov Blanket.    
     
     condState = [1 if gene in genesToOne else 0 for gene in MB]
+
+    print('conditioning on:  ', condState)
     data_conditioned = dataSet[(dataSet.iloc[:, MB]==condState).all(axis=1)] #Set whole MB to conditioned state.     
     return data_conditioned.iloc[:, genes]
 
