@@ -10,6 +10,9 @@ import pandas as pd
 import igraph as ig
 import time
 import sys
+import argparse
+
+
 import numba
 from numba import njit
 
@@ -21,24 +24,35 @@ import scipy
 
 if PrintBool: print('Modules imported \n')
 
-    
-if(len(sys.argv)<8):
-    print('Not enough arguments -- terminating...')
-dataPath = sys.argv[1]
-graphPath = sys.argv[2]
-intOrder = int(sys.argv[3])
-nResamps = int(sys.argv[4])
-nCores = int(sys.argv[5])   
-pValPath = sys.argv[6]
-estimationMethod = sys.argv[7]
-edgeListAlpha = float(sys.argv[8])
+parser = argparse.ArgumentParser(description='Args for coupling estimation')
+parser.add_argument("--dataPath", type=str, nargs='?', help="Path to training data")
+parser.add_argument("--graphPath", type=str, nargs=1, help="Path to graph file")
+parser.add_argument("--intOrder", type=int, nargs='?', help="order of interaction")
+parser.add_argument("--nResamps", type=int, nargs=1, help="Number of BS resamples")
+parser.add_argument("--nCores", type=int, nargs='?', help="Number of cores")
+parser.add_argument("--estimationMethod", type=str, nargs=1, help="Estimation method to use")
+parser.add_argument("--edgeListAlpha", type=str, nargs='?', help="Significance threshold for edge list inclusion")
+parser.add_argument("--genesToOne", type=int, nargs='?', help="Path to list of genes that should be set to 1")
+
+dataPath = args.dataPath
+graphPath = args.graphPath
+intOrder = args.intOrder
+nResamps = args.nResamps
+nCores = args.nCores
+estimationMethod = args.estimationMethod
+edgeListAlpha = args.edgeListAlpha
+genesToOnePath = args.genesToOne
+
 
 
 trainDat = pd.read_csv(dataPath)
-pVals = pd.read_csv(pValPath, index_col=0)
 DSname = graphPath.split('.')[0]
 adjMat = pd.read_csv(graphPath, index_col=0)
 graph = ig.Graph.Adjacency(adjMat.values.tolist()) 
+genesToOne = pd.read_csv(args.genesToOnePath).columns.values
+
+genesToOneIndices = np.where([gene in genesToOne for gene in geneNames])[0]
+
 
 # Creating empty control graph
 graph_ctrl = graph.copy()
@@ -63,14 +77,14 @@ def findMarkovBlanket(v, g):
     return list(set(parents + children + spouses)) #Sets to keep uniques
    
     
-def conditionOnMB(genes, graph, dataSet, mode='0'):
+def conditionOnMB_new(genes, graph, dataSet, mode='0', genesToOne=genesToOneIndices):
     '''
     Calculate the MB for each gene in genes, and set all to zero. 
     mode=='Min' uses the smallest blanket, 
     while an integer specifies a particular gene's MB
     '''
     MBs = [findMarkovBlanket(gene, graph) for gene in genes]
-    
+
     if (mode == 'Min'):
         MB = min(MBs, key=len) 
     elif (mode == 'All'):
@@ -81,9 +95,10 @@ def conditionOnMB(genes, graph, dataSet, mode='0'):
         except:
             print('Invalid mode')
 
-
     MB = list(set(MB) - set(genes)) #Remove the interacting genes from the markov Blanket.    
-    data_conditioned = dataSet[(dataSet.iloc[:, MB]==0).all(axis=1)] #Set whole MB to zero.     
+    
+    condState = [1 if gene in genesToOne else 0 for gene in MB]
+    data_conditioned = dataSet[(dataSet.iloc[:, MB]==condState).all(axis=1)] #Set whole MB to conditioned state.     
     return data_conditioned.iloc[:, genes]
 
 def calcInteraction_expectations(conditionedGenes):

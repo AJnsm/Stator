@@ -97,7 +97,7 @@ process estimateCoups_1pts {
     
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 1 ${params.bsResamps} ${params.cores_1pt} ${dipTest_pVals} ${params.estimationMethod} ${params.edgeListAlpha}
+    python ${estimationScript} ${dataSet} ${graph} 1 ${params.bsResamps} ${params.cores_1pt} ${dipTest_pVals} ${params.estimationMethod} ${params.edgeListAlpha} ${params.genesToOneList}
     """
 
 }
@@ -118,7 +118,7 @@ process estimateCoups_2pts {
     path 'edgeList*.csv' into interaction_2pts_ch_edgeList
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 2 ${params.bsResamps} ${params.cores_2pt} ${dipTest_pVals} ${params.estimationMethod} ${params.edgeListAlpha}
+    python ${estimationScript} ${dataSet} ${graph} 2 ${params.bsResamps} ${params.cores_2pt} ${dipTest_pVals} ${params.estimationMethod} ${params.edgeListAlpha} ${params.genesToOneList}
     """
 
 }
@@ -139,7 +139,7 @@ process estimateCoups_3pts {
     path 'edgeList*.csv' into interaction_3pts_ch_edgeList
 
     """
-    python ${estimationScript} ${dataSet} ${graph} 3 ${params.bsResamps} ${params.cores_3pt} ${dipTest_pVals} ${params.estimationMethod} ${params.edgeListAlpha}
+    python ${estimationScript} ${dataSet} ${graph} 3 ${params.bsResamps} ${params.cores_3pt} ${dipTest_pVals} ${params.estimationMethod} ${params.edgeListAlpha} ${params.genesToOneList}
     """
 
 }
