@@ -59,8 +59,9 @@ try:
     if PrintBool: print(genesToOne)
     if PrintBool: print([gene in genesToOne for gene in trainDat.columns.values])
     genesToOneIndices = np.where([gene in genesToOne for gene in trainDat.columns.values])[0]
-    if PrintBool: print(f'{len(genesToOneIndices)} will be conditioned on 1')
-except:
+    if PrintBool: print(f'{len(genesToOneIndices)} genes will be conditioned on 1')
+except Exception as e:
+    print(e)
     if PrintBool: print('NOTE: all genes conditioned on 0s.')
     genesToOneIndices = []
 
