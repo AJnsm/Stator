@@ -34,6 +34,8 @@ parser.add_argument("--estimationMethod", type=str, nargs=1, help="Estimation me
 parser.add_argument("--edgeListAlpha", type=str, nargs='?', help="Significance threshold for edge list inclusion")
 parser.add_argument("--genesToOne", type=int, nargs='?', help="Path to list of genes that should be set to 1")
 
+args = parser.parse_args()
+
 dataPath = args.dataPath
 graphPath = args.graphPath[0]
 intOrder = args.intOrder
