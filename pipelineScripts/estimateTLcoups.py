@@ -31,7 +31,7 @@ parser.add_argument("--intOrder", type=int, nargs='?', help="order of interactio
 parser.add_argument("--nResamps", type=int, nargs=1, help="Number of BS resamples")
 parser.add_argument("--nCores", type=int, nargs='?', help="Number of cores")
 parser.add_argument("--estimationMethod", type=str, nargs=1, help="Estimation method to use")
-parser.add_argument("--edgeListAlpha", type=str, nargs='?', help="Significance threshold for edge list inclusion")
+parser.add_argument("--edgeListAlpha", type=float, nargs='?', help="Significance threshold for edge list inclusion")
 parser.add_argument("--genesToOne", type=str, nargs='?', help="Path to list of genes that should be set to 1")
 
 args = parser.parse_args()
