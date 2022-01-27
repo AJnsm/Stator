@@ -59,7 +59,7 @@ try:
 
 except:
     if PrintBool: print('NOTE: all genes conditioned on 0s.')
-    genesToOneIndices
+    genesToOneIndices = []
 
 
 
