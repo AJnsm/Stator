@@ -8,8 +8,12 @@ process makeData {
     publishDir "${launchDir}/embeddings", mode: 'copy', pattern: '*coords.csv'
 
     input:
-    path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py"
+    path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py" 
     val cellType from cellTypes_ch
+    path rawData from params.rawDataPath
+    path clusterFile from params.clusterFile
+    path doubletFile from params.doubletFile
+    path userGenes from params.userGenes
     
     output:
     path "trainingData_*Genes.csv" into dataSets mode flatten
@@ -20,14 +24,13 @@ process makeData {
     script:
     if( params.dataType == 'agnostic' )
         """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${params.rawDataPath} --clusters ${params.clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${params.doubletFile} --userGenes ${params.userGenes} --twoReplicates ${params.twoReplicates}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${doubletFile} --userGenes ${userGenes} --twoReplicates ${params.twoReplicates}
         """
 
     else if( params.dataType == 'expression' )
         """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${params.rawDataPath} --clusters ${params.clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${params.doubletFile} --userGenes ${params.userGenes} --twoReplicates ${params.twoReplicates}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${doubletFile} --userGenes ${userGenes} --twoReplicates ${params.twoReplicates}
         """
-
     else
         error "Invalid data type"
 }
@@ -38,7 +41,7 @@ process estimatePCgraph {
     publishDir "${launchDir}/output", mode: 'copy'
 
     input:
-    path PCgraphEstScript from "${projectDir}/pipelineScripts/parallelPCscript.R"
+    path PCgraphEstScript from "${projectDir}/pipelineScripts/parallelPCscript.R" 
     path dataSet from dataSets
 
     output:
@@ -56,7 +59,7 @@ process iterMCMCscheme {
     publishDir "${launchDir}/output", mode: 'copy'
     
     input:
-    path MCMCscript from "${projectDir}/pipelineScripts/iterMCMCscript.R"
+    path MCMCscript from "${projectDir}/pipelineScripts/iterMCMCscript.R" 
     tuple path(dataSet), path(PCgraph) from PCgraphs_forMCMC_ch
 
     output:
@@ -77,7 +80,7 @@ process estimateCoups_1pts {
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
-    path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py"
+    path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
     tuple path(dataSet), path(graph) from data_and_graphs_1pts
     
     output:
@@ -97,7 +100,8 @@ process estimateCoups_2pts {
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
-    path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py"
+    path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
+    path genesToOne from params.genesToOne
     tuple path(dataSet), path(graph) from data_and_graphs_2pts
     
     output:
@@ -105,7 +109,7 @@ process estimateCoups_2pts {
     path 'edgeList*.csv' into interaction_2pts_ch_edgeList
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 2 --nResamps ${params.bsResamps} --nCores ${params.cores_2pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${params.genesToOne}
+    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 2 --nResamps ${params.bsResamps} --nCores ${params.cores_2pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne}
     """
 
 }
@@ -117,7 +121,7 @@ process estimateCoups_3pts {
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
-    path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py"
+    path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
     tuple path(dataSet), path(graph) from data_and_graphs_3pts
     
     output:
