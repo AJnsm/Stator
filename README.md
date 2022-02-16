@@ -1,10 +1,10 @@
-# CoComix
-**Co**nditional **Co**uplings in (transcript-)**omics** data. 
-
-or maybe:
 # SCIBERNets
 
 **S**ingle **C**ell **I**nteractions as **B**oolean **E**xpression **R**egulation **Net**works. 
+
+or maybe:
+# CoComix
+**Co**nditional **Co**uplings in (transcript-)**omics** data. 
 
 ## Introduction
 This pipeline takes in single cell RNA-seq count matrices, and estimates gene-interactions at first, second, and third order. 
@@ -27,10 +27,11 @@ Secondly, you must have access to either Docker or Singularity. Most clusters (l
 
 ## Input files
 
-* A count matrix in csv format, where the rows are genes, and the columns cells. The index column should contain the gene names (does not matter in which format), and the first row/header should contain cell identifiers (either barcodes or an index). 
-* A list of integer cluster annotations per cell in csv format: This should be in the same order as the cells in the count matrix. 
-* (optional) A list of genes that should be included in the final analysis, irrespective of their variability.  
-* (optional) A list of booleans on whether or not a cell should be included (e.g. on the basis of being a suspected doublet), in the same order as the cells in the count matrix. 
+* rawDataPath: A count matrix in csv format, where the rows are cells, and the columns genes. The first row should contain the gene names (does not matter in which format). 
+* clusterFile: A list of integer cluster annotations per cell in csv format: This should be in the same order as the cells in the count matrix. 
+* userGenes (optional): A list of genes that should be included in the final analysis, irrespective of their variability.  
+* genesToOne (optional): A list of genes that should be conditioned to a 1 instead of a 0.  
+* doubletFile (optional): A list of booleans on whether or not a cell should be included (e.g. on the basis of being a suspected doublet), in the same order as the cells in the count matrix. 
 
 
 ## Output files
@@ -38,8 +39,10 @@ Secondly, you must have access to either Docker or Singularity. Most clusters (l
 * .csv files with the nGenes x nCells count matrices after filtering (in `output/`). 
 * .csv files with the nGenes x nGenes adjacency matrices for the graphs used in the estimation steps (in `output/`). 
 * .npy files with the interactions at each order for each of the data sets (in `coupling_output/`). 
-* .npy files with the bounds on the 95% confidence interval of the error on the interactions (in `coupling_output/`). 
-* .npy files with the proportion of bootstrap resamples that fall on the other side of zero (in `coupling_output/`). 
+* CI_L(U)B.npy files with the bounds on the 95% confidence interval of the error on the interactions (in `coupling_output/`). 
+* CI_F.npy files with the proportion of bootstrap resamples that fall on the other side of zero (in `coupling_output/`). 
+* undef(inf).npy files with the proportion of bootstrap resamples that were undefined (infinite) (in `coupling_output/`). 
+* boundVal.npy files that indicate whether the estimate is a true estimate (0) or an artificial upper/lower bound (1/-1) (in `coupling_output/`). 
 * some reports from Nextflow on resource usage etc. (in `reports/`).
 
 
@@ -49,13 +52,15 @@ The pipeline takes in a number of parameters, which can be set by the user in th
 These affect the calculation and the results:
 | Parameter | Default | Description | Required? | 
 | :----- | :----- | :----- | :-- |
+| dataType | ' ' | type of input data: determines preprocessing | Yes |
 | rawDataPath | ' ' | absolute path to count matrix .csv | Yes |
 | clusterFile | ' ' | absolute path to cluster annotation .csv | No |
+| doubletFile | ' ' | absolute path to doublet annotation .csv | No |
 | userGenes | ' ' | absolute path to list of required genes .csv | No |
 | nGenes | 5 | Number of genes to keep | Yes |
 | nCells | 20 | Number of cells to keep | Yes |
 | clusterArray | 0 | List of which clusters to keep | No |
-| pcAlpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
+| PCalpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
 | bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Yes |
 | twoReplicates | false | Boolean to decide on constructing two replicates from the data | Yes |
 
@@ -79,9 +84,9 @@ First, you need to pull the latest version of the pipeline from Github. This is 
 
 
 ```bash
-nextflow pull AJnsm/NF_TL_pipeline -r develop
+nextflow pull AJnsm/NF_TL_pipeline -r branch
 ```
-Currently, the branch to use is called `develop`. On a cluster, you need to load Singularity. On Eddie this is done with 
+where branch is set to either `main` (most stable) or `develop`. On a cluster, you need to load Singularity. On Eddie this is done with 
 
 
 ```bash
@@ -91,10 +96,10 @@ module load singularity
  Then, from the directory where you want the output directories to be generated, the pipeline can be run with the command:
 
 ```bash
-nextflow run AJnsm/NF_TL_pipeline -r develop -profile eddie_singularity -params-file params.json
+nextflow run AJnsm/NF_TL_pipeline -r main -profile eddie_singularity -params-file params.json
 ```
 
-Where ```-r develop ``` specifies the branch/revision, ```-profile eddie_singularity``` selects the right profile for the Eddie environment, and ```-params-file params.json``` specifies a JSON file with the necessary parameters. An example JSON file is provided in this repository.
+Where ```-r main ``` specifies the branch/revision, ```-profile eddie_singularity``` selects the right profile for the Eddie environment, and ```-params-file params.json``` specifies a JSON file with the necessary parameters. An example JSON file is provided in this repository.
 
 
 **NOTE: On a cluster, you need to make sure you are on a node that allows automated job submission. On Eddie these are known as the wild-west nodes.**
