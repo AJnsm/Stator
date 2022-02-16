@@ -43,6 +43,8 @@ cat(dim(dataSet))
 cat('\n')
 cat(nGenes)
 sp <- scoreparameters(n = nGenes, scoretype = "bde", dataSet)
+
+# cpdag set to true, so that the startspace is the equivalance class of the PCadjMat
 system.time(result_iterMCMC <- iterativeMCMC(sp, MAP=TRUE, verbose=TRUE, chainout=FALSE,
                                          startspace=PCadjMat, cpdag=TRUE))
 
@@ -50,6 +52,7 @@ system.time(result_iterMCMC <- iterativeMCMC(sp, MAP=TRUE, verbose=TRUE, chainou
 
 
 write.csv(result_iterMCMC$endspace, paste('MCMCgraph_', DSname, '.csv', sep=''), row.names=TRUE)
+write.csv(result_iterMCMC$CPDAG, paste('CPDAGgraph_', DSname, '.csv', sep=''), row.names=TRUE)
 
 # To read out and plot: tmp <- read.csv('iterMCMC...'), then set row.names(tmp) <- colnames(tmp), and run
 # plotFn(graph_from_adjacency_matrix(as(tmp, 'matrix')), ...)

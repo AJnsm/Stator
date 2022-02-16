@@ -54,7 +54,7 @@ process estimatePCgraph {
 
     output:
     tuple path(dataSet), path('PCgraph*.csv') into PCgraphs_forMCMC_ch mode flatten
-    tuple path(dataSet), path('*graph*.csv') into PC_and_ctrl_graphs_ch mode flatten
+    tuple path(dataSet), path('CTRLgraph*.csv') into CTRLgraphs_ch mode flatten
 
     """
     Rscript ${PCgraphEstScript} ${dataSet} ${params.cores_PC} ${params.PCalpha}
@@ -71,14 +71,14 @@ process iterMCMCscheme {
     tuple path(dataSet), path(PCgraph) from PCgraphs_forMCMC_ch
 
     output:
-    tuple path(dataSet), path('MCMCgraph*.csv') into MCMCgraphs_ch mode flatten
+    tuple path(dataSet), path('*graph*.csv') into MCMCgraphs_ch mode flatten
 
     """
     Rscript ${MCMCscript} ${PCgraph} ${dataSet} ${params.nGenes} 
     """
 }
 
-data_and_graphs_ch = PC_and_ctrl_graphs_ch.mix(MCMCgraphs_ch)
+data_and_graphs_ch = CTRLgraphs_ch.mix(MCMCgraphs_ch)
 data_and_graphs_ch.into {data_and_graphs_1pts; data_and_graphs_2pts; data_and_graphs_3pts}
 
 
