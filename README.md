@@ -1,6 +1,6 @@
 # SCIBERNets
 
-**S**ingle **C**ell **I**nteractions as **B**oolean **E**xpression **R**egulation **Net**works. 
+**S**ingle **C**ell **I**nference as **B**oolean **E**xpression **R**egulation **Net**works. 
 
 or maybe:
 # CoComix
