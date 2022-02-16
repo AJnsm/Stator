@@ -42,7 +42,7 @@ print(paste('Starting MCMC MAP estimation on cluster', DSname))
 cat(dim(dataSet))
 cat('\n')
 cat(nGenes)
-sp <- scoreparameters(n = nGenes, scoretype = "bde", dataSet)
+sp <- scoreparameters(scoretype = "bde", data = dataSet)
 
 # cpdag set to true, so that the startspace is the equivalance class of the PCadjMat
 system.time(result_iterMCMC <- iterativeMCMC(sp, MAP=TRUE, verbose=TRUE, chainout=FALSE,
