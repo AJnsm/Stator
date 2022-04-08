@@ -465,7 +465,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=2**len(genes))
         minBin = min(binCounts)
         if np.floor(15/minBin)>1:
-            dupFactor = np.floor(15/a)
+            dupFactor = np.floor(15/minBin)
         else:
             dupFactor = 1
 
