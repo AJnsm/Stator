@@ -64,7 +64,16 @@ except Exception as e:
     if PrintBool: print('NOTE: all genes conditioned on 0s.')
     genesToOneIndices = []
 
+if PrintBool: 
+    if boundBool==1:
+        print('including bounds')
 
+    if dataDups==-1:
+        print('Using automatic data duplication')
+    elif dataDups>0:
+        print(f'Duplicating data {dataDups} times')
+    else:
+        print('no data duplication')
 
 
 # Creating empty control graph
