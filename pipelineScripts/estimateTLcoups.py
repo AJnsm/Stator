@@ -34,7 +34,7 @@ parser.add_argument("--estimationMethod", type=str, nargs=1, help="Estimation me
 parser.add_argument("--edgeListAlpha", type=float, nargs='?', help="Significance threshold for edge list inclusion")
 parser.add_argument("--genesToOne", type=str, nargs='?', help="Path to list of genes that should be set to 1")
 parser.add_argument("--dataDups", type=int, nargs='?', help="Number of data duplications. 0 is none, -1 is auto, and other is user-defined")
-
+parser.add_argument("--boundBool", type=int, nargs='?', help="Boolean that decided whether bounds should also be considered.")
 
 args = parser.parse_args()
 
@@ -47,7 +47,7 @@ estimationMethod = args.estimationMethod[0]
 edgeListAlpha = args.edgeListAlpha
 genesToOnePath = args.genesToOne
 dataDups = args.dataDups
-
+boundBool = args.boundBool
 
 trainDat = pd.read_csv(dataPath)
 DSname = graphPath.split('.')[0]
@@ -496,22 +496,26 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     if np.isinf(val0):
 
         # if empirical is +/- inf, then we can add artificial cells to put bounds:
+        if boundBool:
+            order = len(genes)
+            # This assigns every state to numerator or denominator, depending on the number of 1s:
+            # In numerator: states where the number of ones has same parity as order itself. 
+            # In denom: When this is not the case.
+            # powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
+            nStates = 2**order
+            f = lambda x: ''.join(map(str, x))
+            binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
 
-        order = len(genes)
-        # This assigns every state to numerator or denominator, depending on the number of 1s:
-        # In numerator: states where the number of ones has same parity as order itself. 
-        # In denom: When this is not the case.
-        # powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
-        nStates = 2**order
-        f = lambda x: ''.join(map(str, x))
-        binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
-
-        # find the binary rep of the state that was missing, and see if we can put upper/lower bound
-        boundVal = -1*int(np.sign(val0))
-        statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
-        conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
+            # find the binary rep of the state that was missing, and see if we can put upper/lower bound
+            boundVal = -1*int(np.sign(val0))
+            statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
+            conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
         
-    
+        # if not considering bounds, just return nans
+        else:
+            return [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, genes]
+
+
     if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
         rng = np.random.default_rng()
         conditionedGenes_np = conditionedGenes.values
@@ -652,7 +656,9 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
     np.save(f'interactions_order{order}_{ID}_CI_F', TLcoups_nonZero)
     np.save(f'interactions_order{order}_{ID}_undef', TLcoups_undef)
     np.save(f'interactions_order{order}_{ID}_inf', TLcoups_inf)
-    np.save(f'interactions_order{order}_{ID}_boundVal', boundArr)
+
+    if boundBool:
+        np.save(f'interactions_order{order}_{ID}_boundVal', boundArr)
 
 
 
