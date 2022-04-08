@@ -33,7 +33,7 @@ parser.add_argument("--nCores", type=int, nargs='?', help="Number of cores")
 parser.add_argument("--estimationMethod", type=str, nargs=1, help="Estimation method to use")
 parser.add_argument("--edgeListAlpha", type=float, nargs='?', help="Significance threshold for edge list inclusion")
 parser.add_argument("--genesToOne", type=str, nargs='?', help="Path to list of genes that should be set to 1")
-parser.add_argument("--dataDups", type=int, nargs='?', help="Number of data duplications. 0 is none, -1 is auto, and other is user-defined")
+parser.add_argument("--dataDups", type=int, nargs='?', help="Number of data duplications. 0 is no duplication, and another value is the min binsize allowed (recommended to be 15). ")
 parser.add_argument("--boundBool", type=int, nargs='?', help="Boolean that decided whether bounds should also be considered.")
 
 args = parser.parse_args()
@@ -68,10 +68,8 @@ if PrintBool:
     if boundBool==1:
         print('including bounds')
 
-    if dataDups==-1:
-        print('Using automatic data duplication')
-    elif dataDups>0:
-        print(f'Duplicating data {dataDups} times')
+    if dataDups>0:
+        print(f'Duplicating data up to {dataDups} times')
     else:
         print('no data duplication')
 
@@ -468,31 +466,24 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
     # Check if data needs to be duplicated
     dupFactor=1
 
-
-
     # auto mode:
-    if dataDups==-1:
+    if dataDups>0:
 
         f = lambda x: ''.join(map(str, x))
         binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=2**len(genes))
         minBin = min(binCounts)
 
         try:
-            if np.floor(15/minBin)>1:
-                dupFactor = int(np.floor(15/minBin))
+            if np.floor(dataDups/minBin)>1:
+                dupFactor = int(np.floor(dataDups/minBin))
             else:
                 dupFactor = 1
         except:
             dubFactor = 1
 
-    # user-defined duplication
-    elif dataDups>0:
-        dupFactor = int(dataDups)
-
+    # duplicate data
     if dupFactor>1:
         conditionedGenes = pd.concat([conditionedGenes for _ in range(dupFactor)])
-
-
 
 
     if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
