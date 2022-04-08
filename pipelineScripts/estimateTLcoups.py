@@ -33,6 +33,8 @@ parser.add_argument("--nCores", type=int, nargs='?', help="Number of cores")
 parser.add_argument("--estimationMethod", type=str, nargs=1, help="Estimation method to use")
 parser.add_argument("--edgeListAlpha", type=float, nargs='?', help="Significance threshold for edge list inclusion")
 parser.add_argument("--genesToOne", type=str, nargs='?', help="Path to list of genes that should be set to 1")
+parser.add_argument("--dataDups", type=int, nargs='?', help="Number of data duplications. 0 is none, -1 is auto, and other is user-defined")
+
 
 args = parser.parse_args()
 
@@ -44,7 +46,7 @@ nCores = args.nCores
 estimationMethod = args.estimationMethod[0]
 edgeListAlpha = args.edgeListAlpha
 genesToOnePath = args.genesToOne
-
+dataDups = args.dataDups
 
 
 trainDat = pd.read_csv(dataPath)
@@ -454,7 +456,27 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
 
     conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
     
-    
+    # Check if data needs to be duplicated
+    dupFactor=1
+
+    # auto mode:
+    if dataDups==-1:
+        binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=2**len(genes))
+        minBin = min(binCounts)
+        if np.floor(15/minBin)>1:
+            dupFactor = np.floor(15/a)
+        else:
+            dupFactor = 1
+
+    # user-defined duplication
+    elif dataDups>0:
+        dupFactor = int(dataDups)
+
+    if dupFactor>1:
+        conditionedGenes = pd.concat([conditionedGenes for _ in range(dupFactor)])
+
+
+
 
     if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
         val0 = estimator(conditionedGenes.values)
@@ -496,16 +518,19 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         for i in range(nResamps):
             resampled = conditionedGenes_np[rng.choice(len(conditionedGenes_np), len(conditionedGenes_np), replace=True)]
             vals[i] = estimator(resampled)
-        vals.sort()
 
     else:
+
         for i in range(nResamps):
             genes_resampled = conditionedGenes.sample(frac=1, replace=True)
             vals[i] = estimator(genes_resampled)
-        vals.sort()
+    
+
+    vals.sort()
     vals_noNan = vals[~np.isnan(vals)]
 
-    # ksStat = kstest(vals_noNan, lambda x: scipy.stats.norm.cdf(x, loc=vals_noNan.mean(), scale=vals_noNan.std()))[1]
+    if dupFactor>1:
+        vals = np.sqrt(dupFactor)*(vals-val0) + val0
 
     CI = (vals_noNan[int(np.around(len(vals_noNan)/40))], vals_noNan[int(np.floor(len(vals_noNan)*39/40))])
 
