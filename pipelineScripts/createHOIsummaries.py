@@ -17,7 +17,6 @@ from collections import OrderedDict
 import itertools
 import random
 
-from gprofiler import GProfiler
 import hypernetx as hnx
 import scanpy as sc
 
