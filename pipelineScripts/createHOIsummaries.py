@@ -147,8 +147,14 @@ def plotUpsetPlot(d, title='', legend=True, save=False, filename=None):
 
 f=2
 kwargs = {'with_node_counts': True, 'with_node_labels':True, 'with_edge_labels':False}
+concatInts = lambda x: ''.join(map(str, x))
+deviations = {}
 
 for order in [3, 4, 5]:
+	nStates = 2**order
+    binStates = [np.array(list(format(x, f"0{order}b"))).astype(bool) for x in range(nStates)]
+    devs = []
+
 	for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
 	    ID = '_'.join(genes[geneTuple])      
 	    g = findLocalGraph(geneTuple, CPDAGgraph, order=0)
@@ -193,7 +199,7 @@ for order in [3, 4, 5]:
 		#  ************************ PCA embeddings ************************ 
 	    fig, ax = plt.subplots(1, len(fsplit[0].split('_')), figsize=[20, 4])
 	    for g in geneTuple:
-	    	sc.pl.embedding(scObs[f'{ds}'],'pca', color=g, 
+	    	sc.pl.embedding(scObj,'pca', color=g, 
                                 size=30, color_map="viridis", add_outline=True, ncols=len(fsplit[0]), show=False, frameon=False, ax = ax[i])
 	    fig = plt.gcf()
 	    fig.axes[-1].remove()
@@ -211,9 +217,39 @@ for order in [3, 4, 5]:
 
 
 
+		#  ************************ Calculate deviations ************************ 
 
+        conditionedGenes = conditionOnMB(interactors, graph, dat, mode='Min')
+        binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(concatInts, conditionedGenes.values)))), minlength=nStates)
+        means = conditionedGenes.mean(axis=0)
+        expected = np.array([np.prod([m if state[i] else 1-m for i, m in enumerate(means)]) for state in binStates])*len(conditionedGenes)
+        
+        deviation = (binCounts - expected)/(expected)
+        devs.append([deviation, interactors])
+    
+    devs  = np.array(devs, dtype=object)
+    devs = devs[(-np.array(list(map(np.max, devs[:, 0])))).argsort()]
+    deviations[f'n{order}'] = devs
 
+        
+#  ************************ PCA embedding on max deviating state ************************ 
+for order in [3, 4, 5]:
+    for devs, interactors in deviations[f'n{order}']:
 
+        ID = '_'.join(genes[interactors])
+        
+        maxDevState = format(np.argmax(devs), f"0{order}b")
+        maxDevState_embedded = scObj.obsm['X_pca'][(scObj.X[:, interactors] == np.array(list(maxDevState)).astype(float)).all(axis=1)]
+        xs = scObj.obsm['X_pca'][:, 0]
+        ys = scObj.obsm['X_pca'][:, 1]
+        plt.plot(xs, ys, 'o', color = viridis(0), alpha=0.1)
+        plt.plot(maxDevState_embedded[:, 0], maxDevState_embedded[:, 1], 'o', color = viridis(0.99), alpha=0.9)
+        plt.title(', '.join(genes[interactors]) + ' = ' + ', '.join(maxDevState), fontsize=8)
+        plt.xticks([])
+        plt.yticks([])
+        
+        plt.savefig(f'higherOrderOutput/plots/{ds}/{ID}_Expression_maxDevState.png')
+        plt.close('all') 
 
 
 

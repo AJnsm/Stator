@@ -121,7 +121,6 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
         
         args = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for triplet in trips]
     
-    if PrintBool: print(args)
     start = time.perf_counter()
     with concurrent.futures.ProcessPoolExecutor(max_workers=maxWorkers) as executor:
         results = executor.map(calcInteraction_withCI_parallel, args)  
