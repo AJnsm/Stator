@@ -37,6 +37,7 @@ nResamps = args.nResamps[0]
 nCores = args.nCores[0]
 nRands = args.nRandoms[0]
 genesToOnePath = args.genesToOne
+dataDups = args.dataDups
 
 trainDat = pd.read_csv(dataPath)
 adjMat = pd.read_csv(graphPath, index_col=0)
