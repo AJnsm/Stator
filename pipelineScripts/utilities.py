@@ -46,6 +46,21 @@ def conditionOnMB(genes, graph, dataSet, mode='0', genesToOne=[]):
     data_conditioned = dataSet[(dataSet.iloc[:, MB]==condState).all(axis=1)] #Set whole MB to conditioned state.     
     return data_conditioned.iloc[:, genes]
 
+def findLocalGraph(v, g, order):
+    nodes = set([*v])
+    for i in range(order):
+        newNodes = set()
+        for node in nodes:
+            newNodes = newNodes.union(set(g.neighbors(node)))
+        nodes = nodes.union(newNodes)
+
+    return g.subgraph(list(nodes))
+
+
+from itertools import chain, combinations
+def powerset(iterable):
+    items = list(iterable)
+    return chain.from_iterable(combinations(items,n) for n in range(len(items)+1))
 
 @njit
 def safeMean(a):
