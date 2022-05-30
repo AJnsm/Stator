@@ -165,7 +165,7 @@ process estimateCoups_345pts_WithinMB {
 process estimateCoups_6n7pts {
     label 'interactionEstimation'
     
-    // publishDir "${launchDir}/coupling_output", mode: 'copy'
+    publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/calcHOIs_6n7pts.py" 
@@ -178,7 +178,6 @@ process estimateCoups_6n7pts {
     path 'interactions*.npy' into interaction_6n7pts
 
     """
-    python ${estimationScript}  --nResamps ${params.bsResamps} --nCores ${params.cores_HOIs_6n7} --nRandoms ${params.nRandomHOIs} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
     """
 
 }
