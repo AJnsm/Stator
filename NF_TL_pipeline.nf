@@ -163,6 +163,8 @@ process estimateCoups_345pts_WithinMB {
 }
 
 interaction_withinMB_3pts.view()
+interaction_withinMB_4pts.view()
+interaction_withinMB_5pts.view()
 
 
 process test {
