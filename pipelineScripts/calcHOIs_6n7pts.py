@@ -57,9 +57,7 @@ except:
 alpha=0.05
 
 ints = np.load(pathTo5pts, allow_pickle=True)
-if PrintBool: print(ints)
 perfectSigEsts = list(map(lambda x: (((x[[4, 5, 6]]==0).all()) & (x[3]<=alpha)), ints))
-if PrintBool: print(perfectSigEsts)
 
 try:
     HHOIs = ints[perfectSigEsts][:, [0, -1]]
@@ -67,6 +65,9 @@ except:
     print('Could not find 5-points to base estimation on, terminating')
     HHOIs = []
 
+if len(trainDat.columns)<7:
+    print('Too few genes to calculate 6- & 7-points -- terminating...')
+    sys.exit()
         
         
 def calcInteractionsAndWriteNPYs(ID, maxWorkers, estimator, nResamps=1000):
