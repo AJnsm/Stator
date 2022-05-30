@@ -5,7 +5,6 @@ import numpy as np
 import igraph as ig
 import matplotlib.pyplot as plt
 from matplotlib import cm
-%config InlineBackend.figure_format = 'retina'
 import math
 import seaborn as sns
 viridis = cm.get_cmap('viridis', 12)
@@ -85,7 +84,7 @@ HHOIs[f'n2'] = np.array([list(x) for x in list(zip(vals, pairs))])
 def findsubsets(s, n):
     return list(itertools.combinations(s, n))
 
-def plotUpsetPlot(d, title='', legend=True, save=False, filename=None):
+def plotUpsetPlot(d, fig, title='', legend=False, save=False, filename=''):
     genes = d.columns.values
     
     f = lambda x: ''.join(map(str, x))
@@ -106,7 +105,6 @@ def plotUpsetPlot(d, title='', legend=True, save=False, filename=None):
     upSetObj2['deviation'] = (upSetObj - expected)/(expected)*100
     upSetObj2['expected'] = expected
 
-    fig = plt.figure(figsize=(10, 10))
     upset = up.UpSet(upSetObj2, subset_size='sum', sum_over='count', intersection_plot_elements=5, min_subset_size=0)
 
     upset.add_stacked_bars(by='deviation', sum_over='deviation', colors='coolwarm', elements=5)
@@ -142,7 +140,7 @@ def plotUpsetPlot(d, title='', legend=True, save=False, filename=None):
         plt.savefig(filename)
         plt.close(fig)
     else:
-        fig.show()
+        return
 
 
 
@@ -151,6 +149,16 @@ f=2
 kwargs = {'with_node_counts': True, 'with_node_labels':True, 'with_edge_labels':False}
 concatInts = lambda x: ''.join(map(str, x))
 deviations = {}
+
+# dicts to store plots in
+plotHypergraph = {}
+plotCPDAG = {}
+plotPCA = {}
+plotupset = {}
+plotUpset_cond = {}
+plotUpset_uncond = {}
+plotMaxDev = {}
+
 
 for order in [3, 4, 5]:
 	nStates = 2**order
@@ -195,7 +203,7 @@ for order in [3, 4, 5]:
 	    buf = io.BytesIO()
         plt.savefig(buf, format='png')
         buf.seek(0)
-        plotHypergraph = Image.open(buf)
+        plotHypergraph[ID] = Image.open(buf)
         plt.close()
 
 	    #  ************************ CPDAG ************************ 
@@ -207,7 +215,7 @@ for order in [3, 4, 5]:
 	    buf = io.BytesIO()
         plt.savefig(buf, format='png')
         buf.seek(0)
-        plotCPDAG = Image.open(buf)
+        plotCPDAG[ID] = Image.open(buf)
         plt.close()
 
 		#  ************************ PCA embeddings ************************ 
@@ -221,7 +229,7 @@ for order in [3, 4, 5]:
 		buf = io.BytesIO()
         plt.savefig(buf, format='png')
         buf.seek(0)
-        plotPCA = Image.open(buf)
+        plotPCA[ID] = Image.open(buf)
 		plt.close() 
 
 		#  ************************ Upset plots ************************ 
@@ -229,10 +237,22 @@ for order in [3, 4, 5]:
 		unConditionedGenes = trainDat.iloc[:, geneTuple]
         conditionedGenes = conditionOnMB(geneTuple, MCMCgraph, trainDat, mode='Min')
 
-        plotUpsetPlot(d = conditionedGenes, legend=False, title = 'Conditioned on MB', filename=ID + '_Upset_conditioned.png', save=True)
-        plotUpsetPlot(d = unConditionedGenes, legend=False, title = 'Unonditioned', filename=ID + '_Upset_unconditioned.png', save=True)
+        fig.figure(figsize=[10, 10])
+        plotUpsetPlot(d = conditionedGenes,fig=fig, legend=False, title = 'Conditioned on MB', filename=ID + '_Upset_conditioned.png', save=True)
+        buf = io.BytesIO()
+		plt.savefig(buf, format='png')
+		buf.seek(0)
+		plotUpset_cond[ID] = Image.open(buf)
+		plt.close()
 
-
+		fig.figure(figsize=[10, 10])
+        plotUpsetPlot(d = unConditionedGenes,fig=fig, legend=False, title = 'Unonditioned', filename=ID + '_Upset_unconditioned.png', save=True)
+        buf = io.BytesIO()
+		plt.savefig(buf, format='png')
+		buf.seek(0)
+		plotUpset_uncond[ID] = Image.open(buf)
+		plt.close()
+        
 
 		#  ************************ Calculate deviations ************************ 
 
@@ -252,7 +272,6 @@ for order in [3, 4, 5]:
 #  ************************ PCA embedding on max deviating state ************************ 
 for order in [3, 4, 5]:
     for devs, interactors in deviations[f'n{order}']:
-
         ID = '_'.join(genes[interactors])
         
         maxDevState = format(np.argmax(devs), f"0{order}b")
@@ -264,14 +283,49 @@ for order in [3, 4, 5]:
         plt.title(', '.join(genes[interactors]) + ' = ' + ', '.join(maxDevState), fontsize=8)
         plt.xticks([])
         plt.yticks([])
-        
-        plt.savefig(f'{ID}_Expression_maxDevState.png')
+
+        buf = io.BytesIO()
+		plt.savefig(buf, format='png')
+		buf.seek(0)
+		plotMaxDev[ID] = Image.open(buf)
+		plt.close()
+        # plt.savefig(f'{ID}_Expression_maxDevState.png')
         plt.close('all') 
 
 
+#  ************************ Plot summary figures ************************ 
 
+sns.set_style("white")
 
+for order in [3, 4, 5]:
+	for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
+	    ID = '_'.join(genes[geneTuple])      
+        fig = plt.figure(figsize=(15, 10))
 
+        axCPDAG = fig.add_axes([0, 0.66, 0.33, 0.33])
+        axPC = fig.add_axes([0.33, 0.66, 0.33, 0.33])
+        axHOI = fig.add_axes([0.66, 0.66, 0.33, 0.33])
+        axEXP = fig.add_axes([0., 0.33, 0.99, 0.33])
+
+        axUPS1 = fig.add_axes([0, 0, 0.33, 0.33])
+        axUPS2 = fig.add_axes([0.33, 0, 0.33, 0.33])
+        axEXP_maxDev = fig.add_axes([0.66, 0.0, 0.33, 0.33])
+
+        axes = [axCPDAG, axPC, axHOI, axEXP, axEXP_maxDev, axUPS1, axUPS2]
+
+        for a in axes:
+            a.axis('off')
+
+        axCPDAG.imshow(plotCPDAG)
+        axHOI.imshow(plotHypergraph[100:-100, 100:-50])
+        axEXP.imshow(plotPCA[:, 400:, :])
+        axEXP_maxDev.imshow(plotMaxDev[:, :, :])
+
+        axUPS1.imshow(plotUpset_cond[:, 20:])
+        axUPS2.imshow(plotUpset_uncond[:, 20:])
+
+        plt.savefig(f'{ID}_summary.png')
+        plt.close(fig) 
 
 
 
