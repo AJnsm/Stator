@@ -58,6 +58,8 @@ def findLocalGraph(v, g, order):
 
 
 from itertools import chain, combinations
+
+
 def powerset(iterable):
     items = list(iterable)
     return chain.from_iterable(combinations(items,n) for n in range(len(items)+1))

@@ -18,7 +18,8 @@ process makeData {
     output:
     path "trainingData_*Genes.csv" into dataSets mode flatten
     path "*.png" optional true into plots
-    path "*coords.csv" optional true into embeddings
+    path "*PCAcoords.csv" optional true into PCAembeddings
+    path "*UMAPcoords.csv" optional true into UMAPembeddings
     
 
     script:
@@ -63,14 +64,16 @@ process iterMCMCscheme {
     tuple path(dataSet), path(PCgraph) from PCgraphs_forMCMC_ch
 
     output:
-    tuple path(dataSet), path('*graph*.csv') into MCMCgraphs_ch mode flatten
+    path 'CPDAGgraph*.csv' into CPDAGgraphs_ch
+    tuple path(dataSet), path('MCMCgraph*.csv') into MCMCgraphs_ch mode flatten
 
     """
     Rscript ${MCMCscript} ${PCgraph} ${dataSet} ${params.nGenes} 
     """
 }
 
-data_and_graphs_ch = CTRLgraphs_ch.mix(MCMCgraphs_ch)
+MCMCgraphs_ch.into {MCMCgraphs_ch1, MCMCgraphs_ch2}
+data_and_graphs_ch = CTRLgraphs_ch.mix(MCMCgraphs_ch1)
 data_and_graphs_ch.into {data_and_graphs_1pts; data_and_graphs_2pts; data_and_graphs_3pts; data_and_graphs_HOIs_MB; data_and_graphs_HOIs_6n7}
 
 
@@ -108,7 +111,10 @@ process estimateCoups_2pts {
     tuple path(dataSet), path(graph) from data_and_graphs_2pts
     
     output:
-    path 'interactions*.npy' into interaction_2pts_ch
+    path 'interactions_order2_MCMCgraph*CI_F.npy' into interaction_2pts_CI_F_ch
+    path 'interactions_order2_MCMCgraph*_undef.npy' into interaction_2pts_undef_ch
+    path 'interactions_order2_MCMCgraph*_inf.npy' into interaction_2pts_inf_ch
+    path 'interactions_order2_MCMCgraph*.npy' into interaction_2pts_ch
     path 'edgeList*.csv' into interaction_2pts_ch_edgeList
 
     """
@@ -184,28 +190,33 @@ process estimateCoups_6n7pts {
 
 }
 
-// process identifyStates {
-//     label 'interactionEstimation'
+
+process createHOIsummaries {
     
-//     publishDir "${launchDir}/coupling_output", mode: 'copy'
+    publishDir "${launchDir}/HOIplots", mode: 'copy'
 
-//     input:
-//     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
-//     path genesToOne from params.genesToOne
-//     tuple path(dataSet), path(graph) from data_and_graphs_3pts
-    
-//     output:
-//     path 'interactions*.npy' into interaction_3pts_ch
-//     path 'edgeList*.csv' into interaction_3pts_ch_edgeList
+    input:
+    path estimationScript from "${projectDir}/pipelineScripts/createHOIsummaries.py" 
+    path utilities from "${projectDir}/pipelineScripts/utilities.py" 
+    tuple path(dataSet), path(MCMCgraph) from MCMCgraphs_ch2
+    path CPDAGgraph from CPDAGgraphs_ch
+    path 2pts from interaction_2pts_ch
+    path 2pts_CI_F from interaction_2pts_CI_F_ch
+    path 2pts_undef from interaction_2pts_undef_ch
+    path 2pts_inf from interaction_2pts_inf_ch
+    path 3pts from interaction_withinMB_3pts
+    path 4pts from interaction_withinMB_4pts
+    path 5pts from interaction_withinMB_5pts
+    path pcaCoords from PCAembeddings
 
-//     """
-//     python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 3 --nResamps ${params.bsResamps} --nCores ${params.cores_3pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
-//     """
+    output:
+    path '*.png' optional true into HOIsummaries
 
-// }
+    """
+    python ${estimationScript} --dataPath ${dataSet} --PCApath ${pcaCoords} --CPDAGgraphPath ${CPDAGgraph} --MCMCgraphPath ${MCMCgraph} --pathTo2pts ${2pts} --pathTo2pts_CI_F ${2pts_CI_F} --pathTo2pts_undef ${2pts_undef} --pathTo2pts_inf ${2pts_inf} --pathTo3pts ${3pts} --pathTo4pts ${4pts} --pathTo5pts ${5pts}
+    """
 
-
-
+}
 
 
 

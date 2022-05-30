@@ -30,24 +30,203 @@ if PrintBool: print('Modules imported \n')
 parser = argparse.ArgumentParser(description='Args for coupling estimation')
 
 parser.add_argument("--dataPath", type=str, nargs=1, help="Path to training data")
-parser.add_argument("--graphPath", type=str, nargs=1, help="Path to graph file")
-parser.add_argument("--pathToNpts", type=str, nargs='?', help="Path to calculated 5-point interactions")
+parser.add_argument("--PCApath", type=str, nargs=1, help="Path to PCA embedding of training data")
+parser.add_argument("--CPDAGgraphPath", type=str, nargs=1, help="Path to CPDAG graph file")
+parser.add_argument("--MCMCgraphPath", type=str, nargs=1, help="Path to MCMC graph file")
+parser.add_argument("--pathTo2pts", type=str, nargs='?', help="Path to calculated 2-point interactions")
+parser.add_argument("--pathTo2pts_CI_F", type=str, nargs='?', help="Path to calculated 2-point interactions: significance")
+parser.add_argument("--pathTo2pts_undef", type=str, nargs='?', help="Path to calculated 2-point interactions: number of undef. resamples")
+parser.add_argument("--pathTo2pts_inf", type=str, nargs='?', help="Path to calculated 2-point interactions: number of inf. resamples")
+parser.add_argument("--pathTo3pts", type=str, nargs='?', help="Path to calculated 3-point interactions")
+parser.add_argument("--pathTo4pts", type=str, nargs='?', help="Path to calculated 4-point interactions")
+parser.add_argument("--pathTo5pts", type=str, nargs='?', help="Path to calculated 5-point interactions")
 
 args = parser.parse_args()
 
-pathToNpts = args.pathToNpts
-
 trainDat = pd.read_csv(dataPath)
-DSname = graphPath.split('.')[0]
-adjMat = pd.read_csv(graphPath, index_col=0)
-graph = ig.Graph.Adjacency(adjMat.values.tolist())
+pcaCoords= pd.read_csv(PCApath)
+DSname = MCMCgraphPath.split('.')[0]
+MCMCadjMat = pd.read_csv(MCMCgraphPath, index_col=0)
+MCMCgraph = ig.Graph.Adjacency(MCMCadjMat.values.tolist())
 
+CPDAGadjMat = pd.read_csv(CPDAGgraphPath, index_col=0)
+CPDAGgraph = ig.Graph.Adjacency(CPDAGadjMat.values.tolist())
+
+genes = trainDat.columns.values
+scObj = sc.AnnData(trainDat)
+scObj.obsm['X_pca'] = pcaCoords.values
+
+
+coups_2pts = np.load(pathTo2pts, allow_pickle=True).astype(np.float32)
+coups_2pts_CI_F = np.load(pathTo2pts_CI_F, allow_pickle=True).astype(np.float32)
+coups_2pts_undef = np.load(pathTo2pts_undef, allow_pickle=True).astype(np.float32)
+coups_2pts_inf = np.load(pathTo2pts_inf, allow_pickle=True).astype(np.float32)
+
+coups_2pts[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
+coups_2pts_CI_F[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
+
+
+HHOIs = {}
+alpha=0.05
+for order, intPath in enumerate([pathTo3pts, pathTo4pts, pathTo5pts]):
+    ints = np.load(intPath, allow_pickle=True)
+    perfectSigEsts = list(map(lambda x: (((x[[4, 5, 6]]==0).all()) & (x[3]<alpha)), ints))
+    HHOIs[f'n{order+3}'] = ints[perfectSigEsts][:, [0, -1]]
+            
+pairs = np.array(np.where(coups_2pts_CI_F<alpha)).T
+vals = coups_2pts[coups_2pts_CI_F<alpha]
+HHOIs[f'n2'] = np.array([list(x) for x in list(zip(vals, pairs))])
+
+
+
+
+def findsubsets(s, n):
+    return list(itertools.combinations(s, n))
+
+def plotUpsetPlot(d, title='', legend=True, save=False, filename=None):
+    genes = d.columns.values
+    
+    f = lambda x: ''.join(map(str, x))
+    
+    order = len(d.columns)
+    nStates = 2**order
+
+    binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, d.values)))), minlength=nStates)
+    upSetObj = generate_counts(1, n_samples=100000, n_categories=order)
+    upSetObj.loc[:] = binCounts
+    upSetObj.index.names = genes
+
+    means = d.mean(axis=0)
+    expected = np.array([np.prod([m if state[i] else 1-m for i, m in enumerate(means)]) for state in upSetObj.index])*len(d)
+
+    upSetObj2 = pd.DataFrame()
+    upSetObj2['count'] = upSetObj
+    upSetObj2['deviation'] = (upSetObj - expected)/(expected)*100
+    upSetObj2['expected'] = expected
+
+    fig = plt.figure(figsize=(10, 10))
+    upset = up.UpSet(upSetObj2, subset_size='sum', sum_over='count', intersection_plot_elements=5, min_subset_size=0)
+
+    upset.add_stacked_bars(by='deviation', sum_over='deviation', colors='coolwarm', elements=5)
+    upset.add_catplot(value='expected', kind='strip', elements=1)
+
+    for gs in powerset(genes):
+        if (len(genes) - len(gs))%2==0:
+            upset.style_subsets(present=gs, absent=[g for g in genes if not (g in gs)],
+                        facecolor="cornflowerblue",
+                        label="numerator")
+        else:
+            upset.style_subsets(present=gs, absent=[g for g in genes if not (g in gs)],
+                        facecolor="indianred",
+                        label="denominator")
+
+
+    ax = upset.plot(fig=fig)
+    ax['extra1'].set_ylabel('% deviation')
+    ax['extra1'].get_legend().remove()
+    
+    if not legend:
+        ax['intersections'].get_legend().remove()
+    
+    ax['intersections'].set_ylabel('No. of cells')
+    ax['intersections'].set_yscale('log')
+    ax['intersections'].plot([x.get_offsets()[0][1] for x in ax['extra2'].get_children()[:nStates]], 'k+', zorder=10, label='expected')
+    ax['extra2'].remove()
+
+    fig.suptitle(f'{title},   I = ' + 
+            str(round(calcInteraction_binTrick_allOrders(d), 3)), fontsize=20)
+
+    if(save):
+        plt.savefig(filename)
+        plt.close(fig)
+    else:
+        fig.show()
+
+
+
+
+f=2
+kwargs = {'with_node_counts': True, 'with_node_labels':True, 'with_edge_labels':False}
 
 for order in [3, 4, 5]:
-    ints = np.load(f'{ds}_{ct}/higherOrderOutput/interactions_MB_{order}pts_expectations.npy', allow_pickle=True)
-    perfectSigEsts = list(map(lambda x: (((x[[4, 5, 6]]==0).all()) & (x[3]<alpha)), ints))
-    HHOIs[f'{ds}_{ct}_n{order}'] = ints[perfectSigEsts][:, [0, -1]]
-            
-        pairs = np.array(np.where(coups_perfectEstimations_MCMC[f'{ds}_{ct}_n2_CI_F']<alpha)).T
-        vals = coups_perfectEstimations_MCMC[f'{ds}_{ct}_n2'][coups_perfectEstimations_MCMC[f'{ds}_{ct}_n2_CI_F']<alpha]
-        HHOIs[f'{ds}_{ct}_n2'] = np.array([list(x) for x in list(zip(vals, pairs))])
+	for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
+	    ID = '_'.join(genes[geneTuple])      
+	    g = findLocalGraph(geneTuple, CPDAGgraph, order=0)
+	    layout_c = g.layout('circle')
+
+	    tmp = dict(zip(g.vs['label'], np.array(layout_c)*np.array([1, -1])))
+	    edges = {'maxOrder': genes[geneTuple]}
+	    weights = [w]
+
+	    for i in range(2, order):
+	        for subset in findsubsets(geneTuple, i):
+	            for tup in HHOIs[f'n{i}']:
+	                if sorted(tup[-1]) == sorted(subset):
+	                    edges[len(edges)+1] =  [genes[g] for g in subset]
+	                    weights.append(tup[0])
+	                    break
+
+	    #  ************************ Interaction Hypergraph  ************************ 
+	    H = hnx.Hypergraph(edges)
+	    cList = ['red' if w<0 else 'green' for w in weights]
+	    layout_fn = lambda x: tmp
+	    plt.figure(figsize=[10, 10])
+
+	    hnx.draw(H,  layout = layout_fn,
+	                 label_alpha=0,
+	                 node_labels_kwargs={
+	                    'fontsize': 24
+	                },
+	                 edges_kwargs={
+	                     'edgecolors': cList,
+	                     'linewidths': 3,
+	                     'dr': 0.05
+	                 },
+	                 **kwargs)  
+	    plt.savefig(f'{ID}_HOIs.png')
+	    plt.close()
+
+	    #  ************************ CPDAG ************************ 
+	    ig.plot(g, f'{ID}_CPDAG.png', layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f)
+
+
+		#  ************************ PCA embeddings ************************ 
+	    fig, ax = plt.subplots(1, len(fsplit[0].split('_')), figsize=[20, 4])
+	    for g in geneTuple:
+	    	sc.pl.embedding(scObs[f'{ds}'],'pca', color=g, 
+                                size=30, color_map="viridis", add_outline=True, ncols=len(fsplit[0]), show=False, frameon=False, ax = ax[i])
+	    fig = plt.gcf()
+	    fig.axes[-1].remove()
+
+		plt.savefig(f'{ID}_Expression.png')
+		plt.close() 
+
+		#  ************************ Upset plots ************************ 
+
+		unConditionedGenes = trainDat.iloc[:, geneTuple]
+        conditionedGenes = conditionOnMB(geneTuple, MCMCgraph, trainDat, mode='Min')
+
+        plotUpsetPlot(d = conditionedGenes, legend=False, title = 'Conditioned on MB', filename=ID + '_Upset_conditioned.png', save=True)
+        plotUpsetPlot(d = unConditionedGenes, legend=False, title = 'Unonditioned', filename=ID + '_Upset_unconditioned.png', save=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
