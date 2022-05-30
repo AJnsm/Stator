@@ -90,10 +90,10 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
     #(As long as mode is not set to 'Min')
     
     if (order==1):
-        args = [([x], graph, trainDat, estimator, nResamps) for x in range(n)]
+        args = [([x], graph, trainDat, estimator, nResamps, genesToOneIndices) for x in range(n)]
 
     if (order==2):
-        args = [([x, y], graph, trainDat, estimator, nResamps) for x in range(n) for y in range(n)]
+        args = [([x, y], graph, trainDat, estimator, nResamps, genesToOneIndices) for x in range(n) for y in range(n)]
     
     if (order==3):
         trips = []
