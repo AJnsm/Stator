@@ -168,7 +168,7 @@ process estimateCoups_6n7pts {
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
-    // path estimationScript from "${projectDir}/pipelineScripts/calcHOIs_6n7pts.py" 
+    path estimationScript from "${projectDir}/pipelineScripts/calcHOIs_6n7pts.py" 
     path genesToOne from params.genesToOne
     // path withinMB_5pts from interaction_withinMB_5pts
     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
