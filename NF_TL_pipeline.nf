@@ -162,9 +162,15 @@ process estimateCoups_345pts_WithinMB {
 }
 
 
+process test {
+    """
+    echo The path is: $PATH
+    """
+}
+
 process estimateCoups_6n7pts {
-    input:
-    path estimationScript from "${projectDir}/pipelineScripts/calcHOIs_6n7pts.py" 
+    // input:
+    // path estimationScript from "${projectDir}/pipelineScripts/calcHOIs_6n7pts.py" 
     // path genesToOne from params.genesToOne
     // path withinMB_5pts from interaction_withinMB_5pts
     // path utilities from "${projectDir}/pipelineScripts/utilities.py" 
@@ -174,7 +180,6 @@ process estimateCoups_6n7pts {
 
     """
     echo The path is: $PATH
-    python ${estimationScript} 
     """
 
 }
