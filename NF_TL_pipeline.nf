@@ -152,13 +152,25 @@ process estimateCoups_345pts_WithinMB {
     tuple path(dataSet), path(graph) from data_and_graphs_HOIs_MB
     
     output:
-    path 'interactions*.npy' into interaction_withinMB
+    path 'interactions_withinMB_3pts*.npy' into interaction_withinMB_3pts
+    path 'interactions_withinMB_4pts*.npy' into interaction_withinMB_4pts
     path 'interactions_withinMB_5pts*.npy' into interaction_withinMB_5pts
 
     """
     python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --nResamps ${params.bsResamps} --nCores ${params.cores_HOIs_MB} --nRandoms ${params.nRandomHOIs} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
     """
 
+}
+
+
+process test {
+
+    input:
+    path tmpPath from interaction_withinMB_5pts
+
+    """
+    echo $PATH
+    """
 }
 
 
