@@ -54,7 +54,6 @@ except:
     genesToOneIndices = []
 
 
-HHOIs = {}
 alpha=0.05
 
 ints = np.load(pathTo5pts, allow_pickle=True)
@@ -66,7 +65,7 @@ try:
     HHOIs = ints[perfectSigEsts][:, [0, -1]]
 except:
     print('Could not find 5-points to base estimation on, terminating')
-    sys.exit()
+    HHOIs = []
 
         
         
