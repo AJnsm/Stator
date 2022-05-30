@@ -154,7 +154,7 @@ process estimateCoups_345pts_WithinMB {
     path 'interactions*.npy' into interaction_withinMB
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --nResamps ${params.bsResamps} --nCores ${params.cores_HOIs} --nRandoms ${params.nRandomHOIs}--genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --nResamps ${params.bsResamps} --nCores ${params.cores_HOIs_MB} --nRandoms ${params.nRandomHOIs}--genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
     """
 
 }
