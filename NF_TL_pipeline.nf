@@ -168,6 +168,7 @@ process estimateCoups_345pts_WithinMB {
 
 }
 
+interaction_withinMB_5pts.into {interaction_withinMB_5pts_ch1; interaction_withinMB_5pts_ch2}
 
 process estimateCoups_6n7pts {
     label 'interactionEstimation'
@@ -177,7 +178,7 @@ process estimateCoups_6n7pts {
     input:
     path estimationScript from "${projectDir}/pipelineScripts/calcHOIs_6n7pts.py" 
     path genesToOne from params.genesToOne
-    path withinMB_5pts from interaction_withinMB_5pts
+    path withinMB_5pts from interaction_withinMB_5pts_ch1
     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
     tuple path(dataSet), path(graph) from data_and_graphs_HOIs_6n7
         
@@ -206,7 +207,7 @@ process createHOIsummaries {
     path path2pts_inf from interaction_2pts_inf_ch
     path path3pts from interaction_withinMB_3pts
     path path4pts from interaction_withinMB_4pts
-    path path5pts from interaction_withinMB_5pts
+    path path5pts from interaction_withinMB_5pts_ch2
     path pcaCoords from PCAembeddings
 
     output:
