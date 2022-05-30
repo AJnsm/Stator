@@ -366,7 +366,7 @@ def calcInteraction_binTrick_allOrders(conditionedGenes):
 
 
 
-def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne=[], dataDups=0, nResamps=1000):
+def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne=[], dataDups=0, boundBool=0, nResamps=1000):
     '''
     Add 95% confidence interval bounds from bootstrap resamples,
     and the F value: the proportion of resamples with a different sign.
@@ -485,7 +485,7 @@ def calcInteraction_withCI_parallel(args, nResamps=1000):
     wrapper to unpack function arguments so that it can be mapped over process pool with one arg.
     (I actually think there should be something like executor.starmap that could do this for us)
     '''
-    genes, graph, dataSet, estimator, nResamps, genesToOne, dataDups = args
+    genes, graph, dataSet, estimator, nResamps, genesToOne, dataDups, boundBool = args
 
     return calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne=genesToOne, dataDups=dataDups, nResamps=nResamps) 
 
