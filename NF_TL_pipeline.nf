@@ -90,7 +90,7 @@ process estimateCoups_1pts {
     
 
     """
-    python ${estimationScript} --utilPath ${utilities} -dataPath ${dataSet} --graphPath ${graph} --intOrder 1 --nResamps ${params.bsResamps} --nCores ${params.cores_1pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} -dataPath ${dataSet} --graphPath ${graph} --intOrder 1 --nResamps ${params.bsResamps} --nCores ${params.cores_1pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
     """
 
 }
@@ -112,7 +112,7 @@ process estimateCoups_2pts {
     path 'edgeList*.csv' into interaction_2pts_ch_edgeList
 
     """
-    python ${estimationScript} --utilPath ${utilities} --dataPath ${dataSet} --graphPath ${graph} --intOrder 2 --nResamps ${params.bsResamps} --nCores ${params.cores_2pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 2 --nResamps ${params.bsResamps} --nCores ${params.cores_2pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
     """
 
 }
@@ -134,7 +134,7 @@ process estimateCoups_3pts {
     path 'edgeList*.csv' into interaction_3pts_ch_edgeList
 
     """
-    python ${estimationScript} --utilPath ${utilities} --dataPath ${dataSet} --graphPath ${graph} --intOrder 3 --nResamps ${params.bsResamps} --nCores ${params.cores_3pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 3 --nResamps ${params.bsResamps} --nCores ${params.cores_3pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
     """
 
 }
