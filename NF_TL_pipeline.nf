@@ -162,41 +162,27 @@ process estimateCoups_345pts_WithinMB {
 
 }
 
-interaction_withinMB_3pts.view()
 
-
-
-process testProc {
+process estimateCoups_6n7pts {
+    label 'interactionEstimation'
+    
+    publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
-    path tmpPath from interaction_withinMB_5pts
-
-    """
-    echo 
-    """
-}
-
-
-// process estimateCoups_6n7pts {
-//     label 'interactionEstimation'
-    
-//     publishDir "${launchDir}/coupling_output", mode: 'copy'
-
-//     input:
-//     path estimationScript from "${projectDir}/pipelineScripts/calcHOIs_6n7pts.py" 
-//     path genesToOne from params.genesToOne
-//     path withinMB_5pts from interaction_withinMB_5pts
-//     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
-//     tuple path(dataSet), path(graph) from data_and_graphs_HOIs_6n7
+    path estimationScript from "${projectDir}/pipelineScripts/calcHOIs_6n7pts.py" 
+    path genesToOne from params.genesToOne
+    path withinMB_5pts from interaction_withinMB_5pts
+    path utilities from "${projectDir}/pipelineScripts/utilities.py" 
+    tuple path(dataSet), path(graph) from data_and_graphs_HOIs_6n7
         
-//     output:
-//     path 'interactions*.npy' into interaction_6n7pts
+    output:
+    path 'interactions*.npy' into interaction_6n7pts
 
-//     """
-//     python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --pathTo5pts ${withinMB_5pts} --nResamps ${params.bsResamps} --nCores ${params.cores_HOIs_6n7} --nRandoms ${params.nRandomHOIs} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
-//     """
+    """
+    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --pathTo5pts ${withinMB_5pts} --nResamps ${params.bsResamps} --nCores ${params.cores_HOIs_6n7} --nRandoms ${params.nRandomHOIs} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    """
 
-// }
+}
 
 // process identifyStates {
 //     label 'interactionEstimation'
