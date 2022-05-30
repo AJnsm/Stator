@@ -37,12 +37,10 @@ args = parser.parse_args()
 
 pathToNpts = args.pathToNpts
 
-trainDat = pd.read_csv(args.dataPath[0])
-adjMat = pd.read_csv(args.graphPath[0], index_col=0)
-adjMat = adjMat.set_index(genes)
-adjMat.columns = genes
+trainDat = pd.read_csv(dataPath)
+DSname = graphPath.split('.')[0]
+adjMat = pd.read_csv(graphPath, index_col=0)
 graph = ig.Graph.Adjacency(adjMat.values.tolist())
-graph.vs['label'] = adjMat.columns.values
 
 
 for order in [3, 4, 5]:

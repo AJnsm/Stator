@@ -44,11 +44,9 @@ genesToOnePath = args.genesToOne
 boundBool = args.boundBool
 
 trainDat = pd.read_csv(dataPath)
+DSname = graphPath.split('.')[0]
 adjMat = pd.read_csv(graphPath, index_col=0)
-adjMat = adjMat.set_index(genes)
-adjMat.columns = genes
-graph = ig.Graph.Adjacency(adjMat.values.tolist())
-graph.vs['label'] = adjMat.columns.values
+graph = ig.Graph.Adjacency(adjMat.values.tolist()) 
 
 try:
     genesToOneIndices = pd.read_csv(genesToOnePath)
@@ -147,7 +145,7 @@ def main():
     print(f'Parallelised over {nCores} cores. ')
 
 
-    calcInteractionsAndWriteNPYs(ID = estimationMethod+notes, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
+    calcInteractionsAndWriteNPYs(ID = DSname + '_' + estimationMethod+notes, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
 
     
     print('***********DONE***********')
