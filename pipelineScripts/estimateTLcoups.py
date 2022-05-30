@@ -12,19 +12,13 @@ import time
 import sys
 import argparse
 
-from utilities import *
+from .utilities import *
 
 findMarkovBlanket()
 
 import numba
 from numba import njit
-
 import scipy
-# from scipy.stats import kstest
-# from scipy.interpolate import interp1d
-
-# import hartiganDip
-
 if PrintBool: print('Modules imported \n')
 
 parser = argparse.ArgumentParser(description='Args for coupling estimation')
@@ -608,7 +602,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
         print(f'{len(trips)} triplets generated')
         
 #         # Generate random triplets:
-#         from itertools import product
+#         from itertools import product 
 #         from random import sample
         
 
