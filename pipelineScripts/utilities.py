@@ -364,9 +364,9 @@ def calcInteraction_binTrick_allOrders(conditionedGenes):
         
     return np.log(np.prod(np.array([x**p for (x, p) in zip(binCounts, powers)])))  
 
-          
 
-def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=1000):
+
+def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne, nResamps=1000):
     '''
     Add 95% confidence interval bounds from bootstrap resamples,
     and the F value: the proportion of resamples with a different sign.
@@ -383,7 +383,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=
         if PrintBool: print('Warning, using ALL mode for MB selection, make sure you want this. ')
         MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
 
-    conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode, genesToOne=genesToOneIndices)
+    conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode, genesToOne=genesToOne)
     
     
 
@@ -452,6 +452,25 @@ def calcInteraction_withCI_parallel(args, nResamps=1000):
     wrapper to unpack function arguments so that it can be mapped over process pool with one arg.
     (I actually think there should be something like executor.starmap that could do this for us)
     '''
-    genes, graph, dataSet, estimator, nResamps = args
+    genes, graph, dataSet, estimator, nResamps, genesToOne = args
 
-    return calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, nResamps=nResamps) 
+    return calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne=genesToOne, nResamps=nResamps) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    

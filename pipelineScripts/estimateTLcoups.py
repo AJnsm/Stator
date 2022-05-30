@@ -119,7 +119,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
 #         trips = [list(trip) for trip in trips]
 #         print(f'{len(trips)} triplets generated')
         
-        args = [(triplet, graph, trainDat, estimator, nResamps) for triplet in trips]
+        args = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices) for triplet in trips]
     
     start = time.perf_counter()
     with concurrent.futures.ProcessPoolExecutor(max_workers=maxWorkers) as executor:
