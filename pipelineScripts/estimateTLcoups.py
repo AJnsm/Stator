@@ -12,6 +12,9 @@ import time
 import sys
 import argparse
 
+from utilities import *
+
+findMarkovBlanket()
 
 import numba
 from numba import njit
