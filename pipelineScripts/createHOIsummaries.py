@@ -201,9 +201,9 @@ for order in [3, 4, 5]:
 	    #  ************************ CPDAG ************************ 
 
 	    # ig.plot(g, f'{ID}_CPDAG.png', layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f)
-	    
-	    plt.figure()
-	    ig.plot(g, layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f)
+
+	    fig, ax = plt.subplots(figsize=[6, 6])
+	    ig.plot(g, layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f, vertex_label_color='black', target=ax)
 	    buf = io.BytesIO()
         plt.savefig(buf, format='png')
         buf.seek(0)
@@ -217,8 +217,11 @@ for order in [3, 4, 5]:
                                 size=30, color_map="viridis", add_outline=True, ncols=len(fsplit[0]), show=False, frameon=False, ax = ax[i])
 	    fig = plt.gcf()
 	    fig.axes[-1].remove()
-
-		plt.savefig(f'{ID}_Expression.png')
+		# plt.savefig(f'{ID}_Expression.png')
+		buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        plotPCA = Image.open(buf)
 		plt.close() 
 
 		#  ************************ Upset plots ************************ 

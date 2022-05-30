@@ -62,8 +62,9 @@ perfectSigEsts = list(map(lambda x: (((x[[4, 5, 6]]==0).all()) & (x[3]<=alpha)),
 try:
     HHOIs = ints[perfectSigEsts][:, [0, -1]]
 except:
-    print('Could not find 5-points to base estimation on, terminating')
+    print('Could not find 5-points to base estimation on -- terminating...')
     HHOIs = []
+    sys.exit()
 
 if len(trainDat.columns)<7:
     print('Too few genes to calculate 6- & 7-points -- terminating...')
@@ -86,6 +87,7 @@ def calcInteractionsAndWriteNPYs(ID, maxWorkers, estimator, nResamps=1000):
 
     ints_6pt = []
     ints_7pt = []
+
 
     print('Generating connected tuples...')
 
