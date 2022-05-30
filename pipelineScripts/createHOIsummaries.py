@@ -8,7 +8,9 @@ from matplotlib import cm
 %config InlineBackend.figure_format = 'retina'
 import math
 import seaborn as sns
-sns.set(style='darkgrid')
+viridis = cm.get_cmap('viridis', 12)
+sns.set_style("dark")
+
 sns.set_palette('colorblind')
 from utilities import *
 import collections
