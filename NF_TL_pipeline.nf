@@ -163,8 +163,6 @@ process estimateCoups_345pts_WithinMB {
 
 
 process estimateCoups_6n7pts {
-    label 'interactionEstimation'
-
     input:
     path estimationScript from "${projectDir}/pipelineScripts/calcHOIs_6n7pts.py" 
     // path genesToOne from params.genesToOne
