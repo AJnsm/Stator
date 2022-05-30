@@ -81,7 +81,7 @@ process estimateCoups_1pts {
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
-    path utilities from "${projectDir}/bin"
+    path utilities from "${projectDir}/pipelineScripts/utilities.py" 
     path genesToOne from params.genesToOne
     tuple path(dataSet), path(graph) from data_and_graphs_1pts
     
@@ -90,7 +90,7 @@ process estimateCoups_1pts {
     
 
     """
-    python ${estimationScript} ---utilPath ${utilities} -dataPath ${dataSet} --graphPath ${graph} --intOrder 1 --nResamps ${params.bsResamps} --nCores ${params.cores_1pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} --utilPath ${utilities} -dataPath ${dataSet} --graphPath ${graph} --intOrder 1 --nResamps ${params.bsResamps} --nCores ${params.cores_1pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
     """
 
 }
@@ -103,7 +103,7 @@ process estimateCoups_2pts {
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
-    path utilities from "${projectDir}/bin"
+    path utilities from "${projectDir}/pipelineScripts/utilities.py" 
     path genesToOne from params.genesToOne
     tuple path(dataSet), path(graph) from data_and_graphs_2pts
     
@@ -125,7 +125,7 @@ process estimateCoups_3pts {
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
-    path utilities from "${projectDir}/bin"
+    path utilities from "${projectDir}/pipelineScripts/utilities.py" 
     path genesToOne from params.genesToOne
     tuple path(dataSet), path(graph) from data_and_graphs_3pts
     
