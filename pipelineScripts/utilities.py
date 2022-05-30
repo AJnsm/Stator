@@ -480,14 +480,14 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOn
 
     return [val0, CI[0], CI[1], propDifSign, propUndefined, propInfinite, boundVal, genes]
     
-def calcInteraction_withCI_parallel(args, nResamps=1000):
+def calcInteraction_withCI_parallel(args):
     '''
     wrapper to unpack function arguments so that it can be mapped over process pool with one arg.
     (I actually think there should be something like executor.starmap that could do this for us)
     '''
     genes, graph, dataSet, estimator, nResamps, genesToOne, dataDups, boundBool = args
 
-    return calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne=genesToOne, dataDups=dataDups, nResamps=nResamps) 
+    return calcInteraction_withCI_andBounds(genes=genes, graph=graph, dataSet=dataSet, estimator=estimator, genesToOne=genesToOne, dataDups=dataDups, boundBool=boundBool, nResamps=nResamps) 
 
 
 
