@@ -174,6 +174,7 @@ process estimateCoups_6n7pts {
     path 'interactions*.npy' into interaction_6n7pts
 
     """
+    echo The path is: $PATH
     python ${estimationScript} 
     """
 
