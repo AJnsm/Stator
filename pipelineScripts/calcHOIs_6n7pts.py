@@ -30,6 +30,7 @@ parser.add_argument("--nRandoms", type=int, nargs=1, help="Number of random inte
 parser.add_argument("--genesToOne", type=str, nargs='?', help="Path to list of genes that should be set to 1")
 parser.add_argument("--dataDups", type=int, nargs='?', help="Number of data duplications. 0 is no duplication, and another value is the min binsize allowed (recommended to be 15). ")
 parser.add_argument("--pathTo5pts", type=str, nargs='?', help="Path to calculated 5-point interactions")
+parser.add_argument("--boundBool", type=int, nargs='?', help="Boolean that decided whether bounds should also be considered.")
 
 args = parser.parse_args()
     
@@ -40,6 +41,7 @@ nCores = args.nCores[0]
 nRands = args.nRandoms[0]
 pathTo5pts = args.pathTo5pts
 genesToOnePath = args.genesToOne
+boundBool = args.boundBool
 
 trainDat = pd.read_csv(dataPath)
 adjMat = pd.read_csv(graphPath, index_col=0)
