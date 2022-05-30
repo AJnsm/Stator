@@ -156,10 +156,7 @@ def main():
     print(f'With {nResamps} bootstrap resamples')
     print(f'Parallelised over {nCores} cores. ')
 
-
-
-   
-    calcInteractionsAndWriteNPYs(estimationMethod+notes, graph, trainDat, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
+    calcInteractionsAndWriteNPYs(DSname + '_' + estimationMethod+notes, graph, trainDat, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
     
 
 
