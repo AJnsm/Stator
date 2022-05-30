@@ -165,7 +165,7 @@ process estimateCoups_345pts_WithinMB {
 process estimateCoups_6n7pts {
     label 'interactionEstimation'
     
-    publishDir "${launchDir}/coupling_output", mode: 'copy'
+    // publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/calcHOIs_6n7pts.py" 
