@@ -61,7 +61,12 @@ ints = np.load(pathTo5pts, allow_pickle=True)
 if PrintBool: print(ints)
 perfectSigEsts = list(map(lambda x: (((x[[4, 5, 6]]==0).all()) & (x[3]<=alpha)), ints))
 if PrintBool: print(perfectSigEsts)
-HHOIs = ints[perfectSigEsts][:, [0, -1]]
+
+try:
+    HHOIs = ints[perfectSigEsts][:, [0, -1]]
+except:
+    print('Could not find 5-points to base estimation on, terminating')
+    sys.exit()
 
         
         
