@@ -7,5 +7,4 @@ USER root
 RUN apk add bash
 
 COPY scriptToInstallNFpythonLibs.sh .
-
 RUN bash scriptToInstallNFpythonLibs.sh

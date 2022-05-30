@@ -11,17 +11,13 @@ import igraph as ig
 import time
 import sys
 import argparse
-
-from .utilities import *
-
-findMarkovBlanket()
-
 import numba
 from numba import njit
 import scipy
 if PrintBool: print('Modules imported \n')
 
 parser = argparse.ArgumentParser(description='Args for coupling estimation')
+parser.add_argument("--utilPath", type=str, nargs='?', help="Path to tutilities module")
 parser.add_argument("--dataPath", type=str, nargs='?', help="Path to training data")
 parser.add_argument("--graphPath", type=str, nargs=1, help="Path to graph file")
 parser.add_argument("--intOrder", type=int, nargs='?', help="order of interaction")
@@ -34,6 +30,12 @@ parser.add_argument("--dataDups", type=int, nargs='?', help="Number of data dupl
 parser.add_argument("--boundBool", type=int, nargs='?', help="Boolean that decided whether bounds should also be considered.")
 
 args = parser.parse_args()
+
+sys.path.append(args.utilPath)
+from utilities import *
+
+findMarkovBlanket()
+
 
 dataPath = args.dataPath
 graphPath = args.graphPath[0]

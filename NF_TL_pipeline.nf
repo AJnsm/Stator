@@ -81,6 +81,7 @@ process estimateCoups_1pts {
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
+    path utilities from "${projectDir}/bin"
     path genesToOne from params.genesToOne
     tuple path(dataSet), path(graph) from data_and_graphs_1pts
     
@@ -89,7 +90,7 @@ process estimateCoups_1pts {
     
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 1 --nResamps ${params.bsResamps} --nCores ${params.cores_1pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} ---utilPath ${utilities} -dataPath ${dataSet} --graphPath ${graph} --intOrder 1 --nResamps ${params.bsResamps} --nCores ${params.cores_1pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
     """
 
 }
@@ -102,6 +103,7 @@ process estimateCoups_2pts {
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
+    path utilities from "${projectDir}/bin"
     path genesToOne from params.genesToOne
     tuple path(dataSet), path(graph) from data_and_graphs_2pts
     
@@ -110,7 +112,7 @@ process estimateCoups_2pts {
     path 'edgeList*.csv' into interaction_2pts_ch_edgeList
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 2 --nResamps ${params.bsResamps} --nCores ${params.cores_2pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} --utilPath ${utilities} --dataPath ${dataSet} --graphPath ${graph} --intOrder 2 --nResamps ${params.bsResamps} --nCores ${params.cores_2pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
     """
 
 }
@@ -123,6 +125,7 @@ process estimateCoups_3pts {
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
+    path utilities from "${projectDir}/bin"
     path genesToOne from params.genesToOne
     tuple path(dataSet), path(graph) from data_and_graphs_3pts
     
@@ -131,19 +134,72 @@ process estimateCoups_3pts {
     path 'edgeList*.csv' into interaction_3pts_ch_edgeList
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 3 --nResamps ${params.bsResamps} --nCores ${params.cores_3pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} --utilPath ${utilities} --dataPath ${dataSet} --graphPath ${graph} --intOrder 3 --nResamps ${params.bsResamps} --nCores ${params.cores_3pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
     """
 
 }
 
 
+// process estimateCoups_345pts_WithinMB {
+//     label 'interactionEstimation'
+    
+//     publishDir "${launchDir}/coupling_output", mode: 'copy'
+
+//     input:
+//     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
+//     path genesToOne from params.genesToOne
+//     tuple path(dataSet), path(graph) from data_and_graphs_3pts
+    
+//     output:
+//     path 'interactions*.npy' into interaction_3pts_ch
+//     path 'edgeList*.csv' into interaction_3pts_ch_edgeList
+
+//     """
+//     python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 3 --nResamps ${params.bsResamps} --nCores ${params.cores_3pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+//     """
+
+// }
 
 
+// process estimateCoups_6n7pts {
+//     label 'interactionEstimation'
+    
+//     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
+//     input:
+//     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
+//     path genesToOne from params.genesToOne
+//     tuple path(dataSet), path(graph) from data_and_graphs_3pts
+    
+//     output:
+//     path 'interactions*.npy' into interaction_3pts_ch
+//     path 'edgeList*.csv' into interaction_3pts_ch_edgeList
 
+//     """
+//     python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 3 --nResamps ${params.bsResamps} --nCores ${params.cores_3pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+//     """
 
+// }
 
+// process identifyStates {
+//     label 'interactionEstimation'
+    
+//     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
+//     input:
+//     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
+//     path genesToOne from params.genesToOne
+//     tuple path(dataSet), path(graph) from data_and_graphs_3pts
+    
+//     output:
+//     path 'interactions*.npy' into interaction_3pts_ch
+//     path 'edgeList*.csv' into interaction_3pts_ch_edgeList
+
+//     """
+//     python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 3 --nResamps ${params.bsResamps} --nCores ${params.cores_3pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+//     """
+
+// }
 
 
 
