@@ -201,14 +201,14 @@ process createHOIsummaries {
     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
     tuple path(dataSet), path(MCMCgraph) from MCMCgraphs_ch2
     path CPDAGgraph from CPDAGgraphs_ch
-    path path2pts from interaction_2pts_ch
-    path path2pts_CI_F from interaction_2pts_CI_F_ch
-    path path2pts_undef from interaction_2pts_undef_ch
-    path path2pts_inf from interaction_2pts_inf_ch
-    path path3pts from interaction_withinMB_3pts
-    path path4pts from interaction_withinMB_4pts
-    path path5pts from interaction_withinMB_5pts_ch2
-    path pcaCoords from PCAembeddings
+    // path path2pts from interaction_2pts_ch
+    // path path2pts_CI_F from interaction_2pts_CI_F_ch
+    // path path2pts_undef from interaction_2pts_undef_ch
+    // path path2pts_inf from interaction_2pts_inf_ch
+    // path path3pts from interaction_withinMB_3pts
+    // path path4pts from interaction_withinMB_4pts
+    // path path5pts from interaction_withinMB_5pts_ch2
+    // path pcaCoords from PCAembeddings
 
     output:
     path '*.png' optional true into HOIsummaries
