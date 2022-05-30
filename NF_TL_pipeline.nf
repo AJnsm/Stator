@@ -111,10 +111,11 @@ process estimateCoups_2pts {
     tuple path(dataSet), path(graph) from data_and_graphs_2pts
     
     output:
-    path 'interactions_order2_MCMCgraph*CI_F.npy' into interaction_2pts_CI_F_ch
-    path 'interactions_order2_MCMCgraph*_undef.npy' into interaction_2pts_undef_ch
-    path 'interactions_order2_MCMCgraph*_inf.npy' into interaction_2pts_inf_ch
-    path 'interactions_order2_MCMCgraph*_coup.npy' into interaction_2pts_ch
+    path 'interactions_order2_MCMCgraph*CI_F.npy' optional true into interaction_2pts_CI_F_ch
+    path 'interactions_order2_MCMCgraph*_undef.npy' optional true into interaction_2pts_undef_ch
+    path 'interactions_order2_MCMCgraph*_inf.npy' optional true into interaction_2pts_inf_ch
+    path 'interactions_order2_MCMCgraph*_coup.npy' optional true into interaction_2pts_ch
+    path 'interactions*.npy' into interaction_2pts_publish_ch
     path 'edgeList*.csv' into interaction_2pts_ch_edgeList
 
     """
@@ -201,14 +202,14 @@ process createHOIsummaries {
     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
     tuple path(dataSet), path(MCMCgraph) from MCMCgraphs_ch2
     path CPDAGgraph from CPDAGgraphs_ch
-    // path path2pts from interaction_2pts_ch
-    // path path2pts_CI_F from interaction_2pts_CI_F_ch
-    // path path2pts_undef from interaction_2pts_undef_ch
-    // path path2pts_inf from interaction_2pts_inf_ch
-    // path path3pts from interaction_withinMB_3pts
-    // path path4pts from interaction_withinMB_4pts
-    // path path5pts from interaction_withinMB_5pts_ch2
-    // path pcaCoords from PCAembeddings
+    path path2pts from interaction_2pts_ch
+    path path2pts_CI_F from interaction_2pts_CI_F_ch
+    path path2pts_undef from interaction_2pts_undef_ch
+    path path2pts_inf from interaction_2pts_inf_ch
+    path path3pts from interaction_withinMB_3pts
+    path path4pts from interaction_withinMB_4pts
+    path path5pts from interaction_withinMB_5pts_ch2
+    path pcaCoords from PCAembeddings
 
     output:
     path '*.png' optional true into HOIsummaries
