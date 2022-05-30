@@ -1,5 +1,5 @@
 #!/usr/bin/env nextflow
-
+nextflow.enable.dsl=1
 cellTypes_ch = Channel.from(params.clusterArray) 
 
 process makeData {
