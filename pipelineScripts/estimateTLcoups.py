@@ -90,10 +90,10 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
     #(As long as mode is not set to 'Min')
     
     if (order==1):
-        args = [([x], graph, trainDat, estimator, nResamps, genesToOneIndices) for x in range(n)]
+        args = [([x], graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups) for x in range(n)]
 
     if (order==2):
-        args = [([x, y], graph, trainDat, estimator, nResamps, genesToOneIndices) for x in range(n) for y in range(n)]
+        args = [([x, y], graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups) for x in range(n) for y in range(n)]
     
     if (order==3):
         trips = []
@@ -119,7 +119,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
 #         trips = [list(trip) for trip in trips]
 #         print(f'{len(trips)} triplets generated')
         
-        args = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices) for triplet in trips]
+        args = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups) for triplet in trips]
     
     start = time.perf_counter()
     with concurrent.futures.ProcessPoolExecutor(max_workers=maxWorkers) as executor:

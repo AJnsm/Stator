@@ -366,16 +366,20 @@ def calcInteraction_binTrick_allOrders(conditionedGenes):
 
 
 
-def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne, nResamps=1000):
+def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne=[], dataDups=0, nResamps=1000):
     '''
     Add 95% confidence interval bounds from bootstrap resamples,
     and the F value: the proportion of resamples with a different sign.
-
     Note that to check for function equality, you need to use bytecode
     '''
     
-
-    if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
+    if estimator.__code__.co_code == calcInteraction_expectations.__code__.co_code:
+        # if PrintBool: print('Detected old')
+        MBmode = '0' # Use first gene to get MB
+    elif estimator.__code__.co_code == calcInteraction_expectations_np.__code__.co_code:
+        # if PrintBool: print('Detected numpy')
+        MBmode = '0' # Use first gene to get MB
+    elif estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
         # if PrintBool: print('Detected numba')
         MBmode = '0' # Use first gene to get MB
 
@@ -383,9 +387,30 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOn
         if PrintBool: print('Warning, using ALL mode for MB selection, make sure you want this. ')
         MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
 
-    conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode, genesToOne=genesToOne)
+    conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
     
-    
+    # Check if data needs to be duplicated
+    dupFactor=1
+
+    # auto mode:
+    if dataDups>0:
+
+        f = lambda x: ''.join(map(str, x))
+        binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=2**len(genes))
+        minBin = min(binCounts)
+
+        try:
+            if np.floor(dataDups/minBin)>1:
+                dupFactor = int(np.floor(dataDups/minBin))
+            else:
+                dupFactor = 1
+        except:
+            dubFactor = 1
+
+    # duplicate data
+    if dupFactor>1:
+        conditionedGenes = pd.concat([conditionedGenes for _ in range(dupFactor)])
+
 
     if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
         val0 = estimator(conditionedGenes.values)
@@ -405,37 +430,45 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOn
     if np.isinf(val0):
 
         # if empirical is +/- inf, then we can add artificial cells to put bounds:
+        if boundBool:
+            order = len(genes)
+            # This assigns every state to numerator or denominator, depending on the number of 1s:
+            # In numerator: states where the number of ones has same parity as order itself. 
+            # In denom: When this is not the case.
+            # powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
+            nStates = 2**order
+            f = lambda x: ''.join(map(str, x))
+            binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
 
-        order = len(genes)
-        # This assigns every state to numerator or denominator, depending on the number of 1s:
-        # In numerator: states where the number of ones has same parity as order itself. 
-        # In denom: When this is not the case.
-        # powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
-        nStates = 2**order
-        f = lambda x: ''.join(map(str, x))
-        binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
-
-        # find the binary rep of the state that was missing, and see if we can put upper/lower bound
-        boundVal = -1*int(np.sign(val0))
-        statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
-        conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
+            # find the binary rep of the state that was missing, and see if we can put upper/lower bound
+            boundVal = -1*int(np.sign(val0))
+            statesToAdd = np.array([np.array(list(np.binary_repr(i, order))).astype(int) for i in range(2**order)])[np.where(binCounts==0)[0]]
+            conditionedGenes = conditionedGenes.append(pd.DataFrame(statesToAdd, columns=conditionedGenes.columns), ignore_index=True)
         
-    
+        # if not considering bounds, just return nans
+        else:
+            return [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, genes]
+
+
     if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
         rng = np.random.default_rng()
         conditionedGenes_np = conditionedGenes.values
         for i in range(nResamps):
             resampled = conditionedGenes_np[rng.choice(len(conditionedGenes_np), len(conditionedGenes_np), replace=True)]
             vals[i] = estimator(resampled)
-        vals.sort()
 
     else:
+
         for i in range(nResamps):
             genes_resampled = conditionedGenes.sample(frac=1, replace=True)
             vals[i] = estimator(genes_resampled)
-        vals.sort()
+    
+
+    vals.sort()
     vals_noNan = vals[~np.isnan(vals)]
 
+    if dupFactor>1:
+        vals = np.sqrt(dupFactor)*(vals-val0) + val0
 
     CI = (vals_noNan[int(np.around(len(vals_noNan)/40))], vals_noNan[int(np.floor(len(vals_noNan)*39/40))])
 
@@ -445,18 +478,16 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOn
 
 
 
-    return [val0, CI[0], CI[1], propDifSign, propUndefined, propInfinite, boundVal, genes]   
+    return [val0, CI[0], CI[1], propDifSign, propUndefined, propInfinite, boundVal, genes]
     
 def calcInteraction_withCI_parallel(args, nResamps=1000):
     '''
     wrapper to unpack function arguments so that it can be mapped over process pool with one arg.
     (I actually think there should be something like executor.starmap that could do this for us)
     '''
-    genes, graph, dataSet, estimator, nResamps, genesToOne = args
+    genes, graph, dataSet, estimator, nResamps, genesToOne, dataDups = args
 
-    return calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne=genesToOne, nResamps=nResamps) 
-
-
+    return calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne=genesToOne, dataDups=dataDups, nResamps=nResamps) 
 
 
 
@@ -473,4 +504,5 @@ def calcInteraction_withCI_parallel(args, nResamps=1000):
 
 
 
-    
+
+
