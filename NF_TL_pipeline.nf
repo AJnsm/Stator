@@ -162,6 +162,8 @@ process estimateCoups_345pts_WithinMB {
 
 }
 
+interaction_withinMB_3pts.view()
+
 
 process test {
 
@@ -169,7 +171,7 @@ process test {
     path tmpPath from interaction_withinMB_5pts
 
     """
-    echo $PATH
+    echo 
     """
 }
 
