@@ -173,12 +173,12 @@ process estimateCoups_6n7pts {
     path withinMB_5pts from interaction_withinMB_5pts
     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
     tuple path(dataSet), path(graph) from data_and_graphs_HOIs_6n7
-    
+        
     output:
     path 'interactions*.npy' into interaction_6n7pts
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --pathTo5pts ${withinMB_5pts} --nResamps ${params.bsResamps} --nCores ${params.cores_HOIs_6n7} --nRandoms ${params.nRandomHOIs} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --nResamps ${params.bsResamps} --nCores ${params.cores_HOIs_6n7} --nRandoms ${params.nRandomHOIs} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
     """
 
 }
