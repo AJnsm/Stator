@@ -166,7 +166,7 @@ interaction_withinMB_3pts.view()
 
 
 
-process test {
+process testProc {
 
     input:
     path tmpPath from interaction_withinMB_5pts
