@@ -172,7 +172,7 @@ process estimateCoups_6n7pts {
     path genesToOne from params.genesToOne
     // path withinMB_5pts from interaction_withinMB_5pts
     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
-    tuple path(dataSet), path(graph) from data_and_graphs_HOIs_6n7
+    // tuple path(dataSet), path(graph) from data_and_graphs_HOIs_6n7
         
     output:
     path 'interactions*.npy' into interaction_6n7pts
