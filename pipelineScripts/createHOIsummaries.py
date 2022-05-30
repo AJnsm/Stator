@@ -248,7 +248,7 @@ for order in [3, 4, 5]:
         plt.xticks([])
         plt.yticks([])
         
-        plt.savefig(f'higherOrderOutput/plots/{ds}/{ID}_Expression_maxDevState.png')
+        plt.savefig(f'{ID}_Expression_maxDevState.png')
         plt.close('all') 
 
 

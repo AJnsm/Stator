@@ -102,7 +102,7 @@ process estimateCoups_1pts {
 process estimateCoups_2pts {
     label 'interactionEstimation'
     
-    publishDir "${launchDir}/coupling_output", mode: 'copy'
+    publishDir "${launchDir}/coupling_output", mode: 'copy', pattern: '*.npy'
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
@@ -111,10 +111,10 @@ process estimateCoups_2pts {
     tuple path(dataSet), path(graph) from data_and_graphs_2pts
     
     output:
-    path 'interactions_order2_MCMCgraph*.npy' into interaction_2pts_ch
     path 'interactions_order2_MCMCgraph*CI_F.npy' into interaction_2pts_CI_F_ch
     path 'interactions_order2_MCMCgraph*_undef.npy' into interaction_2pts_undef_ch
     path 'interactions_order2_MCMCgraph*_inf.npy' into interaction_2pts_inf_ch
+    path 'interactions_order2_MCMCgraph*.npy' into interaction_2pts_ch
     path 'edgeList*.csv' into interaction_2pts_ch_edgeList
 
     """
