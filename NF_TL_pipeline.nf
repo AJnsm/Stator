@@ -72,7 +72,7 @@ process iterMCMCscheme {
     """
 }
 
-MCMCgraphs_ch.into {MCMCgraphs_ch1, MCMCgraphs_ch2}
+MCMCgraphs_ch.into {MCMCgraphs_ch1; MCMCgraphs_ch2}
 data_and_graphs_ch = CTRLgraphs_ch.mix(MCMCgraphs_ch1)
 data_and_graphs_ch.into {data_and_graphs_1pts; data_and_graphs_2pts; data_and_graphs_3pts; data_and_graphs_HOIs_MB; data_and_graphs_HOIs_6n7}
 
