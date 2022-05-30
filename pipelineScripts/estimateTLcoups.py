@@ -149,6 +149,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
         TLcoups_inf = resultArr[:, 5].reshape([n for i in range(order)])
         boundArr = resultArr[:, 6].reshape([n for i in range(order)])
 
+
     elif (order==3):
         TLcoups, TLcoups_LB, TLcoups_UB, TLcoups_nonZero, TLcoups_undef, TLcoups_inf, boundArr = np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n))
         TLcoups[:], TLcoups_LB[:], TLcoups_UB[:], TLcoups_nonZero[:], TLcoups_undef[:], TLcoups_inf[:], boundArr[:] = np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
@@ -161,7 +162,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
             TLcoups_inf[tuple(r[-1])] = r[5]
             boundArr[tuple(r[-1])] = r[6]
             
-    np.save(f'interactions_order{order}_{ID}', TLcoups)
+    np.save(f'interactions_order{order}_{ID}_coup', TLcoups)
     np.save(f'interactions_order{order}_{ID}_CI_LB', TLcoups_LB)
     np.save(f'interactions_order{order}_{ID}_CI_UB', TLcoups_UB)
     np.save(f'interactions_order{order}_{ID}_CI_F', TLcoups_nonZero)

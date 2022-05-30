@@ -192,11 +192,23 @@ for order in [3, 4, 5]:
 	                 },
 	                 **kwargs)  
 	    plt.savefig(f'{ID}_HOIs.png')
-	    plt.close()
+	    buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        plotHypergraph = Image.open(buf)
+        plt.close()
 
 	    #  ************************ CPDAG ************************ 
-	    ig.plot(g, f'{ID}_CPDAG.png', layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f)
 
+	    # ig.plot(g, f'{ID}_CPDAG.png', layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f)
+	    
+	    plt.figure()
+	    ig.plot(g, layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f)
+	    buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        plotCPDAG = Image.open(buf)
+        plt.close()
 
 		#  ************************ PCA embeddings ************************ 
 	    fig, ax = plt.subplots(1, len(fsplit[0].split('_')), figsize=[20, 4])
