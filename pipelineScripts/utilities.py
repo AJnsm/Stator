@@ -131,6 +131,130 @@ def calcInteraction_expectations_numba(conditionedGenes_np):
         
         num = E1111*E1100*E1010*E0110*E0101*E0011*E1001*E0000 * (1-E0111)*(1-E1011)*(1-E1101)*(1-E1110)*(1-E0001)*(1-E0010)*(1-E0100)*(1-E1000)
         denom = (1-E1111)*(1-E1100)*(1-E1010)*(1-E0110)*(1-E0101)*(1-E0011)*(1-E1001)*(1-E0000)*(E0111*E1011*E1101*E1110*E0001*E0010*E0100*E1000)
+    elif(order==6):
+        E11110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E00000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E00010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E00100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E01000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E10000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E00110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E01010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E01100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E10100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E11000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E10010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E11100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E11010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E10110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+        E01110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0)][:, 0])  
+
+        E11111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E00001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E00011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E00101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E01001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E10001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E00111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E01011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E01101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E10101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E11001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E10011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E11101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E11011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E10111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+        E01111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1)][:, 0])  
+
+
+        num = E11111*E11001*E10101*E01101*E01011*E00111*E10011*E00001 * (1-E01111)*(1-E10111)*(1-E11011)*(1-E11101)*(1-E00011)*(1-E00101)*(1-E01001)*(1-E10001) * \
+                (1-E11110)*(1-E11000)*(1-E10100)*(1-E01100)*(1-E01010)*(1-E00110)*(1-E10010)*(1-E00000)*(E01110*E10110*E11010*E11100*E00010*E00100*E01000*E10000)
+
+        denom = (1-E11111)*(1-E11001)*(1-E10101)*(1-E01101)*(1-E01011)*(1-E00111)*(1-E10011)*(1-E00001)*(E01111*E10111*E11011*E11101*E00011*E00101*E01001*E10001) * \
+                E11110*E11000*E10100*E01100*E01010*E00110*E10010*E00000 * (1-E01110)*(1-E10110)*(1-E11010)*(1-E11100)*(1-E00010)*(1-E00100)*(1-E01000)*(1-E10000)
+
+
+
+
+    elif(order==7):
+        E111101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E000001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E000101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E001001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E010001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E100001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E001101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E010101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E011001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E101001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E110001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E100101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E111001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E110101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E101101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E011101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E111111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E000011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E000111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E001011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E010011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E100011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E001111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E010111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E011011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E101011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E110011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E100111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E111011 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E110111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E101111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+        E011111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==1)][:, 0])  
+
+        E111100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E000000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E000100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E001000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E010000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E100000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E001100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E010100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E011000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E101000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E110000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E100100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E111000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E110100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E101100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E011100 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E111110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E000010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E000110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E001010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E010010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E100010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E001110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E010110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E011010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E101010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E110010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E100110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E111010 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E110110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E101110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0])  
+        E011110 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==1) & (conditionedGenes_np[:, 6]==0)][:, 0]) 
+
+
+        num = E111111*E110011*E101011*E011011*E010111*E001111*E100111*E000011 * (1-E011111)*(1-E101111)*(1-E110111)*(1-E111011)*(1-E000111)*(1-E001011)*(1-E010011)*(1-E100011) * \
+                (1-E111101)*(1-E110001)*(1-E101001)*(1-E011001)*(1-E010101)*(1-E001101)*(1-E100101)*(1-E000001)*(E011101*E101101*E110101*E111001*E000101*E001001*E010001*E100001) * \
+                (1-E111110)*(1-E110010)*(1-E101010)*(1-E011010)*(1-E010110)*(1-E001110)*(1-E100110)*(1-E000010)*(E011110*E101110*E110110*E111010*E000110*E001010*E010010*E100010) * \
+                E111100*E110000*E101000*E011000*E010100*E001100*E100100*E000000 * (1-E011100)*(1-E101100)*(1-E110100)*(1-E111000)*(1-E000100)*(1-E001000)*(1-E010000)*(1-E100000)
+
+
+        denom = (1-E111111)*(1-E110011)*(1-E101011)*(1-E011011)*(1-E010111)*(1-E001111)*(1-E100111)*(1-E000011)*(E011111*E101111*E110111*E111011*E000111*E001011*E010011*E100011) * \
+                E111101*E110001*E101001*E011001*E010101*E001101*E100101*E000001 * (1-E011101)*(1-E101101)*(1-E110101)*(1-E111001)*(1-E000101)*(1-E001001)*(1-E010001)*(1-E100001) * \
+                E111110*E110010*E101010*E011010*E010110*E001110*E100110*E000010 * (1-E011110)*(1-E101110)*(1-E110110)*(1-E111010)*(1-E000110)*(1-E001010)*(1-E010010)*(1-E100010) * \
+                (1-E111100)*(1-E110000)*(1-E101000)*(1-E011000)*(1-E010100)*(1-E001100)*(1-E100100)*(1-E000000)*(E011100*E101100*E110100*E111000*E000100*E001000*E010000*E100000)
+
 
     else:
         print('Order not yet implemented, change estimation method to probabilities.')

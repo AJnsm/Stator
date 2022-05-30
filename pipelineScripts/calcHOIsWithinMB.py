@@ -122,13 +122,13 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
         print(f'Connected trips: {len(ints_3pt)}, Quads: {len(ints_4pt)}, Pents: {len(ints_5pt)}')
         
     for order, args in [['random_3pts', args_randTrips], ['random_4pts', args_randQuads], ['random_5pts', args_randPents],
-                     ['MB_3pts', ints_3pt], ['MB_4pts', ints_4pt], ['MB_5pts', ints_5pt]]:
+                     ['withinMB_3pts', ints_3pt], ['withinMB_4pts', ints_4pt], ['withinMB_5pts', ints_5pt]]:
         
                 
         
         start = time.perf_counter()
         with concurrent.futures.ProcessPoolExecutor(max_workers=maxWorkers) as executor:
-            results = executor.map(calcInteraction_withCI_parallel, args)  
+            results = executor.map(calcInteraction_withCI_parallel  , args)  
         finish = time.perf_counter()
         if PrintBool: print(f'Time elapsed: {round(finish-start, 2)} secs')
         if PrintBool: print('calculation done, storing results...')
@@ -136,7 +136,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
         resultArr = np.array(list(results), dtype=object)
         if PrintBool: print('writing files...')
         
-        np.save(f'interactions_withinMB_{order}_{ID}', resultArr, allow_pickle=True)
+        np.save(f'interactions_{order}_{ID}', resultArr, allow_pickle=True)
 
         if PrintBool: print(f'********** DONE with {ID} **********\n')
 
