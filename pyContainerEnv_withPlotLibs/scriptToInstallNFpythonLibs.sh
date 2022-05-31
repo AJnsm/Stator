@@ -17,3 +17,5 @@ conda install -c conda-forge upsetplot
 
 pip install python-igraph
 pip install hypernetx
+pip install Pillow
+
