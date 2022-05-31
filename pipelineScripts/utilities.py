@@ -60,7 +60,6 @@ def findLocalGraph(v, g, order):
         g.vs()[i]['label']=i
     return g.subgraph(list(nodes))
 
-
 from itertools import chain, combinations
 
 

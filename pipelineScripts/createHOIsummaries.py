@@ -170,7 +170,6 @@ def plotUpsetPlot(d, fig, title='', legend=False, save=False, filename=''):
 
 
 
-
 f=2
 kwargs = {'with_node_counts': True, 'with_node_labels':True, 'with_edge_labels':False}
 concatInts = lambda x: ''.join(map(str, x))
@@ -199,6 +198,8 @@ for order in [3, 4, 5]:
 		for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
 			ID = '_'.join(genes[geneTuple])
 
+
+			CPDAGgraph.vs['label'] = CPDAGadjMat.columns.values
 			# The local CPDAG structure will be plotted, and its layout will be used for the hypergraph of interactions. 
 			g = findLocalGraph(geneTuple, CPDAGgraph, order=0)
 			layout_c = g.layout('circle')
