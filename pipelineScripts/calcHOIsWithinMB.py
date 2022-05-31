@@ -139,7 +139,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
         
         np.save(f'interactions_{order}_{ID}', resultArr, allow_pickle=True)
 
-        if PrintBool: print(f'********** DONE with {ID} **********\n')
+        if PrintBool: print(f'********** DONE with {order} {ID} **********\n')
 
 
 

@@ -53,7 +53,8 @@ def findLocalGraph(v, g, order):
         for node in nodes:
             newNodes = newNodes.union(set(g.neighbors(node)))
         nodes = nodes.union(newNodes)
-
+    for i in range(len(g.vs())):
+        g.vs()[i]['label']=i
     return g.subgraph(list(nodes))
 
 
