@@ -334,7 +334,7 @@ for order in [3, 4, 5]:
 			plt.savefig(f'{ID}_summary.png')
 			plt.close(fig) 
 
-
+dsDevDict = {}
 for order in [3, 4, 5]:
     for devs, interactors in deviations[f'n{order}']:
         if max(abs(devs))>5:
