@@ -208,7 +208,7 @@ process createHOIsummaries {
     path path2pts_undef from interaction_2pts_undef_ch
     path path2pts_inf from interaction_2pts_inf_ch
     path path3pts from interaction_withinMB_3pts
-    path path4pts from interaction_withinMB_4ptsd
+    path path4pts from interaction_withinMB_4pts
     path path5pts from interaction_withinMB_5pts_ch2
     path pcaCoords from PCAembeddings
 
