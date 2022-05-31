@@ -239,7 +239,7 @@ process identifyStates {
     path '*.png' into identifiedStatesImgs
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --PCApath ${pcaCoords} --CPDAGgraphPath ${CPDAGgraph} --MCMCgraphPath ${MCMCgraph} --pathTo2pts ${path2pts} --pathTo2pts_CI_F ${path2pts_CI_F} --pathTo2pts_undef ${path2pts_undef} --pathTo2pts_inf ${path2pts_inf} --pathTo3pts ${path3pts} --pathTo4pts ${path4pts} --pathTo5pts ${path5pts}
+    python ${estimationScript} --dataPath ${dataSet} --PCApath ${pcaCoords} --devStates ${devStates} --diffCutoff ${args.dendCutoff}
     """
 
 }
