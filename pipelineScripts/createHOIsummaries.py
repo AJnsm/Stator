@@ -327,8 +327,17 @@ for order in [3, 4, 5]:
 		plt.close(fig) 
 
 
-
-
+for order in [3, 4, 5]:
+    for devs, interactors in deviations[f'n{order}']:
+        if max(abs(devs))>5:
+            ID = '_'.join(genes[interactors])
+            maxDevState = format(np.argmax(devs), f"0{order}b")
+            
+            dsDevDict[ID] = (maxDevState, np.max(devs))
+            
+strongDeviators = pd.DataFrame.from_dict(dsDevDict).T.sort_values(by=1, ascending=False)
+strongDeviators.columns = ['max dev. state', 'dev']
+strongDeviators.to_csv(f'topDeviatingHOIstates_{ds}.csv')
 
 
 
