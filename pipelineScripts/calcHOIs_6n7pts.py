@@ -52,6 +52,7 @@ trainDat = pd.read_csv(dataPath)
 DSname = graphPath.split('.')[0]
 adjMat = pd.read_csv(graphPath, index_col=0)
 graph = ig.Graph.Adjacency(adjMat.values.tolist()) 
+graph.vs['label'] = adjMat.columns.values
 
 try:
     genesToOneIndices = pd.read_csv(genesToOnePath)
