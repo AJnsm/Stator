@@ -44,6 +44,7 @@ nRands = args.nRandoms
 pathTo5pts = args.pathTo5pts
 genesToOnePath = args.genesToOne
 boundBool = args.boundBool
+dataDups = args.dataDups
 
 trainDat = pd.read_csv(dataPath)
 
