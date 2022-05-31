@@ -51,9 +51,11 @@ pcaCoords= pd.read_csv(args.PCApath)
 DSname = args.MCMCgraphPath.split('.')[0]
 MCMCadjMat = pd.read_csv(args.MCMCgraphPath, index_col=0)
 MCMCgraph = ig.Graph.Adjacency(MCMCadjMat.values.tolist())
+MCMCgraph.vs['label'] = MCMCadjMat.columns.values
 
 CPDAGadjMat = pd.read_csv(args.CPDAGgraphPath, index_col=0)
 CPDAGgraph = ig.Graph.Adjacency(CPDAGadjMat.values.tolist())
+CPDAGgraph.vs['label'] = CPDAGgraph.columns.values
 
 genes = trainDat.columns.values
 
