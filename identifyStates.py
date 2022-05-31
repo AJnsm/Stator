@@ -21,10 +21,10 @@ print('Modules imported \n')
 
 parser = argparse.ArgumentParser(description='Args for coupling estimation')
 
-parser.add_argument("--dataPath", type=str, nargs=1, help="Path to training data")
-parser.add_argument("--PCApath", type=str, nargs=1, help="Path to PCA embedding of training data")
-parser.add_argument("--devStates", type=str, nargs=1, help="Path to list of most deviating states")
-parser.add_argument("--diffCutoff", type=str, nargs=1, help="Dice distance to slice dendrogram")
+parser.add_argument("--dataPath", type=str, nargs='?', help="Path to training data")
+parser.add_argument("--PCApath", type=str, nargs='?', help="Path to PCA embedding of training data")
+parser.add_argument("--devStates", type=str, nargs='?', help="Path to list of most deviating states")
+parser.add_argument("--diffCutoff", type=str, nargs='?', help="Dice distance to slice dendrogram")
 
 args = parser.parse_args()
 diffCutoff = args.diffCutoff
