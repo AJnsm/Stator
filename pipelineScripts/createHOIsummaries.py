@@ -55,7 +55,7 @@ MCMCgraph.vs['label'] = MCMCadjMat.columns.values
 
 CPDAGadjMat = pd.read_csv(args.CPDAGgraphPath, index_col=0)
 CPDAGgraph = ig.Graph.Adjacency(CPDAGadjMat.values.tolist())
-CPDAGgraph.vs['label'] = CPDAGgraph.columns.values
+CPDAGgraph.vs['label'] = CPDAGadjMat.columns.values
 
 genes = trainDat.columns.values
 
