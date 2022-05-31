@@ -25,12 +25,12 @@ process makeData {
     script:
     if( params.dataType == 'agnostic' )
         """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${doubletFile} --userGenes ${userGenes} --twoReplicates ${params.twoReplicates}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${doubletFile} --userGenes ${userGenes}
         """
 
     else if( params.dataType == 'expression' )
         """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${doubletFile} --userGenes ${userGenes} --twoReplicates ${params.twoReplicates}
+        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${doubletFile} --userGenes ${userGenes}
         """
     else
         error "Invalid data type"
