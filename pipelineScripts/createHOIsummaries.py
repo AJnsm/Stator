@@ -73,9 +73,11 @@ HHOIs = {}
 alpha=0.05
 for order, intPath in enumerate([args.pathTo3pts, args.pathTo4pts, args.pathTo5pts]):
 	ints = np.load(intPath, allow_pickle=True)
-	perfectSigEsts = list(map(lambda x: (((x[[4, 5, 6]]==0).all()) & (x[3]<alpha)), ints))
-	HHOIs[f'n{order+3}'] = ints[perfectSigEsts][:, [0, -1]]
-			
+	if len(ints)>0:
+		perfectSigEsts = list(map(lambda x: (((x[[4, 5, 6]]==0).all()) & (x[3]<alpha)), ints))
+		HHOIs[f'n{order+3}'] = ints[perfectSigEsts][:, [0, -1]]
+	else: HHOIs[f'n{order+3}'] = []
+	
 pairs = np.array(np.where(coups_2pts_CI_F<alpha)).T
 vals = coups_2pts[coups_2pts_CI_F<alpha]
 HHOIs[f'n2'] = np.array([list(x) for x in list(zip(vals, pairs))])
