@@ -151,7 +151,6 @@ process estimateCoups_345pts_WithinMB {
     label 'interactionEstimation'
     
     publishDir "${launchDir}/coupling_output", mode: 'copy'
-    path utilities from "${projectDir}/pipelineScripts/utilities.py" 
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/calcHOIsWithinMB.py" 
