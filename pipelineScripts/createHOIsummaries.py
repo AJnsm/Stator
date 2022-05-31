@@ -221,7 +221,7 @@ for order in [3, 4, 5]:
 			cList = ['red' if w<0 else 'green' for w in weights]
 			layout_fn = lambda x: tmp
 			plt.figure(figsize=[10, 10])
-
+			print(H.nodes)
 			hnx.draw(H,  layout = layout_fn,
 						 label_alpha=0,
 						 node_labels_kwargs={
