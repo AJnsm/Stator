@@ -77,7 +77,7 @@ for order, intPath in enumerate([args.pathTo3pts, args.pathTo4pts, args.pathTo5p
 		perfectSigEsts = list(map(lambda x: (((x[[4, 5, 6]]==0).all()) & (x[3]<alpha)), ints))
 		HHOIs[f'n{order+3}'] = ints[perfectSigEsts][:, [0, -1]]
 	else: HHOIs[f'n{order+3}'] = []
-	
+
 pairs = np.array(np.where(coups_2pts_CI_F<alpha)).T
 vals = coups_2pts[coups_2pts_CI_F<alpha]
 HHOIs[f'n2'] = np.array([list(x) for x in list(zip(vals, pairs))])
@@ -169,104 +169,106 @@ for order in [3, 4, 5]:
 	binStates = [np.array(list(format(x, f"0{order}b"))).astype(bool) for x in range(nStates)]
 	devs = []
 
-	for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
-		ID = '_'.join(genes[geneTuple])	  
-		g = findLocalGraph(geneTuple, CPDAGgraph, order=0)
-		layout_c = g.layout('circle')
 
-		tmp = dict(zip(g.vs['label'], np.array(layout_c)*np.array([1, -1])))
-		edges = {'maxOrder': genes[geneTuple]}
-		weights = [w]
+	if len(HHOIs[f'n{order}'])>0:
+		for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
+			ID = '_'.join(genes[geneTuple])	  
+			g = findLocalGraph(geneTuple, CPDAGgraph, order=0)
+			layout_c = g.layout('circle')
 
-		for i in range(2, order):
-			for subset in findsubsets(geneTuple, i):
-				for tup in HHOIs[f'n{i}']:
-					if sorted(tup[-1]) == sorted(subset):
-						edges[len(edges)+1] =  [genes[g] for g in subset]
-						weights.append(tup[0])
-						break
+			tmp = dict(zip(g.vs['label'], np.array(layout_c)*np.array([1, -1])))
+			edges = {'maxOrder': genes[geneTuple]}
+			weights = [w]
 
-		#  ************************ Interaction Hypergraph  ************************ 
-		H = hnx.Hypergraph(edges)
-		cList = ['red' if w<0 else 'green' for w in weights]
-		layout_fn = lambda x: tmp
-		plt.figure(figsize=[10, 10])
+			for i in range(2, order):
+				for subset in findsubsets(geneTuple, i):
+					for tup in HHOIs[f'n{i}']:
+						if sorted(tup[-1]) == sorted(subset):
+							edges[len(edges)+1] =  [genes[g] for g in subset]
+							weights.append(tup[0])
+							break
 
-		hnx.draw(H,  layout = layout_fn,
-					 label_alpha=0,
-					 node_labels_kwargs={
-						'fontsize': 24
-					},
-					 edges_kwargs={
-						 'edgecolors': cList,
-						 'linewidths': 3,
-						 'dr': 0.05
-					 },
-					 **kwargs)  
-		plt.savefig(f'{ID}_HOIs.png')
-		buf = io.BytesIO()
-		plt.savefig(buf, format='png')
-		buf.seek(0)
-		plotHypergraph[ID] = Image.open(buf)
-		plt.close()
+			#  ************************ Interaction Hypergraph  ************************ 
+			H = hnx.Hypergraph(edges)
+			cList = ['red' if w<0 else 'green' for w in weights]
+			layout_fn = lambda x: tmp
+			plt.figure(figsize=[10, 10])
 
-		#  ************************ CPDAG ************************ 
+			hnx.draw(H,  layout = layout_fn,
+						 label_alpha=0,
+						 node_labels_kwargs={
+							'fontsize': 24
+						},
+						 edges_kwargs={
+							 'edgecolors': cList,
+							 'linewidths': 3,
+							 'dr': 0.05
+						 },
+						 **kwargs)  
+			plt.savefig(f'{ID}_HOIs.png')
+			buf = io.BytesIO()
+			plt.savefig(buf, format='png')
+			buf.seek(0)
+			plotHypergraph[ID] = Image.open(buf)
+			plt.close()
 
-		# ig.plot(g, f'{ID}_CPDAG.png', layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f)
+			#  ************************ CPDAG ************************ 
 
-		fig, ax = plt.subplots(figsize=[6, 6])
-		ig.plot(g, layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f, vertex_label_color='black', target=ax)
-		buf = io.BytesIO()
-		plt.savefig(buf, format='png')
-		buf.seek(0)
-		plotCPDAG[ID] = Image.open(buf)
-		plt.close()
+			# ig.plot(g, f'{ID}_CPDAG.png', layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f)
 
-		#  ************************ PCA embeddings ************************ 
-		fig, ax = plt.subplots(1, len(fsplit[0].split('_')), figsize=[20, 4])
-		for g in geneTuple:
-			sc.pl.embedding(scObj,'pca', color=g, 
-								size=30, color_map="viridis", add_outline=True, ncols=len(fsplit[0]), show=False, frameon=False, ax = ax[i])
-		fig = plt.gcf()
-		fig.axes[-1].remove()
-		# plt.savefig(f'{ID}_Expression.png')
-		buf = io.BytesIO()
-		plt.savefig(buf, format='png')
-		buf.seek(0)
-		plotPCA[ID] = Image.open(buf)
-		plt.close() 
+			fig, ax = plt.subplots(figsize=[6, 6])
+			ig.plot(g, layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f, vertex_label_color='black', target=ax)
+			buf = io.BytesIO()
+			plt.savefig(buf, format='png')
+			buf.seek(0)
+			plotCPDAG[ID] = Image.open(buf)
+			plt.close()
 
-		#  ************************ Upset plots ************************ 
+			#  ************************ PCA embeddings ************************ 
+			fig, ax = plt.subplots(1, len(fsplit[0].split('_')), figsize=[20, 4])
+			for g in geneTuple:
+				sc.pl.embedding(scObj,'pca', color=g, 
+									size=30, color_map="viridis", add_outline=True, ncols=len(fsplit[0]), show=False, frameon=False, ax = ax[i])
+			fig = plt.gcf()
+			fig.axes[-1].remove()
+			# plt.savefig(f'{ID}_Expression.png')
+			buf = io.BytesIO()
+			plt.savefig(buf, format='png')
+			buf.seek(0)
+			plotPCA[ID] = Image.open(buf)
+			plt.close() 
 
-		unConditionedGenes = trainDat.iloc[:, geneTuple]
-		conditionedGenes = conditionOnMB(geneTuple, MCMCgraph, trainDat, mode='Min')
+			#  ************************ Upset plots ************************ 
 
-		fig.figure(figsize=[10, 10])
-		plotUpsetPlot(d = conditionedGenes,fig=fig, legend=False, title = 'Conditioned on MB', filename=ID + '_Upset_conditioned.png', save=True)
-		buf = io.BytesIO()
-		plt.savefig(buf, format='png')
-		buf.seek(0)
-		plotUpset_cond[ID] = Image.open(buf)
-		plt.close()
+			unConditionedGenes = trainDat.iloc[:, geneTuple]
+			conditionedGenes = conditionOnMB(geneTuple, MCMCgraph, trainDat, mode='Min')
 
-		fig.figure(figsize=[10, 10])
-		plotUpsetPlot(d = unConditionedGenes,fig=fig, legend=False, title = 'Unonditioned', filename=ID + '_Upset_unconditioned.png', save=True)
-		buf = io.BytesIO()
-		plt.savefig(buf, format='png')
-		buf.seek(0)
-		plotUpset_uncond[ID] = Image.open(buf)
-		plt.close()
-		
+			fig.figure(figsize=[10, 10])
+			plotUpsetPlot(d = conditionedGenes,fig=fig, legend=False, title = 'Conditioned on MB', filename=ID + '_Upset_conditioned.png', save=True)
+			buf = io.BytesIO()
+			plt.savefig(buf, format='png')
+			buf.seek(0)
+			plotUpset_cond[ID] = Image.open(buf)
+			plt.close()
 
-		#  ************************ Calculate deviations ************************ 
+			fig.figure(figsize=[10, 10])
+			plotUpsetPlot(d = unConditionedGenes,fig=fig, legend=False, title = 'Unonditioned', filename=ID + '_Upset_unconditioned.png', save=True)
+			buf = io.BytesIO()
+			plt.savefig(buf, format='png')
+			buf.seek(0)
+			plotUpset_uncond[ID] = Image.open(buf)
+			plt.close()
+			
 
-		conditionedGenes = conditionOnMB(interactors, graph, dat, mode='Min')
-		binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(concatInts, conditionedGenes.values)))), minlength=nStates)
-		means = conditionedGenes.mean(axis=0)
-		expected = np.array([np.prod([m if state[i] else 1-m for i, m in enumerate(means)]) for state in binStates])*len(conditionedGenes)
-		
-		deviation = (binCounts - expected)/(expected)
-		devs.append([deviation, interactors])
+			#  ************************ Calculate deviations ************************ 
+
+			conditionedGenes = conditionOnMB(interactors, graph, dat, mode='Min')
+			binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(concatInts, conditionedGenes.values)))), minlength=nStates)
+			means = conditionedGenes.mean(axis=0)
+			expected = np.array([np.prod([m if state[i] else 1-m for i, m in enumerate(means)]) for state in binStates])*len(conditionedGenes)
+			
+			deviation = (binCounts - expected)/(expected)
+			devs.append([deviation, interactors])
 	
 	devs  = np.array(devs, dtype=object)
 	devs = devs[(-np.array(list(map(np.max, devs[:, 0])))).argsort()]
@@ -302,34 +304,35 @@ for order in [3, 4, 5]:
 sns.set_style("white")
 
 for order in [3, 4, 5]:
-	for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
-		ID = '_'.join(genes[geneTuple])	  
-		fig = plt.figure(figsize=(15, 10))
+	if len(HHOIs[f'n{order}'])>0:
+		for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
+			ID = '_'.join(genes[geneTuple])	  
+			fig = plt.figure(figsize=(15, 10))
 
-		axCPDAG = fig.add_axes([0, 0.66, 0.33, 0.33])
-		axPC = fig.add_axes([0.33, 0.66, 0.33, 0.33])
-		axHOI = fig.add_axes([0.66, 0.66, 0.33, 0.33])
-		axEXP = fig.add_axes([0., 0.33, 0.99, 0.33])
+			axCPDAG = fig.add_axes([0, 0.66, 0.33, 0.33])
+			axPC = fig.add_axes([0.33, 0.66, 0.33, 0.33])
+			axHOI = fig.add_axes([0.66, 0.66, 0.33, 0.33])
+			axEXP = fig.add_axes([0., 0.33, 0.99, 0.33])
 
-		axUPS1 = fig.add_axes([0, 0, 0.33, 0.33])
-		axUPS2 = fig.add_axes([0.33, 0, 0.33, 0.33])
-		axEXP_maxDev = fig.add_axes([0.66, 0.0, 0.33, 0.33])
+			axUPS1 = fig.add_axes([0, 0, 0.33, 0.33])
+			axUPS2 = fig.add_axes([0.33, 0, 0.33, 0.33])
+			axEXP_maxDev = fig.add_axes([0.66, 0.0, 0.33, 0.33])
 
-		axes = [axCPDAG, axPC, axHOI, axEXP, axEXP_maxDev, axUPS1, axUPS2]
+			axes = [axCPDAG, axPC, axHOI, axEXP, axEXP_maxDev, axUPS1, axUPS2]
 
-		for a in axes:
-			a.axis('off')
+			for a in axes:
+				a.axis('off')
 
-		axCPDAG.imshow(plotCPDAG)
-		axHOI.imshow(plotHypergraph[100:-100, 100:-50])
-		axEXP.imshow(plotPCA[:, 400:, :])
-		axEXP_maxDev.imshow(plotMaxDev[:, :, :])
+			axCPDAG.imshow(plotCPDAG)
+			axHOI.imshow(plotHypergraph[100:-100, 100:-50])
+			axEXP.imshow(plotPCA[:, 400:, :])
+			axEXP_maxDev.imshow(plotMaxDev[:, :, :])
 
-		axUPS1.imshow(plotUpset_cond[:, 20:])
-		axUPS2.imshow(plotUpset_uncond[:, 20:])
+			axUPS1.imshow(plotUpset_cond[:, 20:])
+			axUPS2.imshow(plotUpset_uncond[:, 20:])
 
-		plt.savefig(f'{ID}_summary.png')
-		plt.close(fig) 
+			plt.savefig(f'{ID}_summary.png')
+			plt.close(fig) 
 
 
 for order in [3, 4, 5]:
