@@ -195,7 +195,8 @@ process estimateCoups_6n7pts {
 
 process createHOIsummaries {
     
-    publishDir "${launchDir}/HOIsummaries", mode: 'copy'
+    publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: 'topDeviatingHOIstates.csv'
+    publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*_summary.png'
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/createHOIsummaries.py" 
@@ -207,13 +208,15 @@ process createHOIsummaries {
     path path2pts_undef from interaction_2pts_undef_ch
     path path2pts_inf from interaction_2pts_inf_ch
     path path3pts from interaction_withinMB_3pts
-    path path4pts from interaction_withinMB_4pts
+    path path4pts from interaction_withinMB_4ptsd
     path path5pts from interaction_withinMB_5pts_ch2
     path pcaCoords from PCAembeddings
 
     output:
     path '*.png' optional true into HOIsummaries
     path '*.csv' optional true into topDeviators
+    path dataSet into dataSet_forPlots
+    path pcaCoords into PCAembeddings_forPlots
 
     """
     python ${estimationScript} --dataPath ${dataSet} --PCApath ${pcaCoords} --CPDAGgraphPath ${CPDAGgraph} --MCMCgraphPath ${MCMCgraph} --pathTo2pts ${path2pts} --pathTo2pts_CI_F ${path2pts_CI_F} --pathTo2pts_undef ${path2pts_undef} --pathTo2pts_inf ${path2pts_inf} --pathTo3pts ${path3pts} --pathTo4pts ${path4pts} --pathTo5pts ${path5pts}
@@ -222,8 +225,24 @@ process createHOIsummaries {
 }
 
 
+process identifyStates {
+    
+    publishDir "${launchDir}/HOIsummaries", mode: 'copy'
 
+    input:
+    path estimationScript from "${projectDir}/pipelineScripts/identifyStates.py" 
+    path devStates from topDeviators
+    path dataSet from dataSet_forPlots
+    path pcaCoords from PCAembeddings_forPlots
 
+    output:
+    path '*.png' into identifiedStatesImgs
+
+    """
+    python ${estimationScript} --dataPath ${dataSet} --PCApath ${pcaCoords} --CPDAGgraphPath ${CPDAGgraph} --MCMCgraphPath ${MCMCgraph} --pathTo2pts ${path2pts} --pathTo2pts_CI_F ${path2pts_CI_F} --pathTo2pts_undef ${path2pts_undef} --pathTo2pts_inf ${path2pts_inf} --pathTo3pts ${path3pts} --pathTo4pts ${path4pts} --pathTo5pts ${path5pts}
+    """
+
+}
 
 
 

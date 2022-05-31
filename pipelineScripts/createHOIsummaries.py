@@ -24,8 +24,10 @@ import upsetplot as up
 from upsetplot import generate_counts
 from upsetplot import from_indicators
 
+import io
+from PIL import Image
 
-if PrintBool: print('Modules imported \n')
+print('Modules imported \n')
 
 parser = argparse.ArgumentParser(description='Args for coupling estimation')
 
@@ -337,7 +339,7 @@ for order in [3, 4, 5]:
             
 strongDeviators = pd.DataFrame.from_dict(dsDevDict).T.sort_values(by=1, ascending=False)
 strongDeviators.columns = ['max dev. state', 'dev']
-strongDeviators.to_csv(f'topDeviatingHOIstates_{ds}.csv')
+strongDeviators.to_csv(f'topDeviatingHOIstates.csv')
 
 
 
