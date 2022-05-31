@@ -31,7 +31,7 @@ diffCutoff = args.diffCutoff
 trainDat = pd.read_csv(args.dataPath)
 pcaCoords= pd.read_csv(args.PCApath)
 
-devStates = pd.read_csv(devStates, dtype=str)
+devStates = pd.read_csv(args.devStates, dtype=str)
 devStates.columns = ['genes', 'state', 'dev']
 
 
