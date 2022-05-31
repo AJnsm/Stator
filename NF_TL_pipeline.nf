@@ -236,7 +236,7 @@ process identifyStates {
     path pcaCoords from PCAembeddings_forPlots
 
     output:
-    path '*.png' into identifiedStatesImgs
+    path '*.png' optional true into identifiedStatesImgs
 
     """
     python ${estimationScript} --dataPath ${dataSet} --PCApath ${pcaCoords} --devStates ${devStates} --diffCutoff ${args.dendCutoff}
