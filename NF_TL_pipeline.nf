@@ -72,9 +72,9 @@ process iterMCMCscheme {
     """
 }
 
-MCMCgraphs_ch.into {MCMCgraphs_ch1; MCMCgraphs_ch2}
+MCMCgraphs_ch.into {MCMCgraphs_ch1; MCMCgraphs_ch2; MCMCgraphs_ch3}
 data_and_graphs_ch = CTRLgraphs_ch.mix(MCMCgraphs_ch1)
-data_and_graphs_ch.into {data_and_graphs_1pts; data_and_graphs_2pts; data_and_graphs_3pts; data_and_graphs_HOIs_MB; data_and_graphs_HOIs_6n7}
+data_and_graphs_ch.into {data_and_graphs_1pts; data_and_graphs_2pts; data_and_graphs_3pts}
 
 
 process estimateCoups_1pts {
@@ -156,7 +156,7 @@ process estimateCoups_345pts_WithinMB {
     path estimationScript from "${projectDir}/pipelineScripts/calcHOIsWithinMB.py" 
     path genesToOne from params.genesToOne
     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
-    tuple path(dataSet), path(graph) from data_and_graphs_HOIs_MB
+    tuple path(dataSet), path(graph) from MCMCgraphs_ch2
     
     output:
     path 'interactions_withinMB_3pts*.npy' into interaction_withinMB_3pts
@@ -181,7 +181,7 @@ process estimateCoups_6n7pts {
     path genesToOne from params.genesToOne
     path withinMB_5pts from interaction_withinMB_5pts_ch1
     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
-    tuple path(dataSet), path(graph) from data_and_graphs_HOIs_6n7
+    tuple path(dataSet), path(graph) from MCMCgraphs_ch3
         
     output:
     path 'interactions*.npy' optional true into interaction_6n7pts
@@ -201,7 +201,7 @@ process createHOIsummaries {
     input:
     path estimationScript from "${projectDir}/pipelineScripts/createHOIsummaries.py" 
     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
-    tuple path(dataSet), path(MCMCgraph) from MCMCgraphs_ch2
+    tuple path(dataSet), path(MCMCgraph) from MCMCgraphs_ch4
     path CPDAGgraph from CPDAGgraphs_ch
     path path2pts from interaction_2pts_ch
     path path2pts_CI_F from interaction_2pts_CI_F_ch
