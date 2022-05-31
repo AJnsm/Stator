@@ -1,7 +1,8 @@
 PrintBool=False
-print('test')
+
+# Only print if in the __main__ call of the script
 if(__name__=="__main__"):
-    PrintBool=True # Only print if in the __main__ call of the script
+    PrintBool=True
 
 if PrintBool: print('Importing modules...')
 import concurrent.futures
@@ -14,40 +15,46 @@ import argparse
 import numba
 from numba import njit
 import scipy
+
+# The utilities module holds the estimation methods etc. 
 from utilities import *
 
 if PrintBool: print('Modules imported \n')
 
+# Parse all command line arguments
 parser = argparse.ArgumentParser(description='Args for coupling estimation')
-
-parser.add_argument("--dataPath", type=str, nargs=1, help="Path to training data")
-parser.add_argument("--graphPath", type=str, nargs=1, help="Path to graph file")
-parser.add_argument("--nResamps", type=int, nargs=1, help="Number of BS resamples")
-parser.add_argument("--nCores", type=int, nargs=1, help="Number of cores")
-parser.add_argument("--nRandoms", type=int, nargs=1, help="Number of random interactions to calculate")
-parser.add_argument("--genesToOne", type=str, nargs='?', help="Path to list of genes that should be set to 1")
-parser.add_argument("--dataDups", type=int, nargs='?', help="Number of data duplications. 0 is no duplication, and another value is the min binsize allowed (recommended to be 15). ")
-parser.add_argument("--boundBool", type=int, nargs='?', help="Boolean that decided whether bounds should also be considered.")
+parser.add_argument("--dataPath", type=str, help="Path to training data")
+parser.add_argument("--graphPath", type=str, help="Path to graph file")
+parser.add_argument("--nResamps", type=int, help="Number of BS resamples")
+parser.add_argument("--nCores", type=int, help="Number of cores")
+parser.add_argument("--nRandoms", type=int, help="Number of random interactions to calculate")
+parser.add_argument("--genesToOne", type=str, help="Path to list of genes that should be set to 1")
+parser.add_argument("--dataDups", type=int, help="Number of data duplications. 0 is no duplication, and another value is the min binsize allowed (recommended to be 15). ")
+parser.add_argument("--boundBool", type=int, help="Boolean that decided whether bounds should also be considered.")
 
 args = parser.parse_args()
     
-dataPath = args.dataPath[0]
-graphPath = args.graphPath[0]
-nResamps = args.nResamps[0]
-nCores = args.nCores[0]
-nRands = args.nRandoms[0]
+dataPath = args.dataPath
+graphPath = args.graphPath
+nResamps = args.nResamps
+nCores = args.nCores
+nRands = args.nRandoms
 genesToOnePath = args.genesToOne
 dataDups = args.dataDups
 boundBool = args.boundBool
 
 trainDat = pd.read_csv(dataPath)
+
+# DSname copies the naming scheme from the graphs.
 DSname = graphPath.split('.')[0]
 adjMat = pd.read_csv(graphPath, index_col=0)
 graph = ig.Graph.Adjacency(adjMat.values.tolist()) 
 
+
 try:
     genesToOneIndices = pd.read_csv(genesToOnePath)
 except:
+    if PrintBool: print('NOTE: all genes conditioned on 0s.')
     genesToOneIndices = []
 
 
@@ -59,7 +66,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
     genes = trainDat.columns
     n = len(genes)
 
-
+    # First, generate random 3-, 4-, and 5- tuples
     print('Generating random triplets...')
     randTrips = np.array([np.random.choice(np.arange(n), 3, replace=False) for i in range(nRands)]).astype(int)
     args_randTrips = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for triplet in randTrips]
@@ -78,6 +85,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
     ints_4pt = []
     ints_5pt = []
     
+    # Then iterate over Markov blankets and take intersections to have fully Markov-connected tuples
     print('Generating connected tuples...')
     for g1 in range(n):
         MB1 = findMarkovBlanket(g1, graph)
@@ -103,6 +111,8 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
                     ints_5pt.append([(g1, g2, g3, g4, x) for x in MB1_MB2_MB3_MB4])
 
     print('Generated all connected 3-, 4-, 5-tuples')
+
+    # To aid estimation, order the variables by the size of their Markov blanket so that the estiamtion uses the smallest one. 
     def onlySmallestMB(ar):
         ar = [tuple(sorted(genes)) for intList in ar for genes in intList]
         ar = np.unique(ar, axis=0)
@@ -120,8 +130,9 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
     ints_5pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for intSet in ints_5pt]
 
     if PrintBool:
-        print(f'Connected trips: {len(ints_3pt)}, Quads: {len(ints_4pt)}, Pents: {len(ints_5pt)}')
-        
+        print(f'Markov-connected trips: {len(ints_3pt)}, Quads: {len(ints_4pt)}, Pents: {len(ints_5pt)}')
+    
+
     for order, args in [['random_3pts', args_randTrips], ['random_4pts', args_randQuads], ['random_5pts', args_randPents],
                      ['withinMB_3pts', ints_3pt], ['withinMB_4pts', ints_4pt], ['withinMB_5pts', ints_5pt]]:
         
@@ -159,11 +170,6 @@ def main():
 
     calcInteractionsAndWriteNPYs(DSname + '_' + estimationMethod+notes, graph, trainDat, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
     
-
-
-        
-    
-      
     
     print('***********DONE***********')
 

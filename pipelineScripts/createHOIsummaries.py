@@ -32,17 +32,17 @@ print('Modules imported \n')
 
 parser = argparse.ArgumentParser(description='Args for coupling estimation')
 
-parser.add_argument("--dataPath", type=str, nargs='?', help="Path to training data")
-parser.add_argument("--PCApath", type=str, nargs='?', help="Path to PCA embedding of training data")
-parser.add_argument("--CPDAGgraphPath", type=str, nargs='?', help="Path to CPDAG graph file")
-parser.add_argument("--MCMCgraphPath", type=str, nargs='?', help="Path to MCMC graph file")
-parser.add_argument("--pathTo2pts", type=str, nargs='?', help="Path to calculated 2-point interactions")
-parser.add_argument("--pathTo2pts_CI_F", type=str, nargs='?', help="Path to calculated 2-point interactions: significance")
-parser.add_argument("--pathTo2pts_undef", type=str, nargs='?', help="Path to calculated 2-point interactions: number of undef. resamples")
-parser.add_argument("--pathTo2pts_inf", type=str, nargs='?', help="Path to calculated 2-point interactions: number of inf. resamples")
-parser.add_argument("--pathTo3pts", type=str, nargs='?', help="Path to calculated 3-point interactions")
-parser.add_argument("--pathTo4pts", type=str, nargs='?', help="Path to calculated 4-point interactions")
-parser.add_argument("--pathTo5pts", type=str, nargs='?', help="Path to calculated 5-point interactions")
+parser.add_argument("--dataPath", type=str, help="Path to training data")
+parser.add_argument("--PCApath", type=str, help="Path to PCA embedding of training data")
+parser.add_argument("--CPDAGgraphPath", type=str, help="Path to CPDAG graph file")
+parser.add_argument("--MCMCgraphPath", type=str, help="Path to MCMC graph file")
+parser.add_argument("--pathTo2pts", type=str, help="Path to calculated 2-point interactions")
+parser.add_argument("--pathTo2pts_CI_F", type=str, help="Path to calculated 2-point interactions: significance")
+parser.add_argument("--pathTo2pts_undef", type=str, help="Path to calculated 2-point interactions: number of undef. resamples")
+parser.add_argument("--pathTo2pts_inf", type=str, help="Path to calculated 2-point interactions: number of inf. resamples")
+parser.add_argument("--pathTo3pts", type=str, help="Path to calculated 3-point interactions")
+parser.add_argument("--pathTo4pts", type=str, help="Path to calculated 4-point interactions")
+parser.add_argument("--pathTo5pts", type=str, help="Path to calculated 5-point interactions")
 
 args = parser.parse_args()
 
@@ -56,19 +56,24 @@ CPDAGadjMat = pd.read_csv(args.CPDAGgraphPath, index_col=0)
 CPDAGgraph = ig.Graph.Adjacency(CPDAGadjMat.values.tolist())
 
 genes = trainDat.columns.values
+
+# Data is loaded as scanpy Anndata objects for easy embedding plots. 
 scObj = sc.AnnData(trainDat)
 scObj.obsm['X_pca'] = pcaCoords.values
 
 
+# Load all the 2-point information so that we can select only perfect and signigicant estimations. 
 coups_2pts = np.load(args.pathTo2pts, allow_pickle=True).astype(np.float32)
 coups_2pts_CI_F = np.load(args.pathTo2pts_CI_F, allow_pickle=True).astype(np.float32)
 coups_2pts_undef = np.load(args.pathTo2pts_undef, allow_pickle=True).astype(np.float32)
 coups_2pts_inf = np.load(args.pathTo2pts_inf, allow_pickle=True).astype(np.float32)
 
+# All imperfect estiamtions get set to NaN
 coups_2pts[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
 coups_2pts_CI_F[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
 
 
+# HHOIs stores all the significant (n>1)-point interactions present among interacting triplets, quadruplets, and pentuplets
 HHOIs = {}
 alpha=0.05
 for order, intPath in enumerate([args.pathTo3pts, args.pathTo4pts, args.pathTo5pts]):
@@ -88,7 +93,12 @@ HHOIs[f'n2'] = np.array([list(x) for x in list(zip(vals, pairs))])
 def findsubsets(s, n):
 	return list(itertools.combinations(s, n))
 
+
 def plotUpsetPlot(d, fig, title='', legend=False, save=False, filename=''):
+	'''
+	Using the upsetplot module to generate the upset plots. 
+	The upset library allows you to add extra plots to the axis dictionary, which I use to plot the deviations etc. 
+	'''
 	genes = d.columns.values
 	
 	f = lambda x: ''.join(map(str, x))
@@ -97,11 +107,18 @@ def plotUpsetPlot(d, fig, title='', legend=False, save=False, filename=''):
 	nStates = 2**order
 
 	binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, d.values)))), minlength=nStates)
+
+	# This is an ugly work-around. I need the whole Upset object to be populated with counts, so I just generate a lot of random counts.
+	# This results in each possible state occuring at least once, which allows me to reassign each count to its correct value.
+	# If this ever fails, it would raise an error when reassigning the counts with upSetObj.loc[:] = binCounts.
+	# It would be better to immediately instantiate the Upset object with the correct counts, but I haven't been able to. 
 	upSetObj = generate_counts(1, n_samples=100000, n_categories=order)
 	upSetObj.loc[:] = binCounts
 	upSetObj.index.names = genes
 
 	means = d.mean(axis=0)
+	# The expected count is generated from the null hypothesis of independent Bernoulli processes.
+	# The probability of success (a 1) for each variable is its mean expression in the conditioned data.
 	expected = np.array([np.prod([m if state[i] else 1-m for i, m in enumerate(means)]) for state in upSetObj.index])*len(d)
 
 	upSetObj2 = pd.DataFrame()
@@ -111,6 +128,7 @@ def plotUpsetPlot(d, fig, title='', legend=False, save=False, filename=''):
 
 	upset = up.UpSet(upSetObj2, subset_size='sum', sum_over='count', intersection_plot_elements=5, min_subset_size=0)
 
+	# Plot the deviations, and instantiate the 'expected' plot, which will be removed later again. 
 	upset.add_stacked_bars(by='deviation', sum_over='deviation', colors='coolwarm', elements=5)
 	upset.add_catplot(value='expected', kind='strip', elements=1)
 
@@ -134,6 +152,8 @@ def plotUpsetPlot(d, fig, title='', legend=False, save=False, filename=''):
 	
 	ax['intersections'].set_ylabel('No. of cells')
 	ax['intersections'].set_yscale('log')
+
+	# Extract the values from the 'expected' plot, and then remove it. 
 	ax['intersections'].plot([x.get_offsets()[0][1] for x in ax['extra2'].get_children()[:nStates]], 'k+', zorder=10, label='expected')
 	ax['extra2'].remove()
 
@@ -154,6 +174,9 @@ kwargs = {'with_node_counts': True, 'with_node_labels':True, 'with_edge_labels':
 concatInts = lambda x: ''.join(map(str, x))
 deviations = {}
 
+# I write the plots to a buffer, and store them in dictionaries where the entries are the names of the interacting variables
+# Once they are stored like this, I can compose them more easily into a summary figure. 
+
 # dicts to store plots in
 plotHypergraph = {}
 plotCPDAG = {}
@@ -172,14 +195,17 @@ for order in [3, 4, 5]:
 
 	if len(HHOIs[f'n{order}'])>0:
 		for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
-			ID = '_'.join(genes[geneTuple])	  
+			ID = '_'.join(genes[geneTuple])
+
+			# The local CPDAG structure will be plotted, and its layout will be used for the hypergraph of interactions. 
 			g = findLocalGraph(geneTuple, CPDAGgraph, order=0)
 			layout_c = g.layout('circle')
 
+			# Layout needs to be manipulated a bit so that hypernetx can use it for the hypergraph:
 			tmp = dict(zip(g.vs['label'], np.array(layout_c)*np.array([1, -1])))
-			edges = {'maxOrder': genes[geneTuple]}
-			weights = [w]
 
+			edges = {'maxOrder': genes[geneTuple]}
+			weights = [w] # Stores the actual interactions -- used to colour the edges in the hypergraph. 
 			for i in range(2, order):
 				for subset in findsubsets(geneTuple, i):
 					for tup in HHOIs[f'n{i}']:
@@ -213,8 +239,6 @@ for order in [3, 4, 5]:
 			plt.close()
 
 			#  ************************ CPDAG ************************ 
-
-			# ig.plot(g, f'{ID}_CPDAG.png', layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f)
 
 			fig, ax = plt.subplots(figsize=[6, 6])
 			ig.plot(g, layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f, vertex_label_color='black', target=ax)
@@ -280,8 +304,12 @@ for order in [3, 4, 5]:
 	for devs, interactors in deviations[f'n{order}']:
 		ID = '_'.join(genes[interactors])
 		
+		# maxDevState is the most deviating state
 		maxDevState = format(np.argmax(devs), f"0{order}b")
+
+		# The find the PCA coordinates of cells/observations that are in this maxDevState
 		maxDevState_embedded = scObj.obsm['X_pca'][(scObj.X[:, interactors] == np.array(list(maxDevState)).astype(float)).all(axis=1)]
+
 		xs = scObj.obsm['X_pca'][:, 0]
 		ys = scObj.obsm['X_pca'][:, 1]
 		plt.plot(xs, ys, 'o', color = viridis(0), alpha=0.1)
@@ -309,6 +337,7 @@ for order in [3, 4, 5]:
 			ID = '_'.join(genes[geneTuple])	  
 			fig = plt.figure(figsize=(15, 10))
 
+			# Defining custom axes to position individial plots. 
 			axCPDAG = fig.add_axes([0, 0.66, 0.33, 0.33])
 			axPC = fig.add_axes([0.33, 0.66, 0.33, 0.33])
 			axHOI = fig.add_axes([0.66, 0.66, 0.33, 0.33])
@@ -334,6 +363,8 @@ for order in [3, 4, 5]:
 			plt.savefig(f'{ID}_summary.png')
 			plt.close(fig) 
 
+
+# For further analysis, states that deviate more than a factor X (default X=5) are written to a file. 
 devDict = {}
 for order in [3, 4, 5]:
     for devs, interactors in deviations[f'n{order}']:

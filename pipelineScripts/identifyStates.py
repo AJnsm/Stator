@@ -13,18 +13,14 @@ import seaborn as sns
 sns.set(style='darkgrid')
 sns.set_palette('colorblind')
 
-
-
-# input: data, PCA embeddings, deviating states. 
-
 print('Modules imported \n')
 
 parser = argparse.ArgumentParser(description='Args for coupling estimation')
 
-parser.add_argument("--dataPath", type=str, nargs='?', help="Path to training data")
-parser.add_argument("--PCApath", type=str, nargs='?', help="Path to PCA embedding of training data")
-parser.add_argument("--devStates", type=str, nargs='?', help="Path to list of most deviating states")
-parser.add_argument("--diffCutoff", type=str, nargs='?', help="Dice distance to slice dendrogram")
+parser.add_argument("--dataPath", type=str, help="Path to training data")
+parser.add_argument("--PCApath", type=str, help="Path to PCA embedding of training data")
+parser.add_argument("--devStates", type=str, help="Path to list of most deviating states")
+parser.add_argument("--diffCutoff", type=str, help="Dice distance to slice dendrogram")
 
 args = parser.parse_args()
 diffCutoff = args.diffCutoff
@@ -38,14 +34,21 @@ if len(devStates)==0:
 
 devStates.columns = ['genes', 'state', 'dev']
 
-
+# Binreps is the binary represenations of the interactions: binReps[i] is 1 if cell i is in the maxDevState, 0 otherwise.  
 binReps = np.array(devStates.apply(lambda x: (trainDat[x['genes'].rsplit('_')]==[int(x) for x in list(str(x['state']))]).all(axis=1), axis=1))*1
-linked = linkage(binReps, 'average', metric='dice')
-devStates['cluster'] = fcluster(linked, diffCutoff, criterion = 'distance')
-alph=0.8
-nCol=4
-nCl = max(devStates['cluster'])-1
 
+# linkage defines the distances between the binReps, using the Dice-distance: https://en.wikipedia.org/wiki/Sørensen–Dice_coefficient
+linked = linkage(binReps, 'average', metric='dice')
+
+# Each interaction is put in a cluster by cutting the dendrogram at a threshold
+devStates['cluster'] = fcluster(linked, diffCutoff, criterion = 'distance')
+
+
+# Plotting interaction clusters separately:
+
+alph=0.8 # plotting transparancy
+nCol=4 # number of subfigure columns
+nCl = max(devStates['cluster'])-1
 fig, ax = plt.subplots(int(np.ceil(nCl/nCol)), nCol, figsize=[7*nCol, 1.3*nCol*int(np.ceil(nCl/nCol))])
 r=0
 for c in range(1, max(devStates['cluster'])+1):
@@ -74,40 +77,52 @@ plt.savefig('distinctDeviatingStates.png')
 plt.close(fig)
 
 
+# Plotting interactions in dendrogram representation:
+# I plot the embedding of each cluster
+# These embeddings are saved in a buffer and stored in a dict, and then used as axis-labels when plotting the dendrogram. 
 
 # Create image labels 
-
 sns.set_style('white')
-
-
 statePlots = {}
 intsInClusters = []
 
-truncatedClusters = max(devStates['cluster'])
-R_full = dendrogram(linked, labels = devStates[ds]['genes'].values, distance_sort='descending', no_plot=True)
-R_trunc =dendrogram(linked, labels = devStates[ds]['genes'].values, distance_sort='descending', no_plot=True, p=truncatedClusters, truncate_mode='lastp')
+truncatedClusters = max(devStates['cluster']) # The total number of clusters after truncation
+
+R_full = dendrogram(linked, labels = devStates['genes'].values, distance_sort='descending', no_plot=True)
+R_trunc =dendrogram(linked, labels = devStates['genes'].values, distance_sort='descending', no_plot=True, p=truncatedClusters, truncate_mode='lastp')
 
 index = 0
 for img, geneStr in enumerate(R_trunc['ivl']):
     cl = []
     plt.figure()
-    if geneStr in devStates[ds]['genes'].values:
+
+    # Truncation renames a cluster to '(n)' if it is the result of merging n clusters
+    # To get proper labelling, I check if we are plotting a singleton cluster, or a bigger one
+    # The index variable keeps track of how many clusters are plotted so the correct states are added to the correct embeddings.
+    # This is a pretty confusing process: after plotting a cluster with n interactions, we increment the index by n. 
+    if geneStr in devStates['genes'].values:
         genes = geneStr.rsplit('_')
+
+        # Plot all cells/observations in grey
         plt.plot(pcaCoords.values[:, 0], pcaCoords.values[:, 1], '.', color=(0.5, 0.5, 0.5, 0.05))
-        state = [int(x) for x in devStates[ds][devStates[ds]['genes']==geneStr]['state'].values[0]]
-        charCells = (data[ds][genes]==state).all(axis=1)
+        state = [int(x) for x in devStates[devStates['genes']==geneStr]['state'].values[0]]
+        charCells = (data[genes]==state).all(axis=1)
         plt.plot(pcaCoords.values[charCells, 0], pcaCoords.values[charCells, 1], 'o', alpha=alph, label = ", ".join(labels))
         cl.append([''.join(s) for s in list(zip(genes, ['+' if x==1 else '-' for x in state]))])
         index+=1
 
     else:
+        # Extract the number of interactings in this cluster/branch from the label it has
         toAdd = int(geneStr.replace('(', '').replace(')', ''))
+        
+        # Plot all cells/observations in grey    
         plt.plot(pcaCoords.values[:, 0], pcaCoords.values[:, 1], '.', color=(0.5, 0.5, 0.5, 0.05))
 
+        # Loop over all interactions in this cluster/branch
         for i in range(index, index+toAdd):
             genes = R_full['ivl'][i].rsplit('_')
-            state = [int(x) for x in devStates[ds][devStates[ds]['genes']==R_full['ivl'][i]]['state'].values[0]]
-            charCells = (data[ds][genes]==state).all(axis=1)
+            state = [int(x) for x in devStates[devStates['genes']==R_full['ivl'][i]]['state'].values[0]]
+            charCells = (data[genes]==state).all(axis=1)
             plt.plot(pcaCoords.values[charCells, 0], pcaCoords.values[charCells, 1], 'o', alpha=alph, label = ", ".join(labels))
             cl.append([''.join(s) for s in list(zip(genes, ['+' if x==1 else '-' for x in state]))])
         index += toAdd
@@ -139,7 +154,7 @@ def add_imgLab(xCoord, yCoord, ID, ax, ds):
 
 sns.set_style('white')
 
-# create list of top 4 occuring genes across interactions in a cluster
+# create list of top 4 occuring genes across interactions in a cluster to add to the label
 labs = []
 for c in intsInClusters:
     gs = np.array([a for b in c for a in b])
