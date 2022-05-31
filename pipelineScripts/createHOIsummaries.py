@@ -270,10 +270,10 @@ for order in [3, 4, 5]:
 			deviation = (binCounts - expected)/(expected)
 			devs.append([deviation, interactors])
 	
-	devs  = np.array(devs, dtype=object)
-	devs = devs[(-np.array(list(map(np.max, devs[:, 0])))).argsort()]
-	deviations[f'n{order}'] = devs
-
+		devs  = np.array(devs, dtype=object)
+		devs = devs[(-np.array(list(map(np.max, devs[:, 0])))).argsort()]
+		deviations[f'n{order}'] = devs
+	else: deviations[f'n{order}'] = []
 		
 #  ************************ PCA embedding on max deviating state ************************ 
 for order in [3, 4, 5]:
