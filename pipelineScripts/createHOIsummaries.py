@@ -46,13 +46,13 @@ parser.add_argument("--pathTo5pts", type=str, nargs='?', help="Path to calculate
 
 args = parser.parse_args()
 
-trainDat = pd.read_csv(dataPath)
-pcaCoords= pd.read_csv(PCApath)
-DSname = MCMCgraphPath.split('.')[0]
-MCMCadjMat = pd.read_csv(MCMCgraphPath, index_col=0)
+trainDat = pd.read_csv(args.dataPath)
+pcaCoords= pd.read_csv(args.PCApath)
+DSname = args.MCMCgraphPath.split('.')[0]
+MCMCadjMat = pd.read_csv(args.MCMCgraphPath, index_col=0)
 MCMCgraph = ig.Graph.Adjacency(MCMCadjMat.values.tolist())
 
-CPDAGadjMat = pd.read_csv(CPDAGgraphPath, index_col=0)
+CPDAGadjMat = pd.read_csv(args.CPDAGgraphPath, index_col=0)
 CPDAGgraph = ig.Graph.Adjacency(CPDAGadjMat.values.tolist())
 
 genes = trainDat.columns.values
@@ -60,10 +60,10 @@ scObj = sc.AnnData(trainDat)
 scObj.obsm['X_pca'] = pcaCoords.values
 
 
-coups_2pts = np.load(pathTo2pts, allow_pickle=True).astype(np.float32)
-coups_2pts_CI_F = np.load(pathTo2pts_CI_F, allow_pickle=True).astype(np.float32)
-coups_2pts_undef = np.load(pathTo2pts_undef, allow_pickle=True).astype(np.float32)
-coups_2pts_inf = np.load(pathTo2pts_inf, allow_pickle=True).astype(np.float32)
+coups_2pts = np.load(args.pathTo2pts, allow_pickle=True).astype(np.float32)
+coups_2pts_CI_F = np.load(args.pathTo2pts_CI_F, allow_pickle=True).astype(np.float32)
+coups_2pts_undef = np.load(args.pathTo2pts_undef, allow_pickle=True).astype(np.float32)
+coups_2pts_inf = np.load(args.pathTo2pts_inf, allow_pickle=True).astype(np.float32)
 
 coups_2pts[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
 coups_2pts_CI_F[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
@@ -71,7 +71,7 @@ coups_2pts_CI_F[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan
 
 HHOIs = {}
 alpha=0.05
-for order, intPath in enumerate([pathTo3pts, pathTo4pts, pathTo5pts]):
+for order, intPath in enumerate([args.pathTo3pts, args.pathTo4pts, args.pathTo5pts]):
 	ints = np.load(intPath, allow_pickle=True)
 	perfectSigEsts = list(map(lambda x: (((x[[4, 5, 6]]==0).all()) & (x[3]<alpha)), ints))
 	HHOIs[f'n{order+3}'] = ints[perfectSigEsts][:, [0, -1]]
