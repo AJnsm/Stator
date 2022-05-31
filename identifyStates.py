@@ -28,8 +28,8 @@ parser.add_argument("--diffCutoff", type=str, nargs=1, help="Dice distance to sl
 
 args = parser.parse_args()
 diffCutoff = args.diffCutoff
-trainDat = pd.read_csv(dataPath)
-pcaCoords= pd.read_csv(PCApath)
+trainDat = pd.read_csv(args.dataPath)
+pcaCoords= pd.read_csv(args.PCApath)
 
 devStates = pd.read_csv(devStates, dtype=str)
 devStates.columns = ['genes', 'state', 'dev']
