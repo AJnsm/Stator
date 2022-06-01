@@ -169,7 +169,7 @@ def fromImToArr(img):
 	'''
 	Takes an ImageFile and converts it to a a numpy array of floats so that imshow() can plot it.  
 	'''
-    return np.array(img.getdata()).reshape(img.height, img.width, -1)
+	return np.array(img.getdata()).reshape(img.height, img.width, -1)
 
 f=2
 kwargs = {'with_node_counts': True, 'with_node_labels':True, 'with_edge_labels':False}
@@ -376,12 +376,12 @@ for order in [3, 4, 5]:
 # For further analysis, states that deviate more than a factor X (default X=5) are written to a file. 
 devDict = {}
 for order in [3, 4, 5]:
-    for devs, interactors in deviations[f'n{order}']:
-        if max(abs(devs))>5:
-            ID = '_'.join(genes[interactors])
-            maxDevState = format(np.argmax(devs), f"0{order}b")
-            
-            devDict[ID] = (maxDevState, np.max(devs))
+	for devs, interactors in deviations[f'n{order}']:
+		if max(abs(devs))>5:
+			ID = '_'.join(genes[interactors])
+			maxDevState = format(np.argmax(devs), f"0{order}b")
+			
+			devDict[ID] = (maxDevState, np.max(devs))
 
 if len(devDict.keys())>0:
 	strongDeviators = pd.DataFrame.from_dict(devDict).T.sort_values(by=1, ascending=False)
