@@ -224,27 +224,26 @@ for order in [3, 4, 5]:
 			H = hnx.Hypergraph(edges)
 			cList = ['red' if w<0 else 'green' for w in weights]
 			layout_fn = lambda x: tmp
-			plt.figure(figsize=[10, 10])
 			print(CPDAGadjMat.columns.values)
 			print(CPDAGgraph.vs['label'])
 			print(list(g.vs()))
 			print(edges)
 			print(list(H.edges()))
 			print(list(H.nodes()))
-			hnx.draw(H,  layout = layout_fn,
-						 label_alpha=0,
-						 node_labels_kwargs={
-							'fontsize': 24
-						},
-						 edges_kwargs={
-							 'edgecolors': cList,
-							 'linewidths': 3,
-							 'dr': 0.05
-						 },
-						 **kwargs)  
-			plt.savefig(f'{ID}_HOIs.png')
+			fig, ax = plt.subplots(figsize=[10, 10])
+			hnx.draw(H, ax=ax, layout = layout_fn,
+			             label_alpha=0,
+			             node_labels_kwargs={
+			                'fontsize': 34
+			            },
+			             edges_kwargs={
+			                 'edgecolors': cList,
+			                 'linewidths': 3,
+			                 'dr': 0.05
+			             },
+			             **kwargs)  
 			buf = io.BytesIO()
-			plt.savefig(buf, format='png')
+			plt.savefig(buf)
 			buf.seek(0)
 			plotHypergraph[ID] = fromImToArr(Image.open(buf))
 			plt.close()
@@ -258,11 +257,11 @@ for order in [3, 4, 5]:
 			# Have to add labels manually -- igraph does not work properly with matplotlib backend
 			for i, v in enumerate(g.vs['label']):
 			    plt.text(layout_c[i][0] - 0.0, layout_c[i][1]-0.03, v, fontsize=40)
-			plt.xlim(-1.1, 1.2)
-			plt.ylim(-1.1, 1.2)
+			plt.xlim(-1.2, 1.2)
+			plt.ylim(-1.2, 1.2)
 			ax.axis('off')
 			buf = io.BytesIO()
-			plt.savefig(buf, format='png')
+			plt.savefig(buf)
 			buf.seek(0)
 			plotCPDAG[ID] = fromImToArr(Image.open(buf))
 			plt.close()
@@ -275,7 +274,7 @@ for order in [3, 4, 5]:
 				tmpFig = plt.gcf()
 				tmpFig.axes[-1].remove()
 			buf = io.BytesIO()
-			plt.savefig(buf, format='png')
+			plt.savefig(buf)
 			buf.seek(0)
 			plotPCA[ID] = fromImToArr(Image.open(buf))
 			plt.close() 
@@ -329,12 +328,12 @@ for order in [3, 4, 5]:
 		ys = scObj.obsm['X_pca'][:, 1]
 		plt.plot(xs, ys, 'o', color = viridis(0), alpha=0.1)
 		plt.plot(maxDevState_embedded[:, 0], maxDevState_embedded[:, 1], 'o', color = viridis(0.99), alpha=0.9)
-		plt.title(', '.join(genes[interactors]) + ' = ' + ', '.join(maxDevState), fontsize=8)
+		plt.title(', '.join(genes[interactors]) + ' = ' + ', '.join(maxDevState), fontsize=20)
 		plt.xticks([])
 		plt.yticks([])
 
 		buf = io.BytesIO()
-		plt.savefig(buf, format='png')
+		plt.savefig(buf)
 		buf.seek(0)
 		plotMaxDev[ID] = fromImToArr(Image.open(buf))
 		plt.close()
