@@ -65,7 +65,7 @@ def powerset(iterable):
     items = list(iterable)
     return chain.from_iterable(combinations(items,n) for n in range(len(items)+1))
 
-@njit
+@njit(cache=True)
 def safeMean(a):
     if len(a)>0:
         return a.mean()
@@ -73,7 +73,7 @@ def safeMean(a):
         return 0
 
 
-@njit
+@njit(cache=True)
 def calcInteraction_expectations_numba(conditionedGenes_np):
     '''
     Calc the interactions from the conditioned data using expectation values. 
