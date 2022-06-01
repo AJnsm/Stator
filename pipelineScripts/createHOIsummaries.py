@@ -252,6 +252,7 @@ for order in [3, 4, 5]:
 
 			fig, ax = plt.subplots(figsize=[6, 6])
 			ig.plot(g, layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f, vertex_label_color='black', target=ax)
+			ax.axis('off')
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
 			buf.seek(0)
@@ -362,11 +363,11 @@ for order in [3, 4, 5]:
 
 			axCPDAG.imshow(plotCPDAG[ID])
 			axHOI.imshow(plotHypergraph[ID][100:-100, 100:-50])
-			axEXP.imshow(plotPCA[ID][:, 400:, :])
+			axEXP.imshow(plotPCA[ID][:, :, :])
 			axEXP_maxDev.imshow(plotMaxDev[ID][:, :, :])
 
-			axUPS1.imshow(plotUpset_cond[ID][:, 20:])
-			axUPS2.imshow(plotUpset_uncond[ID][:, 20:])
+			axUPS1.imshow(plotUpset_cond[ID][:, :])
+			axUPS2.imshow(plotUpset_uncond[ID][:, :])
 
 			plt.savefig(f'{ID}_summary.png')
 			plt.close(fig) 
