@@ -242,7 +242,7 @@ process identifyStates {
     python ${estimationScript} --dataPath ${dataSet} --PCApath ${pcaCoords} --devStates ${devStates} --diffCutoff ${params.dendCutoff}
     """
 
-}
+} 
 
 
 
