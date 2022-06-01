@@ -239,7 +239,7 @@ process identifyStates {
     path '*.png' optional true into identifiedStatesImgs
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --PCApath ${pcaCoords} --devStates ${devStates} --diffCutoff ${args.dendCutoff}
+    python ${estimationScript} --dataPath ${dataSet} --PCApath ${pcaCoords} --devStates ${devStates} --diffCutoff ${params.dendCutoff}
     """
 
 }
