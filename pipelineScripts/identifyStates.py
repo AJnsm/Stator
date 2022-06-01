@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(description='Args for coupling estimation')
 parser.add_argument("--dataPath", type=str, help="Path to training data")
 parser.add_argument("--PCApath", type=str, help="Path to PCA embedding of training data")
 parser.add_argument("--devStates", type=str, help="Path to list of most deviating states")
-parser.add_argument("--diffCutoff", type=float, help="Dice distance to slice dendrogram")
+parser.add_argument("--diffCutoff", type=int, help="Dice distance to slice dendrogram")
 
 args = parser.parse_args()
 diffCutoff = args.diffCutoff
