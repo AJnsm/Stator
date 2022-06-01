@@ -81,6 +81,12 @@ plt.close(fig)
 # I plot the embedding of each cluster
 # These embeddings are saved in a buffer and stored in a dict, and then used as axis-labels when plotting the dendrogram. 
 
+def fromImToArr(img):
+    '''
+    Takes an ImageFile and converts it to a a numpy array of floats so that imshow() can plot it.  
+    '''
+    return np.array(img.getdata()).reshape(img.height, img.width, -1)
+
 # Create image labels 
 sns.set_style('white')
 statePlots = {}
@@ -134,11 +140,14 @@ for img, geneStr in enumerate(R_trunc['ivl']):
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight',pad_inches = 0)
     buf.seek(0)
-    statePlots[img] = Image.open(buf)
+    statePlots[img] = fromImToArr(Image.open(buf))
     plt.close()
 
 
 def add_imgLab(xCoord, yCoord, ID, ax, ds):
+    '''
+    Adds an image from statePlots to the ax. (Ugly impure function, but only used for this one particular plot)
+    '''
     img = statePlots[ID]
     
     img = np.array(img.getdata()).reshape(img.height, img.width, -1)

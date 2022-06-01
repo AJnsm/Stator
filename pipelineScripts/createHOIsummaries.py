@@ -165,7 +165,11 @@ def plotUpsetPlot(d, fig, title='', legend=False, save=False, filename=''):
 	else:
 		return
 
-
+def fromImToArr(img):
+	'''
+	Takes an ImageFile and converts it to a a numpy array of floats so that imshow() can plot it.  
+	'''
+    return np.array(img.getdata()).reshape(img.height, img.width, -1)
 
 f=2
 kwargs = {'with_node_counts': True, 'with_node_labels':True, 'with_edge_labels':False}
@@ -241,7 +245,7 @@ for order in [3, 4, 5]:
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
 			buf.seek(0)
-			plotHypergraph[ID] = Image.open(buf)
+			plotHypergraph[ID] = fromImToArr(Image.open(buf))
 			plt.close()
 
 			#  ************************ CPDAG ************************ 
@@ -251,7 +255,7 @@ for order in [3, 4, 5]:
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
 			buf.seek(0)
-			plotCPDAG[ID] = Image.open(buf)
+			plotCPDAG[ID] = fromImToArr(Image.open(buf))
 			plt.close()
 
 			#  ************************ PCA embeddings ************************ 
@@ -265,7 +269,7 @@ for order in [3, 4, 5]:
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
 			buf.seek(0)
-			plotPCA[ID] = Image.open(buf)
+			plotPCA[ID] = fromImToArr(Image.open(buf))
 			plt.close() 
 
 			#  ************************ Upset plots ************************ 
@@ -278,7 +282,7 @@ for order in [3, 4, 5]:
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
 			buf.seek(0)
-			plotUpset_cond[ID] = Image.open(buf)
+			plotUpset_cond[ID] = fromImToArr(Image.open(buf))
 			plt.close()
 
 			plt.figure(figsize=[10, 10])
@@ -286,7 +290,7 @@ for order in [3, 4, 5]:
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
 			buf.seek(0)
-			plotUpset_uncond[ID] = Image.open(buf)
+			plotUpset_uncond[ID] = fromImToArr(Image.open(buf))
 			plt.close()
 			
 
@@ -326,7 +330,7 @@ for order in [3, 4, 5]:
 		buf = io.BytesIO()
 		plt.savefig(buf, format='png')
 		buf.seek(0)
-		plotMaxDev[ID] = Image.open(buf)
+		plotMaxDev[ID] = fromImToArr(Image.open(buf))
 		plt.close()
 		# plt.savefig(f'{ID}_Expression_maxDevState.png')
 		plt.close('all') 
