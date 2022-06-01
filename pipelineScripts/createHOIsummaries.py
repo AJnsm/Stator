@@ -173,7 +173,7 @@ def fromImToArr(img):
 	return np.array(img.getdata()).reshape(img.height, img.width, -1)
 
 f=2
-kwargs = {'with_node_counts': True, 'with_node_labels':True, 'with_edge_labels':False}
+kwargs = {'with_node_counts': False, 'with_node_labels':False, 'with_edge_labels':False}
 concatInts = lambda x: ''.join(map(str, x))
 deviations = {}
 
@@ -209,6 +209,7 @@ for order in [3, 4, 5]:
 			# Layout needs to be manipulated a bit so that hypernetx can use it for the hypergraph:
 			tmp = dict(zip(g.vs['label'], np.array(layout_c)*np.array([1, -1])))
 
+			# Constructing the hypergraph
 			edges = {'maxOrder': genes[geneTuple]}
 			weights = [w] # Stores the actual interactions -- used to colour the edges in the hypergraph. 
 			for i in range(2, order):
@@ -242,6 +243,10 @@ for order in [3, 4, 5]:
 			                 'dr': 0.05
 			             },
 			             **kwargs)  
+			ly = np.array([x for x in tmp.values()])
+			for i, v in enumerate(g.vs['label']):
+			    plt.text(ly[i][0] - 0.0, ly[i][1], v, fontsize=40)
+			plt.show()
 			buf = io.BytesIO()
 			plt.savefig(buf)
 			buf.seek(0)
