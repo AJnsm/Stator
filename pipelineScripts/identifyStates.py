@@ -8,7 +8,8 @@ from scipy.cluster.hierarchy import dendrogram, linkage, fcluster, cut_tree
 
 import matplotlib.pyplot as plt
 from matplotlib import cm
-
+import io
+from PIL import Image
 import seaborn as sns
 sns.set(style='darkgrid')
 sns.set_palette('colorblind')
@@ -181,6 +182,8 @@ plt.ylim(diffCutoff-0.02, 1)
 
 ax = plt.gca()
 x_labLocs = [x.get_position()[0] for x in ax.get_xmajorticklabels()]
+
+# Adding the PCA embeddings as labels to the dendrogram plot
 for i, xL in enumerate(x_labLocs):
     add_imgLab(xL, diffCutoff-0.02, i, ax, ds)
     
