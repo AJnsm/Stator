@@ -200,7 +200,7 @@ plt.xticks(x_labLocs, labels = labs, rotation=0)
 sns.despine(left=True, top=True, right=True, bottom=True)
 plt.yticks(np.linspace(diffCutoff, 1.0, 4))
 plt.ylabel('Dice-distance')
-plt.savefig('distinctDeviatingStates_dendrogram.png')
+plt.savefig('distinctDeviatingStates_dendrogram.png', bbox_inches='tight')
 plt.close(fig)
 
 
