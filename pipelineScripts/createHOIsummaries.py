@@ -256,9 +256,9 @@ for order in [3, 4, 5]:
 
 			#  ************************ PCA embeddings ************************ 
 			fig, ax = plt.subplots(1, len(geneTuple), figsize=[20, 4])
-			for g in geneTuple:
+			for i, g in enumerate(genes[geneTuple]):
 				sc.pl.embedding(scObj,'pca', color=g, 
-									size=30, color_map="viridis", add_outline=True, ncols=len(geneTuple), show=False, frameon=False, ax = ax[i])
+									size=30, color_map="viridis", add_outline=True, show=False, frameon=False, ax = ax[i])
 			fig = plt.gcf()
 			fig.axes[-1].remove()
 			# plt.savefig(f'{ID}_Expression.png')
