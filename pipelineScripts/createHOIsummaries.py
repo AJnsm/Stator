@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 import igraph as ig
 import matplotlib
-matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import math
@@ -253,7 +252,14 @@ for order in [3, 4, 5]:
 			#  ************************ CPDAG ************************ 
 
 			fig, ax = plt.subplots(figsize=[6, 6])
-			ig.plot(g, layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f, vertex_label_color='black', target=ax)
+			ig.plot(g, layout=layout_c, edge_arrow_size=20, edge_arrow_width=10,
+			        vertex_size=80/f, vertex_color='lightgrey',
+			        target=ax)
+			# Have to add labels manually -- igraph does not work properly with matplotlib backend
+			for i, v in enumerate(g.vs['label']):
+			    plt.text(layout_c[i][0] - 0.0, layout_c[i][1]-0.03, v, fontsize=40)
+			plt.xlim(-1.1, 1.2)
+			plt.ylim(-1.1, 1.2)
 			ax.axis('off')
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
