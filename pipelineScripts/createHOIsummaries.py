@@ -263,8 +263,8 @@ for order in [3, 4, 5]:
 			for i, g in enumerate(genes[geneTuple]):
 				sc.pl.embedding(scObj,'pca', color=g, 
 									size=30, color_map="viridis", add_outline=True, show=False, frameon=False, ax = ax[i])
-				f = plt.gcf()
-				f.axes[-1].remove()
+				tmpFig = plt.gcf()
+				tmpFig.axes[-1].remove()
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
 			buf.seek(0)
@@ -276,7 +276,7 @@ for order in [3, 4, 5]:
 			unConditionedGenes = trainDat.iloc[:, geneTuple]
 			conditionedGenes = conditionOnMB(geneTuple, MCMCgraph, trainDat, mode='Min')
 
-			plt.figure(figsize=[10, 10])
+			fig = plt.figure(figsize=[10, 10])
 			plotUpsetPlot(d = conditionedGenes,fig=fig, legend=False, title = 'Conditioned on MB', filename=ID + '_Upset_conditioned.png', save=True)
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
@@ -284,7 +284,7 @@ for order in [3, 4, 5]:
 			plotUpset_cond[ID] = fromImToArr(Image.open(buf))
 			plt.close()
 
-			plt.figure(figsize=[10, 10])
+			fig = plt.figure(figsize=[10, 10])
 			plotUpsetPlot(d = unConditionedGenes,fig=fig, legend=False, title = 'Unonditioned', filename=ID + '_Upset_unconditioned.png', save=True)
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
