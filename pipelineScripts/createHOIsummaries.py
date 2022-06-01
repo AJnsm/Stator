@@ -273,7 +273,7 @@ for order in [3, 4, 5]:
 			unConditionedGenes = trainDat.iloc[:, geneTuple]
 			conditionedGenes = conditionOnMB(geneTuple, MCMCgraph, trainDat, mode='Min')
 
-			fig.figure(figsize=[10, 10])
+			plt.figure(figsize=[10, 10])
 			plotUpsetPlot(d = conditionedGenes,fig=fig, legend=False, title = 'Conditioned on MB', filename=ID + '_Upset_conditioned.png', save=True)
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
@@ -281,7 +281,7 @@ for order in [3, 4, 5]:
 			plotUpset_cond[ID] = Image.open(buf)
 			plt.close()
 
-			fig.figure(figsize=[10, 10])
+			plt.figure(figsize=[10, 10])
 			plotUpsetPlot(d = unConditionedGenes,fig=fig, legend=False, title = 'Unonditioned', filename=ID + '_Upset_unconditioned.png', save=True)
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
