@@ -49,16 +49,19 @@ devStates['cluster'] = fcluster(linked, diffCutoff, criterion = 'distance')
 # Plotting interaction clusters separately:
 
 alph=0.8 # plotting transparancy
-nCol=4 # number of subfigure columns
-nCl = max(devStates['cluster'])-1
-fig, ax = plt.subplots(int(np.ceil(nCl/nCol)), nCol, figsize=[7*nCol, 1.3*nCol*int(np.ceil(nCl/nCol))])
+nCl = max(devStates['cluster']) # number of clusters
+nCol= min(nCl, 4) # number of subfigure columns
+fig, ax = plt.subplots(int(np.ceil(nCl/nCol)), nCol, figsize=[7*nCol, max(1.3*nCol*int(np.ceil(nCl/nCol)), 4)])
 r=0
+
 for c in range(1, max(devStates['cluster'])+1):
-    
-    if len(ax.flatten())<6:
-        a = ax[(c-1)%nCol]
-    else:
-        a = ax[r, (c-1)%nCol]
+    try:
+        if len(ax.flatten())<6:
+            a = ax[(c-1)%nCol]
+        else:
+            a = ax[r, (c-1)%nCol]
+    except AttributeError:
+        a = ax
 
     a.plot(pcaCoords.values[:, 0], pcaCoords.values[:, 1], '.', color=(0.5, 0.5, 0.5, 0.05))
     for i, row in devStates[devStates['cluster']==c].iterrows():
@@ -70,10 +73,15 @@ for c in range(1, max(devStates['cluster'])+1):
     if c%nCol==0:
         r+=1
 
-for a in ax.flatten():            
-    a.set_xticks([])
-    a.set_yticks([])
-    a.legend()
+try:
+    for a in ax.flatten():            
+        a.set_xticks([])
+        a.set_yticks([])
+        a.legend()
+except AttributeError:
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.legend()
 
 plt.savefig('distinctDeviatingStates.png')
 plt.close(fig)
@@ -102,7 +110,7 @@ R_trunc =dendrogram(linked, labels = devStates['genes'].values, distance_sort='d
 index = 0
 for img, geneStr in enumerate(R_trunc['ivl']):
     cl = []
-    plt.figure()
+    plt.figure(figsize=[6, 3])
 
     # Truncation renames a cluster to '(n)' if it is the result of merging n clusters
     # To get proper labelling, I check if we are plotting a singleton cluster, or a bigger one
