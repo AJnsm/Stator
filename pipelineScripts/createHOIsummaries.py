@@ -292,13 +292,13 @@ for order in [3, 4, 5]:
 
 			#  ************************ Calculate deviations ************************ 
 
-			conditionedGenes = conditionOnMB(interactors, graph, dat, mode='Min')
+			conditionedGenes = conditionOnMB(geneTuple, graph, dat, mode='Min')
 			binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(concatInts, conditionedGenes.values)))), minlength=nStates)
 			means = conditionedGenes.mean(axis=0)
 			expected = np.array([np.prod([m if state[i] else 1-m for i, m in enumerate(means)]) for state in binStates])*len(conditionedGenes)
 			
 			deviation = (binCounts - expected)/(expected)
-			devs.append([deviation, interactors])
+			devs.append([deviation, geneTuple])
 	
 		devs  = np.array(devs, dtype=object)
 		devs = devs[(-np.array(list(map(np.max, devs[:, 0])))).argsort()]
