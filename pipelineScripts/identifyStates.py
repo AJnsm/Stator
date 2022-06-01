@@ -145,13 +145,12 @@ for img, geneStr in enumerate(R_trunc['ivl']):
     plt.close()
 
 
-def add_imgLab(xCoord, yCoord, ID, ax):
+def add_imgLab(xCoord, yCoord, img, ax):
     '''
-    Adds an image from statePlots to the ax. (Ugly impure function, but only used for this one particular plot)
+    Adds an image from statePlots to the ax.
     '''
-    img = statePlots[ID]
     
-    img = np.array(img.getdata()).reshape(img.height, img.width, -1)
+    # Crop the image a little bit
     img = img[5:-5, 5:-5, :]
     im = OffsetImage(img, zoom=0.34)
     im.image.axes = ax
