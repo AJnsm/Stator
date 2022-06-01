@@ -145,7 +145,7 @@ for img, geneStr in enumerate(R_trunc['ivl']):
     plt.close()
 
 
-def add_imgLab(xCoord, yCoord, ID, ax, ds):
+def add_imgLab(xCoord, yCoord, ID, ax):
     '''
     Adds an image from statePlots to the ax. (Ugly impure function, but only used for this one particular plot)
     '''
@@ -185,7 +185,7 @@ x_labLocs = [x.get_position()[0] for x in ax.get_xmajorticklabels()]
 
 # Adding the PCA embeddings as labels to the dendrogram plot
 for i, xL in enumerate(x_labLocs):
-    add_imgLab(xL, diffCutoff-0.02, i, ax, ds)
+    add_imgLab(xL, diffCutoff-0.02, i, ax)
     
 plt.xticks(x_labLocs, labels = labs, rotation=0)    
 
