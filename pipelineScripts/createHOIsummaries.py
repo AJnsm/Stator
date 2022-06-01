@@ -223,6 +223,7 @@ for order in [3, 4, 5]:
 			cList = ['red' if w<0 else 'green' for w in weights]
 			layout_fn = lambda x: tmp
 			plt.figure(figsize=[10, 10])
+			print(MCMCadjMat.columns.values)
 			print(list(g.vs()))
 			print(edges)
 			print(list(H.edges()))
