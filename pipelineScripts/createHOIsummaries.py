@@ -263,9 +263,8 @@ for order in [3, 4, 5]:
 			for i, g in enumerate(genes[geneTuple]):
 				sc.pl.embedding(scObj,'pca', color=g, 
 									size=30, color_map="viridis", add_outline=True, show=False, frameon=False, ax = ax[i])
-			fig = plt.gcf()
-			fig.axes[-1].remove()
-			# plt.savefig(f'{ID}_Expression.png')
+				f = plt.gcf()
+				f.axes[-1].remove()
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
 			buf.seek(0)

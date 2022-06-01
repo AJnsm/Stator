@@ -8,6 +8,7 @@ from scipy.cluster.hierarchy import dendrogram, linkage, fcluster, cut_tree
 
 import matplotlib.pyplot as plt
 from matplotlib import cm
+from matplotlib.offsetbox import OffsetImage,AnnotationBbox
 import io
 from PIL import Image
 import seaborn as sns
