@@ -357,13 +357,13 @@ for order in [3, 4, 5]:
 			for a in axes:
 				a.axis('off')
 
-			axCPDAG.imshow(plotCPDAG)
-			axHOI.imshow(plotHypergraph[100:-100, 100:-50])
-			axEXP.imshow(plotPCA[:, 400:, :])
-			axEXP_maxDev.imshow(plotMaxDev[:, :, :])
+			axCPDAG.imshow(plotCPDAG[ID])
+			axHOI.imshow(plotHypergraph[ID][100:-100, 100:-50])
+			axEXP.imshow(plotPCA[ID][:, 400:, :])
+			axEXP_maxDev.imshow(plotMaxDev[ID][:, :, :])
 
-			axUPS1.imshow(plotUpset_cond[:, 20:])
-			axUPS2.imshow(plotUpset_uncond[:, 20:])
+			axUPS1.imshow(plotUpset_cond[ID][:, 20:])
+			axUPS2.imshow(plotUpset_uncond[ID][:, 20:])
 
 			plt.savefig(f'{ID}_summary.png')
 			plt.close(fig) 
