@@ -9,7 +9,7 @@ import math
 import argparse
 import seaborn as sns
 viridis = cm.get_cmap('viridis', 12)
-sns.set_style("dark")
+sns.set_style("white")
 
 sns.set_palette('colorblind')
 from utilities import *

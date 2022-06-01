@@ -184,7 +184,7 @@ x_labLocs = [x.get_position()[0] for x in ax.get_xmajorticklabels()]
 
 # Adding the PCA embeddings as labels to the dendrogram plot
 for i, xL in enumerate(x_labLocs):
-    add_imgLab(xL, diffCutoff-0.02, i, ax)
+    add_imgLab(xL, diffCutoff-0.02, statePlots[i], ax)
     
 plt.xticks(x_labLocs, labels = labs, rotation=0)    
 
