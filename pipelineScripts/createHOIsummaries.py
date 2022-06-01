@@ -251,7 +251,12 @@ for order in [3, 4, 5]:
 			#  ************************ CPDAG ************************ 
 
 			fig, ax = plt.subplots(figsize=[6, 6])
-			ig.plot(g, layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f, vertex_label_color='black', target=ax)
+			p = ig.plot(g, layout=layout_c, bbox=(600/f, 600/f), vertex_size=120/f, vertex_color='white', margin=100/f, vertex_label_color='black')
+			buf = io.BytesIO()
+			p.save(buf)
+			buf.seek(0)
+			tmp = fromImToArr(Image.open(buf))
+			plt.close() 
 			ax.axis('off')
 			buf = io.BytesIO()
 			plt.savefig(buf, format='png')
