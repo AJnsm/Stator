@@ -310,7 +310,7 @@ for order in [3, 4, 5]:
 
 			#  ************************ Calculate deviations ************************ 
 
-			binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
+			binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(concatInts, conditionedGenes.values)))), minlength=nStates)
 			means = conditionedGenes.mean(axis=0)
 			pStates = np.array([np.prod([m if state[i] else 1-m for i, m in enumerate(means)]) for state in binStates])
 			expected = pStates*len(conditionedGenes)
