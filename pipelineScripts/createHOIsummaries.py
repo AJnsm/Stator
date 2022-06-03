@@ -45,8 +45,8 @@ parser.add_argument("--pathTo2pts_inf", type=str, help="Path to calculated 2-poi
 parser.add_argument("--pathTo3pts", type=str, help="Path to calculated 3-point interactions")
 parser.add_argument("--pathTo4pts", type=str, help="Path to calculated 4-point interactions")
 parser.add_argument("--pathTo5pts", type=str, help="Path to calculated 5-point interactions")
-parser.add_argument("--minStateDeviation", type=str, help="Minimum enrichment factor of a particular state.")
-parser.add_argument("--stateDevAlpha", type=str, help="significance threshold to call a state deviating")
+parser.add_argument("--minStateDeviation", type=float, help="Minimum enrichment factor of a particular state.")
+parser.add_argument("--stateDevAlpha", type=float, help="significance threshold to call a state deviating")
 
 
 args = parser.parse_args()
