@@ -237,19 +237,19 @@ for order in [3, 4, 5]:
 			print(list(H.nodes()))
 			fig, ax = plt.subplots(figsize=[10, 10])
 			hnx.draw(H, ax=ax, layout = layout_fn,
-			             label_alpha=0,
-			             node_labels_kwargs={
-			                'fontsize': 34
-			            },
-			             edges_kwargs={
-			                 'edgecolors': cList,
-			                 'linewidths': 3,
-			                 'dr': 0.05
-			             },
-			             **kwargs)  
+						 label_alpha=0,
+						 node_labels_kwargs={
+							'fontsize': 34
+						},
+						 edges_kwargs={
+							 'edgecolors': cList,
+							 'linewidths': 3,
+							 'dr': 0.05
+						 },
+						 **kwargs)  
 			ly = np.array([x for x in tmp.values()])
 			for i, v in enumerate(g.vs['label']):
-			    plt.text(ly[i][0] - 0.0, ly[i][1], v, fontsize=40)
+				plt.text(ly[i][0] - 0.0, ly[i][1], v, fontsize=40)
 			plt.show()
 			buf = io.BytesIO()
 			plt.savefig(buf)
@@ -261,11 +261,11 @@ for order in [3, 4, 5]:
 
 			fig, ax = plt.subplots(figsize=[6, 6])
 			ig.plot(g, layout=layout_c, edge_arrow_size=20, edge_arrow_width=10,
-			        vertex_size=80/f, vertex_color='lightgrey',
-			        target=ax)
+					vertex_size=80/f, vertex_color='lightgrey',
+					target=ax)
 			# Have to add labels manually -- igraph does not work properly with matplotlib backend
 			for i, v in enumerate(g.vs['label']):
-			    plt.text(layout_c[i][0] - 0.0, layout_c[i][1]-0.03, v, fontsize=40)
+				plt.text(layout_c[i][0] - 0.0, layout_c[i][1]-0.03, v, fontsize=40)
 			plt.xlim(-1.2, 1.2)
 			plt.ylim(-1.2, 1.2)
 			ax.axis('off')
@@ -311,14 +311,14 @@ for order in [3, 4, 5]:
 			#  ************************ Calculate deviations ************************ 
 
 			binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
-            means = conditionedGenes.mean(axis=0)
-            pStates = np.array([np.prod([m if state[i] else 1-m for i, m in enumerate(means)]) for state in binStates])
-            expected = pStates*len(conditionedGenes)
-            
-            deviation = (binCounts - expected)/(expected)
-            deviation_pval = np.array([binom_test(binCounts[i], p = pStates[i], n = len(conditionedGenes), alternative='greater') for i in range(len(binCounts))])
-            
-            devs.append([deviation, deviation_pval, interactors])
+			means = conditionedGenes.mean(axis=0)
+			pStates = np.array([np.prod([m if state[i] else 1-m for i, m in enumerate(means)]) for state in binStates])
+			expected = pStates*len(conditionedGenes)
+			
+			deviation = (binCounts - expected)/(expected)
+			deviation_pval = np.array([binom_test(binCounts[i], p = pStates[i], n = len(conditionedGenes), alternative='greater') for i in range(len(binCounts))])
+			
+			devs.append([deviation, deviation_pval, interactors])
 	
 		devs  = np.array(devs, dtype=object)
 		devs = devs[(-np.array(list(map(np.max, devs[:, 0])))).argsort()]
@@ -396,9 +396,9 @@ for order in [3, 4, 5]:
 	for devs, pvals, interactors in deviations[f'n{order}']:
 
 		ID = '_'.join(genes[interactors])
-	    for devStateInd in np.where((devs>=args.minStateDeviation) & (pvals<=args.stateDevAlpha))[0]:
-	        maxDevState = format(devStateInd, f"0{order}b")
-	        devDict.append([ID, maxDevState, devs[devStateInd], pvals[devStateInd]])
+		for devStateInd in np.where((devs>=args.minStateDeviation) & (pvals<=args.stateDevAlpha))[0]:
+			maxDevState = format(devStateInd, f"0{order}b")
+			devDict.append([ID, maxDevState, devs[devStateInd], pvals[devStateInd]])
 
 if len(devDict)>0:
 	strongDeviators = pd.DataFrame(devDict, columns=['genes', 'state', 'dev', 'pval'])
