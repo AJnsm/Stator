@@ -23,17 +23,19 @@ process makeData {
     
 
     script:
-    if( params.dataType == 'agnostic' )
-        """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${doubletFile} --userGenes ${userGenes}
-        """
-
-    else if( params.dataType == 'expression' )
-        """
-        python ${dataScript} --dataType ${params.dataType} --rawData ${rawData} --clusters ${clusterFile} --nGenes ${params.nGenes} --nCells ${params.nCells} --cluster ${cellType} --bcDoublets ${doubletFile} --userGenes ${userGenes}
-        """
-    else
-        error "Invalid data type"
+    """
+    python ${dataScript} \
+    --dataType ${params.dataType} \
+    --rawData ${rawData} \
+    --clusters ${clusterFile} \
+    --nGenes ${params.nGenes} \
+    --nCells ${params.nCells} \
+    --cluster ${cellType} \
+    --bcDoublets ${doubletFile} \
+    --userGenes ${userGenes} \
+    --fracMito ${params.fracMito}
+    --fracExpressed ${params.fracExpressed}
+    """
 }
 
 process estimatePCgraph {
@@ -93,7 +95,17 @@ process estimateCoups_1pts {
     
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 1 --nResamps ${params.bsResamps} --nCores ${params.cores_1pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} \
+    --dataPath ${dataSet} \
+    --graphPath ${graph} \
+    --intOrder 1 \
+    --nResamps ${params.bsResamps} \
+    --nCores ${params.cores_1pt} \
+    --estimationMethod ${params.estimationMethod} \
+    --edgeListAlpha ${params.edgeListAlpha} \
+    --genesToOne ${genesToOne} \
+    --dataDups ${params.dataDups} \
+    --boundBool ${params.boundBool}
     """
 
 }
@@ -119,7 +131,17 @@ process estimateCoups_2pts {
     path 'edgeList*.csv' into interaction_2pts_ch_edgeList
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 2 --nResamps ${params.bsResamps} --nCores ${params.cores_2pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} \
+    --dataPath ${dataSet} \
+    --graphPath ${graph} \
+    --intOrder 2 \
+    --nResamps ${params.bsResamps} \
+    --nCores ${params.cores_2pt} \
+    --estimationMethod ${params.estimationMethod} \
+    --edgeListAlpha ${params.edgeListAlpha} \
+    --genesToOne ${genesToOne} \
+    --dataDups ${params.dataDups} \
+    --boundBool ${params.boundBool}
     """
 
 }
@@ -141,7 +163,17 @@ process estimateCoups_3pts {
     path 'edgeList*.csv' into interaction_3pts_ch_edgeList
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --intOrder 3 --nResamps ${params.bsResamps} --nCores ${params.cores_3pt} --estimationMethod ${params.estimationMethod} --edgeListAlpha ${params.edgeListAlpha} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} \
+    --dataPath ${dataSet} \
+    --graphPath ${graph} \
+    --intOrder 3 \
+    --nResamps ${params.bsResamps} \
+    --nCores ${params.cores_3pt} \
+    --estimationMethod ${params.estimationMethod} \
+    --edgeListAlpha ${params.edgeListAlpha} \
+    --genesToOne ${genesToOne} \
+    --dataDups ${params.dataDups} \
+    --boundBool ${params.boundBool}
     """
 
 }
@@ -164,7 +196,15 @@ process estimateCoups_345pts_WithinMB {
     path 'interactions_withinMB_5pts*.npy' into interaction_withinMB_5pts
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --nResamps ${params.bsResamps} --nCores ${params.cores_HOIs_MB} --nRandoms ${params.nRandomHOIs} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} \
+    --dataPath ${dataSet} \
+    --graphPath ${graph} \
+    --nResamps ${params.bsResamps} \
+    --nCores ${params.cores_HOIs_MB} \
+    --nRandoms ${params.nRandomHOIs} \
+    --genesToOne ${genesToOne} \
+    --dataDups ${params.dataDups} \
+    --boundBool ${params.boundBool}
     """
 
 }
@@ -187,7 +227,16 @@ process estimateCoups_6n7pts {
     path 'interactions*.npy' optional true into interaction_6n7pts
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --graphPath ${graph} --pathTo5pts ${withinMB_5pts} --nResamps ${params.bsResamps} --nCores ${params.cores_HOIs_6n7} --nRandoms ${params.nRandomHOIs} --genesToOne ${genesToOne} --dataDups ${params.dataDups} --boundBool ${params.boundBool}
+    python ${estimationScript} \
+    --dataPath ${dataSet} \
+    --graphPath ${graph} \
+    -pathTo5pts ${withinMB_5pts} \
+    --nResamps ${params.bsResamps} \
+    --nCores ${params.cores_HOIs_6n7} \
+    --nRandoms ${params.nRandomHOIs} \
+    --genesToOne ${genesToOne} \
+    --dataDups ${params.dataDups} \
+    --boundBool ${params.boundBool}
     """
 
 }
@@ -219,7 +268,18 @@ process createHOIsummaries {
     path pcaCoords into PCAembeddings_forPlots
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --PCApath ${pcaCoords} --CPDAGgraphPath ${CPDAGgraph} --MCMCgraphPath ${MCMCgraph} --pathTo2pts ${path2pts} --pathTo2pts_CI_F ${path2pts_CI_F} --pathTo2pts_undef ${path2pts_undef} --pathTo2pts_inf ${path2pts_inf} --pathTo3pts ${path3pts} --pathTo4pts ${path4pts} --pathTo5pts ${path5pts}
+    python ${estimationScript} \
+    --dataPath ${dataSet} \
+    --PCApath ${pcaCoords} \
+    --CPDAGgraphPath ${CPDAGgraph} \
+    --MCMCgraphPath ${MCMCgraph} \
+    --pathTo2pts ${path2pts} \
+    --pathTo2pts_CI_F ${path2pts_CI_F} \
+    --pathTo2pts_undef ${path2pts_undef} \
+    --pathTo2pts_inf ${path2pts_inf} \
+    --pathTo3pts ${path3pts} \
+    --pathTo4pts ${path4pts} \
+    --pathTo5pts ${path5pts}
     """
 
 }
@@ -239,7 +299,11 @@ process identifyStates {
     path '*.png' optional true into identifiedStatesImgs
 
     """
-    python ${estimationScript} --dataPath ${dataSet} --PCApath ${pcaCoords} --devStates ${devStates} --diffCutoff ${params.dendCutoff}
+    python ${estimationScript} \
+    --dataPath ${dataSet} \
+    --PCApath ${pcaCoords} \
+    --devStates ${devStates} \
+    --diffCutoff ${params.dendCutoff}
     """
 
 } 

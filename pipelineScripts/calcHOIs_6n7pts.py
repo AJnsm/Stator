@@ -32,6 +32,7 @@ parser.add_argument("--nRandoms", type=int, help="Number of random interactions 
 parser.add_argument("--genesToOne", type=str, help="Path to list of genes that should be set to 1")
 parser.add_argument("--dataDups", type=int, help="Number of data duplications. 0 is no duplication, and another value is the min binsize allowed (recommended to be 15). ")
 parser.add_argument("--pathTo5pts", type=str, help="Path to calculated 5-point interactions")
+parser.add_argument("--alpha5pts", type=float, help="Significance threshold on 5-pts to search for 6- and 7-pts.")
 parser.add_argument("--boundBool", type=int, help="Boolean that decided whether bounds should also be considered.")
 
 args = parser.parse_args()

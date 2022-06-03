@@ -21,6 +21,7 @@ import random
 
 import hypernetx as hnx
 import scanpy as sc
+from scipy.stats import binom_test
 
 import upsetplot as up
 from upsetplot import generate_counts
@@ -44,6 +45,9 @@ parser.add_argument("--pathTo2pts_inf", type=str, help="Path to calculated 2-poi
 parser.add_argument("--pathTo3pts", type=str, help="Path to calculated 3-point interactions")
 parser.add_argument("--pathTo4pts", type=str, help="Path to calculated 4-point interactions")
 parser.add_argument("--pathTo5pts", type=str, help="Path to calculated 5-point interactions")
+parser.add_argument("--minStateDeviation", type=str, help="Minimum enrichment factor of a particular state.")
+parser.add_argument("--stateDevAlpha", type=str, help="significance threshold to call a state deviating")
+
 
 args = parser.parse_args()
 
@@ -306,12 +310,15 @@ for order in [3, 4, 5]:
 
 			#  ************************ Calculate deviations ************************ 
 
-			binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(concatInts, conditionedGenes.values)))), minlength=nStates)
-			means = conditionedGenes.mean(axis=0)
-			expected = np.array([np.prod([m if state[i] else 1-m for i, m in enumerate(means)]) for state in binStates])*len(conditionedGenes)
-			
-			deviation = (binCounts - expected)/(expected)
-			devs.append([deviation, geneTuple])
+			binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
+            means = conditionedGenes.mean(axis=0)
+            pStates = np.array([np.prod([m if state[i] else 1-m for i, m in enumerate(means)]) for state in binStates])
+            expected = pStates*len(conditionedGenes)
+            
+            deviation = (binCounts - expected)/(expected)
+            deviation_pval = np.array([binom_test(binCounts[i], p = pStates[i], n = len(conditionedGenes), alternative='greater') for i in range(len(binCounts))])
+            
+            devs.append([deviation, deviation_pval, interactors])
 	
 		devs  = np.array(devs, dtype=object)
 		devs = devs[(-np.array(list(map(np.max, devs[:, 0])))).argsort()]
@@ -320,7 +327,7 @@ for order in [3, 4, 5]:
 		
 #  ************************ PCA embedding on max deviating state ************************ 
 for order in [3, 4, 5]:
-	for devs, interactors in deviations[f'n{order}']:
+	for devs, pvals, interactors in deviations[f'n{order}']:
 		ID = '_'.join(genes[interactors])
 		
 		# maxDevState is the most deviating state
@@ -383,19 +390,19 @@ for order in [3, 4, 5]:
 			plt.close(fig) 
 
 
-# For further analysis, states that deviate more than a factor X (default X=5) are written to a file. 
-devDict = {}
+# For further analysis, states that deviate more than a factor [minStateDeviation] with significance beyond [stateDevAlpha] are written to a file. 
+devDict = []
 for order in [3, 4, 5]:
-	for devs, interactors in deviations[f'n{order}']:
-		if max(abs(devs))>5:
-			ID = '_'.join(genes[interactors])
-			maxDevState = format(np.argmax(devs), f"0{order}b")
-			
-			devDict[ID] = (maxDevState, np.max(devs))
+	for devs, pvals, interactors in deviations[f'n{order}']:
 
-if len(devDict.keys())>0:
-	strongDeviators = pd.DataFrame.from_dict(devDict).T.sort_values(by=1, ascending=False)
-	strongDeviators.columns = ['max dev. state', 'dev']
+		ID = '_'.join(genes[interactors])
+	    for devStateInd in np.where((devs>=args.minStateDeviation) & (pvals<=args.stateDevAlpha))[0]:
+	        maxDevState = format(devStateInd, f"0{order}b")
+	        devDict.append([ID, maxDevState, devs[devStateInd], pvals[devStateInd]])
+
+if len(devDict)>0:
+	strongDeviators = pd.DataFrame(devDict, columns=['genes', 'state', 'dev', 'pval'])
+	strongDeviators = strongDeviators.sort_values(by='dev', ascending=False)
 	strongDeviators.to_csv(f'topDeviatingHOIstates.csv')
 
 else: 

@@ -31,9 +31,10 @@ parser.add_argument("--userGenes", type=str, nargs='?', help="List of genes to a
 parser.add_argument("--nCells", type=int, nargs=1, help="Number of cells to keep")
 parser.add_argument("--cluster", type=int, nargs='?', help="Which cluster/cell Type to use")
 parser.add_argument("--bcDoublets", type=str, nargs='?', help="Path to file with booleans for doublets")
+parser.add_argument("--fracMito", type=float, nargs='?', help="Max percentage of mitochondrial transcripts")
+parser.add_argument("--fracExpressed", type=float, nargs='?', help="Min number of genes expressed")
 
 args = parser.parse_args()
-
 
 rawData = args.rawData[0]
 nGenes = int(args.nGenes[0])
@@ -42,10 +43,7 @@ nCells = int(args.nCells[0])
 
 
 # ****************** data-agnostic: minimal manipulation  ******************
-
-
 if args.dataType=='agnostic':
-
 
     print("loading data")
     scObj = sc.read_csv(rawData)
@@ -96,9 +94,11 @@ if args.dataType=='agnostic':
     selected_genes = selected_genes[:nGenes]
     print('Number of genes selected:   ', selected_genes.shape)
 
+    # Binarising the data
     scObjBin = scObj.copy()
     scObjBin.X = (scObjBin.X>0)*1
 
+    #Shufle data so that any selection is randomised. 
     sc.pp.subsample(scObjBin, fraction=1., random_state=0) #Shufle full cluster so that any selection is randomised. 
 
 
@@ -172,13 +172,13 @@ elif args.dataType=='expression':
     scObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
 
     # Remove cells with high mito, low n_genes.
-    sc.pp.filter_cells(scObj, min_genes=len(scObj.var.index)*0.02)
+    sc.pp.filter_cells(scObj, min_genes=int(len(scObj.var.index)*fracExpressed))
 
     mito_genes = scObj.var_names.str.startswith('mt-')
     scObj.obs['percent_mito'] = np.sum(
         scObj[:, mito_genes].X, axis=1) / np.sum(scObj.X, axis=1)
 
-    scObj = scObj[scObj.obs['percent_mito']<.12]
+    scObj = scObj[scObj.obs['percent_mito']<(fracMito)]
 
     sc.pl.violin(scObj, ['n_genes'],
                  jitter=0.4, multi_panel=True, save='QC_n_genes_CL'+'{:0>2}'.format(cl) + '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
@@ -192,7 +192,9 @@ elif args.dataType=='expression':
     sc.pp.normalize_total(scObj, target_sum=1e6)
     sc.pp.log1p(scObj)
     scObj.raw = scObj
-    sc.pp.highly_variable_genes(scObj, min_mean=0.0125, max_mean=7, min_disp=0.2)
+
+    # Mean and max set to include all possible counts. 
+    sc.pp.highly_variable_genes(scObj, min_mean=0.0125, max_mean=13, min_disp=0.2)
     sc.pl.highly_variable_genes(scObj, save=f'QC_HVG_selection_CL'+'{:0>2}'.format(cl) + '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
     print('selected genes: ', sum(scObj.var['highly_variable']))
 
@@ -225,9 +227,6 @@ elif args.dataType=='expression':
     clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
     pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
     pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
-
-    
-
 
 else:
     print('ERROR: invalid dataType, choose agnostic or expression.')

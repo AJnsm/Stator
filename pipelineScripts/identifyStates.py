@@ -29,12 +29,12 @@ diffCutoff = args.diffCutoff
 trainDat = pd.read_csv(args.dataPath)
 pcaCoords= pd.read_csv(args.PCApath)
 
-devStates = pd.read_csv(args.devStates, dtype=str)
+devStates = pd.read_csv(args.devStates, dtype=str, index_col=0)
 if len(devStates)==0:
     print('no deviating states, terminating...')
     sys.exit()
 
-devStates.columns = ['genes', 'state', 'dev']
+devStates.columns = ['genes', 'state', 'dev', 'pval']
 
 # Binreps is the binary represenations of the interactions: binReps[i] is 1 if cell i is in the maxDevState, 0 otherwise.  
 binReps = np.array(devStates.apply(lambda x: (trainDat[x['genes'].rsplit('_')]==[int(x) for x in list(str(x['state']))]).all(axis=1), axis=1))*1
