@@ -172,13 +172,13 @@ elif args.dataType=='expression':
     scObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
 
     # Remove cells with high mito, low n_genes.
-    sc.pp.filter_cells(scObj, min_genes=int(len(scObj.var.index)*fracExpressed))
+    sc.pp.filter_cells(scObj, min_genes=int(len(scObj.var.index)*args.fracExpressed))
 
     mito_genes = scObj.var_names.str.startswith('mt-')
     scObj.obs['percent_mito'] = np.sum(
         scObj[:, mito_genes].X, axis=1) / np.sum(scObj.X, axis=1)
 
-    scObj = scObj[scObj.obs['percent_mito']<(fracMito)]
+    scObj = scObj[scObj.obs['percent_mito']<(args.fracMito)]
 
     sc.pl.violin(scObj, ['n_genes'],
                  jitter=0.4, multi_panel=True, save='QC_n_genes_CL'+'{:0>2}'.format(cl) + '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
