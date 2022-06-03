@@ -30,7 +30,7 @@ process makeData {
     --cluster ${cellType} \
     --bcDoublets ${params.doubletFile} \
     --userGenes ${params.userGenes} \
-    --fracMito ${params.fracMito}
+    --fracMito ${params.fracMito} \
     --fracExpressed ${params.fracExpressed}
     """
 }
