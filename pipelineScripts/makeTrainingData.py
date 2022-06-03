@@ -170,15 +170,16 @@ elif args.dataType=='expression':
         scObj.obs['doublet'] = False
         
     scObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
-
+    print(f'Filtering -- mitochondrial fraction less than: {args.fracMito} ')
+    print(f'Filtering -- Fraction of genes expressed more than: {args.fracExpressed} ')
+    
     # Remove cells with high mito, low n_genes.
     sc.pp.filter_cells(scObj, min_genes=int(len(scObj.var.index)*args.fracExpressed))
 
     mito_genes = scObj.var_names.str.startswith('mt-')
     scObj.obs['percent_mito'] = np.sum(
         scObj[:, mito_genes].X, axis=1) / np.sum(scObj.X, axis=1)
-    print(f'Filtering -- mitochondrial fraction less than: {args.fracMito} ')
-    print(f'Filtering -- Fraction of genes expressed more than: {args.fracExpressed} ')
+
     scObj = scObj[scObj.obs['percent_mito']<(args.fracMito)]
 
     sc.pl.violin(scObj, ['n_genes'],
