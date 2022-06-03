@@ -328,7 +328,7 @@ for order in [3, 4, 5]:
 #  ************************ PCA embedding on max deviating state ************************ 
 for order in [3, 4, 5]:
 	for devs, pvals, interactors in deviations[f'n{order}']:
-		ID = '_'.join(genes[interactors])
+		ID = '-'.join(genes[interactors])
 		
 		# maxDevState is the most deviating state
 		maxDevState = format(np.argmax(devs), f"0{order}b")
