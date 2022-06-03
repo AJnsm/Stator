@@ -276,7 +276,9 @@ process createHOIsummaries {
     --pathTo2pts_inf ${path2pts_inf} \
     --pathTo3pts ${path3pts} \
     --pathTo4pts ${path4pts} \
-    --pathTo5pts ${path5pts}
+    --pathTo5pts ${path5pts} \
+    --minStateDeviation ${params.minStateDeviation} \
+    --stateDevAlpha ${params.stateDevAlpha} 
     """
 
 }
