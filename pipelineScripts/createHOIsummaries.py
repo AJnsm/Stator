@@ -211,7 +211,7 @@ for order in [3, 4, 5]:
 			layout_c = g.layout('circle')
 
 			# Layout needs to be manipulated a bit so that hypernetx can use it for the hypergraph:
-			tmp = dict(zip(g.vs['label'], np.array(layout_c)*np.array([1, -1])))
+			tmp = dict(zip([x.replace('.', '-') for x in g.vs['label']], np.array(layout_c)*np.array([1, -1])))
 
 			# Constructing the hypergraph
 			edges = {'maxOrder': genes[geneTuple]}
@@ -328,7 +328,7 @@ for order in [3, 4, 5]:
 #  ************************ PCA embedding on max deviating state ************************ 
 for order in [3, 4, 5]:
 	for devs, pvals, interactors in deviations[f'n{order}']:
-		ID = '-'.join(genes[interactors])
+		ID = '_'.join(genes[interactors])
 		
 		# maxDevState is the most deviating state
 		maxDevState = format(np.argmax(devs), f"0{order}b")
