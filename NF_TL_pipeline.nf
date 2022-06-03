@@ -11,9 +11,6 @@ process makeData {
     path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py" 
     val cellType from cellTypes_ch
     path rawData from params.rawDataPath
-    path clusterFile from params.clusterFile
-    path doubletFile from params.doubletFile
-    path userGenes from params.userGenes
     
     output:
     path "trainingData_*Genes.csv" into dataSets mode flatten
@@ -27,12 +24,12 @@ process makeData {
     python ${dataScript} \
     --dataType ${params.dataType} \
     --rawData ${rawData} \
-    --clusters ${clusterFile} \
+    --clusters ${params.clusterFile} \
     --nGenes ${params.nGenes} \
     --nCells ${params.nCells} \
     --cluster ${cellType} \
-    --bcDoublets ${doubletFile} \
-    --userGenes ${userGenes} \
+    --bcDoublets ${params.doubletFile} \
+    --userGenes ${params.userGenes} \
     --fracMito ${params.fracMito}
     --fracExpressed ${params.fracExpressed}
     """
