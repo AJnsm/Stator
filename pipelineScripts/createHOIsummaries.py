@@ -318,7 +318,7 @@ for order in [3, 4, 5]:
 			deviation = (binCounts - expected)/(expected)
 			deviation_pval = np.array([binom_test(binCounts[i], p = pStates[i], n = len(conditionedGenes), alternative='greater') for i in range(len(binCounts))])
 			
-			devs.append([deviation, deviation_pval, interactors])
+			devs.append([deviation, deviation_pval, geneTuple])
 	
 		devs  = np.array(devs, dtype=object)
 		devs = devs[(-np.array(list(map(np.max, devs[:, 0])))).argsort()]
