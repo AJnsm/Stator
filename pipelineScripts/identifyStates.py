@@ -34,6 +34,10 @@ if len(devStates)==0:
     print('no deviating states, terminating...')
     sys.exit()
 
+if len(devStates)==1:
+    print('Only one deviation state, terminating...')
+    sys.exit()
+
 devStates.columns = ['genes', 'state', 'dev', 'pval']
 
 # Binreps is the binary represenations of the interactions: binReps[i] is 1 if cell i is in the maxDevState, 0 otherwise.  
