@@ -177,7 +177,8 @@ elif args.dataType=='expression':
     mito_genes = scObj.var_names.str.startswith('mt-')
     scObj.obs['percent_mito'] = np.sum(
         scObj[:, mito_genes].X, axis=1) / np.sum(scObj.X, axis=1)
-
+    print(f'Filtering -- mitochondrial fraction less than: {args.fracMito} ')
+    print(f'Filtering -- Fraction of genes expressed more than: {args.fracExpressed} ')
     scObj = scObj[scObj.obs['percent_mito']<(args.fracMito)]
 
     sc.pl.violin(scObj, ['n_genes'],
