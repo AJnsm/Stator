@@ -56,11 +56,11 @@ pcaCoords= pd.read_csv(args.PCApath)
 DSname = args.MCMCgraphPath.split('.')[0]
 MCMCadjMat = pd.read_csv(args.MCMCgraphPath, index_col=0)
 MCMCgraph = ig.Graph.Adjacency(MCMCadjMat.values.tolist())
-MCMCgraph.vs['label'] = MCMCadjMat.columns.values
+MCMCgraph.vs['label'] = trainDat.columns.values
 
 CPDAGadjMat = pd.read_csv(args.CPDAGgraphPath, index_col=0)
 CPDAGgraph = ig.Graph.Adjacency(CPDAGadjMat.values.tolist())
-CPDAGgraph.vs['label'] = CPDAGadjMat.columns.values
+CPDAGgraph.vs['label'] = trainDat.columns.values
 
 genes = trainDat.columns.values
 
@@ -204,8 +204,6 @@ for order in [3, 4, 5]:
 		for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
 			ID = '_'.join(genes[geneTuple])
 
-
-			CPDAGgraph.vs['label'] = CPDAGadjMat.columns.values
 			# The local CPDAG structure will be plotted, and its layout will be used for the hypergraph of interactions. 
 			g = findLocalGraph(geneTuple, CPDAGgraph, order=0)
 			layout_c = g.layout('circle')
@@ -229,12 +227,12 @@ for order in [3, 4, 5]:
 			H = hnx.Hypergraph(edges)
 			cList = ['red' if w<0 else 'green' for w in weights]
 			layout_fn = lambda x: tmp
-			print(CPDAGadjMat.columns.values)
-			print(CPDAGgraph.vs['label'])
-			print(list(g.vs()))
-			print(edges)
-			print(list(H.edges()))
-			print(list(H.nodes()))
+			# print(CPDAGadjMat.columns.values)
+			# print(CPDAGgraph.vs['label'])
+			# print(list(g.vs()))
+			# print(edges)
+			# print(list(H.edges()))
+			# print(list(H.nodes()))
 			fig, ax = plt.subplots(figsize=[10, 10])
 			hnx.draw(H, ax=ax, layout = layout_fn,
 						 label_alpha=0,
