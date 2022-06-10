@@ -165,7 +165,7 @@ def add_imgLab(xCoord, yCoord, img, ax):
     
     # Crop the image a little bit
     img = img[5:-5, 5:-5, :]
-    im = OffsetImage(img, zoom=0.34)
+    im = OffsetImage(img, zoom=0.28)
     im.image.axes = ax
 
     ab = AnnotationBbox(im, (xCoord, yCoord),  xybox=(0., 30.), frameon=False,
@@ -197,7 +197,7 @@ x_labLocs = [x.get_position()[0] for x in ax.get_xmajorticklabels()]
 
 # Adding the PCA embeddings as labels to the dendrogram plot
 for i, xL in enumerate(x_labLocs):
-    add_imgLab(xL, diffCutoff-0.02, statePlots[i], ax)
+    add_imgLab(xL, diffCutoff-0.04, statePlots[i], ax)
     
 plt.xticks(x_labLocs, labels = labs, rotation=0)    
 
