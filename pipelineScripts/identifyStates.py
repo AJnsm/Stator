@@ -190,14 +190,14 @@ R = dendrogram(linked,
             p = truncatedClusters,
             distance_sort='descending',
             show_leaf_counts=True)
-plt.ylim(diffCutoff-0.02, 1)
+plt.ylim(diffCutoff-0.03, 1)
 
 ax = plt.gca()
 x_labLocs = [x.get_position()[0] for x in ax.get_xmajorticklabels()]
 
 # Adding the PCA embeddings as labels to the dendrogram plot
 for i, xL in enumerate(x_labLocs):
-    add_imgLab(xL, diffCutoff-0.02, statePlots[i], ax)
+    add_imgLab(xL, diffCutoff-0.03, statePlots[i], ax)
     
 plt.xticks(x_labLocs, labels = labs, rotation=0)    
 
