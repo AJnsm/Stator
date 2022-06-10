@@ -165,7 +165,7 @@ def add_imgLab(xCoord, yCoord, img, ax):
     
     # Crop the image a little bit
     img = img[5:-5, 5:-5, :]
-    im = OffsetImage(img, zoom=0.28)
+    im = OffsetImage(img, zoom=0.25)
     im.image.axes = ax
 
     ab = AnnotationBbox(im, (xCoord, yCoord),  xybox=(0., 30.), frameon=False,
