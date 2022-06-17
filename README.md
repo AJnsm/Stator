@@ -54,28 +54,36 @@ These affect the calculation and the results:
 | :----- | :----- | :----- | :-- |
 | dataType | ' ' | type of input data: determines preprocessing | Yes |
 | rawDataPath | ' ' | absolute path to count matrix .csv | Yes |
+| nGenes | ' ' | Number of genes to keep | Yes |
+| nCells | ' ' | Number of cells to keep | Yes |
 | clusterFile | ' ' | absolute path to cluster annotation .csv | No |
+| clusterArray | ' ' | List of which clusters to keep | No |
 | doubletFile | ' ' | absolute path to doublet annotation .csv | No |
 | userGenes | ' ' | absolute path to list of required genes .csv | No |
-| nGenes | 5 | Number of genes to keep | Yes |
-| nCells | 20 | Number of cells to keep | Yes |
-| clusterArray | 0 | List of which clusters to keep | No |
+| fracMito | 1 | cells with more than `fracMito` mitochondrial reads get dismissed | No |
+| fracExpressed | 1 | cells with more fewer than `fracExpressed` of all genes expressed get ignored | No |
 | PCalpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
 | bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Yes |
-| twoReplicates | false | Boolean to decide on constructing two replicates from the data | Yes |
+| nRandomHOIs | ' ' | How many random 4-7-point interactions to calculate | Yes |
+| minStateDeviation | ' ' | Min. enrichmnent factor for characteristic states | Yes |
+| stateDevAlpha | ' ' | Min. enrichmnent significance for characteristic states | Yes |
+| dendCutoff | ' ' | Dice distance at which the dendrogram gets cut | Yes |
 
 
 And these affect the resources accessible to each of the processes, but shouldn't affect the results:
 | Parameter | Default | Description | Required? | 
 | :----- | :----- | :----- | :-- |
-| executor | 'local' | How to execute the pipeline ('sge' for cluster usage) | Yes |
-| maxQueueSize | 25 | How many processes are allowed to be scheduled at the same time | Only with 'sge' |
+| executor | ' ' | How to execute the pipeline ('sge' for cluster usage) | Yes |
+| maxQueueSize | ' ' | How many jobs are allowed to be scheduled at the same time | Only with 'sge' |
 | [cores, mem, time]\_makeData | [1, '4G', '1h'] | How many [cores, memory, hours] are available when preparing the data | Only with 'sge' |
 | [cores, mem, time]\_PC | [1, '4G', '1h'] | How many [cores, memory, hours] are available to the PC-algorithm | Only with 'sge' |
-| [cores, mem, time]\_makeData | [1, '4G', '1h'] | How many [cores, memory, hours] are available to the MCMC scheme | Only with 'sge' |
-| [cores, mem, time]\_makeData | [1, '4G', '1h'] | How many [cores, memory, hours] are available to the 1-point estimation | Only with 'sge' |
-| [cores, mem, time]\_makeData | [1, '4G', '1h'] | How many [cores, memory, hours] are available to the 2-point estimation | Only with 'sge' |
-| [cores, mem, time]\_makeData | [1, '4G', '1h'] | How many [cores, memory, hours] are available to the 3-point estimation | Only with 'sge' |
+| [cores, mem, time]\_MCMC | [1, '4G', '1h'] | How many [cores, memory, hours] are available to the MCMC scheme | Only with 'sge' |
+| [cores, mem, time]\_1pt | [1, '4G', '1h'] | How many [cores, memory, hours] are available to the 1-point estimation | Only with 'sge' |
+| [cores, mem, time]\_2pt | [1, '4G', '1h'] | How many [cores, memory, hours] are available to the 2-point estimation | Only with 'sge' |
+| [cores, mem, time]\_3pt | [1, '4G', '1h'] | How many [cores, memory, hours] are available to the 3-point estimation | Only with 'sge' |
+| [cores, mem, time]\_HOIs_MB | [1, '4G', '1h'] | How many [cores, memory, hours] are available to the 3-5-point estimations within Markov blankets | Only with 'sge' |
+| [cores, mem, time]\_HOIs_6n7 | [1, '4G', '1h'] | How many [cores, memory, hours] are available to the 6- and 7-point estimations | Only with 'sge' |
+| [cores, mem, time]\_HOIs_plots | [1, '4G', '1h'] | How many [cores, memory, hours] are available for plotting the HOI summaries and characteristic states | Only with 'sge' |
 
 
 ## Usage
