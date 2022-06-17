@@ -39,12 +39,12 @@ Secondly, you must have access to either Docker or Singularity. Most clusters (l
     * `trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv`: The nCells x nGenes count matrices after filtering.
     * `{$graphType}graph_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv` files with the nGenes x nGenes adjacency matrices for the graphs used in the estimation steps.
 * `coupling_output/`
-    * `interactions_order{$order}[...]_coup.npy` files with the interactions at each order (in `coupling_output/`). 
-    * `interactions_order{$order}[...]_CI_U(L)B.npy` files with upper (lower) bound of the 95% confidence interval.
-    * `interactions_order{$order}[...]_CI_F.npy` files with fraction of resamples with a different sign than the point estimate (F-value).
-    * `interactions_order{$order}[...]_inf(undef).npy` files with fraction of resamples that were infinite (undefined).
-    * `interactions_withinMB){$order}pts[...]_inf(undef).npy` files with fraction of resamples that were infinite (undefined).
-    * `trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes_{$embedding}coords.csv`: files with PCA or UMAP embeddings of the cells (in `embeddings/`). 
+    * `interactions_order{$order}[...]_coup.npy`: The interactions at order 1-3 (in `coupling_output/`). 
+    * `interactions_order{$order}[...]_CI_U(L)B.npy`: The upper (lower) bound of the 95% confidence interval.
+    * `interactions_order{$order}[...]_CI_F.npy`: The fraction of resamples with a different sign than the point estimate (F-value).
+    * `interactions_order{$order}[...]_inf(undef).npy`: The fraction of resamples that were infinite (undefined).
+    * `interactions_withinMB_{$order}pts[...].npy`: The interaction estimates at order 3-5 (within Markov blanket only).
+    * `trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes_{$embedding}coords.csv`: The PCA or UMAP embeddings of the cells (in `embeddings/`). 
 
 * `HOIsummaries/`
     * `{$genes}_summary.png`: Figures that summarise the 3-, 4-, and 5-point interactions. 
@@ -52,9 +52,9 @@ Secondly, you must have access to either Docker or Singularity. Most clusters (l
     * `distinctDeviatingStates.png`: The characteristic states embedded in PCA coordinates. 
     * `distinctDeviatingStates_dendrogram.png`: The characteristic states embedded in PCA coordinates, in a dendrogram. 
 * `plots/`
-    * `.png`: figures with basic QC metrics.
+    * `.png`: Figures with basic QC metrics.
 * `reports/`
-    * some reports from Nextflow on resource usage etc.
+    * Some reports from Nextflow on resource usage etc.
 
 
 ## Parameters
