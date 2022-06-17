@@ -1,6 +1,5 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>body {
   max-width: 980px;
-  border: 1px solid #ddd;
   outline: 1300px solid #fff;
   margin: 16px auto;
 }
@@ -899,6 +898,10 @@ body .markdown-body
   vertical-align: middle;
 }
 
+.markdown-body diagram-div, .markdown-body div.uml-sequence-diagram, .markdown-body, div.uml-flowchart {
+  overflow: auto;
+}
+
 /* Media */
 @media only screen and (min-width: 480px) {
   .markdown-body {
@@ -1063,13 +1066,16 @@ body .markdown-body
 .highlight .vi{color:teal}
 .highlight .il{color:#009999}
 .highlight .gc{color:#999;background-color:#EAF2F5}
-</style><title>README</title></head><body><article class="markdown-body"><h1 id="cocomix">CoComix<a class="headerlink" href="#cocomix" title="Permanent link"></a></h1>
+</style><title>README</title></head><body><article class="markdown-body"><h1 id="scibernets">SCIBERNets<a class="headerlink" href="#scibernets" title="Permanent link"></a></h1>
+<p><strong>S</strong>ingle <strong>C</strong>ell <strong>I</strong>nference as <strong>B</strong>oolean <strong>E</strong>xpression <strong>R</strong>egulation <strong>Net</strong>works. </p>
+<p>or maybe:</p>
+<h1 id="cocomix">CoComix<a class="headerlink" href="#cocomix" title="Permanent link"></a></h1>
 <p><strong>Co</strong>nditional <strong>Co</strong>uplings in (transcript-)<strong>omics</strong> data. </p>
 <h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link"></a></h2>
 <p>This pipeline takes in single cell RNA-seq count matrices, and estimates gene-interactions at first, second, and third order. 
 The pipeline can be run directly from the command line. It pulls all code from Github, and the container from Dockerhub. It can run on your local machine, or on a cluster with the Sun Grid Engine scheduling system (like Eddie). </p>
 <h2 id="designdag">Design/DAG<a class="headerlink" href="#designdag" title="Permanent link"></a></h2>
-<p><img alt="Pipeline flow" src="/Users/s1855283/Desktop/PhD/NF_TL/diagram.pdf" /></p>
+<p><img alt="Pipeline flow" src="/Users/s1855283/Desktop/PhD/NF_TL/diagram.png" /></p>
 <h2 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link"></a></h2>
 <p>Nextflow needs to be installed on the machine you want to run the pipeline on, which is as simple as running:</p>
 <div class="highlight"><pre>curl -s https://get.nextflow.io <span class="p">|</span> bash
@@ -1078,103 +1084,80 @@ The pipeline can be run directly from the command line. It pulls all code from G
 <p>Secondly, you must have access to either Docker or Singularity. Most clusters (like Eddie) use Singularity for security reasons, but both will automatically pull the right container from DockerHub. (Conda environments are supported, but not recommended or guaranteed to work.)</p>
 <h2 id="input-files">Input files<a class="headerlink" href="#input-files" title="Permanent link"></a></h2>
 <ul>
-<li>A count matrix in csv format, where the rows are genes, and the columns cells. The index column should contain the gene names (does not matter in which format), and the first row/header should contain cell identifiers (either barcodes or an index). </li>
-<li>A list of integer cluster annotations per cell in csv format: This should be in the same order as the cells in the count matrix. </li>
-<li>(optional) A list of genes that should be included in the final analysis, irrespective of their variability.  </li>
-<li>(optional) A list of booleans on whether or not a cell should be included (e.g. on the basis of being a suspected doublet), in the same order as the cells in the count matrix. </li>
+<li>rawDataPath: A count matrix in csv format, where the rows are cells, and the columns genes. The first row should contain the gene names (does not matter in which format). </li>
+<li>clusterFile (optional): A list of integer cluster annotations per cell in csv format: This should be in the same order as the cells in the count matrix. </li>
+<li>userGenes (optional): A list of genes that should be included in the final analysis, irrespective of their variability.  </li>
+<li>genesToOne (optional): A list of genes that should be conditioned to a 1 instead of a 0.  </li>
+<li>doubletFile (optional): A list of booleans on whether or not a cell should be included (e.g. on the basis of being a suspected doublet), in the same order as the cells in the count matrix. </li>
 </ul>
 <h2 id="output-files">Output files<a class="headerlink" href="#output-files" title="Permanent link"></a></h2>
 <ul>
-<li>.png plot with the mean-variance relationship among the genes (in <code>plots/</code>)</li>
-<li>.csv files with the nGenes x nCells count matrices after filtering (in <code>output/</code>). </li>
-<li>.csv files with the nGenes x nGenes adjacency matrices for the graphs used in the estimation steps (in <code>output/</code>). </li>
-<li>.npy files with the interactions at each order for each of the data sets (in <code>coupling_output/</code>). </li>
-<li>.npy files with the 95% confidence interval of the error on the interactions at each order for each of the data sets (in <code>coupling_output/</code>). </li>
-<li>.npy files with the interactions at each order for each of the data sets (in <code>coupling_output/</code>). </li>
-<li>some reports from Nextflow on resource usage etc. (in <code>reports/</code>).</li>
+<li><code>trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv</code>: The nCells x nGenes count matrices after filtering (in <code>output/</code>). </li>
+<li><code>{$graphType}graph_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv</code> files with the nGenes x nGenes adjacency matrices for the graphs used in the estimation steps (in <code>output/</code>). </li>
+<li><code>interactions_order{$order}[...]_coup.npy</code> files with the interactions at each order (in <code>coupling_output/</code>). </li>
+<li><code>interactions_order{$order}[...]_CI_U(L)B.npy</code> files with upper (lower) bound of the 95% confidence interval (in <code>coupling_output/</code>). </li>
+<li><code>interactions_order{$order}[...]_CI_F.npy</code> files with fraction of resamples with a different sign than the point estimate (F-value) (in <code>coupling_output/</code>). </li>
+<li><code>interactions_order{$order}[...]_inf(undef).npy</code> files with fraction of resamples that were infinite (undefined) (in <code>coupling_output/</code>). </li>
+<li><code>interactions_withinMB){$order}pts[...]_inf(undef).npy</code> files with fraction of resamples that were infinite (undefined) (in <code>coupling_output/</code>). </li>
+<li><code>trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes_{$embedding}coords.csv</code>: files with PCA or UMAP embeddings of the cells (in <code>embeddings/</code>). </li>
+<li>
+<p><code>{$genes}_summary.png</code>: Figures that summarise the 3-, 4-, and 5-point interactions (in <code>HOIsummaries/</code>). </p>
+</li>
+<li>
+<p>some reports from Nextflow on resource usage etc. (in <code>reports/</code>).</p>
+</li>
 </ul>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link"></a></h2>
 <p>The pipeline takes in a number of parameters, which can be set by the user in the params.json file. </p>
-<table>
-<thead>
-<tr>
-<th align="left">Parameter</th>
-<th align="left">Default</th>
-<th align="left">Description</th>
-<th align="left">Required?</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="left">rawDataPath</td>
-<td align="left">&lsquo; &lsquo;</td>
-<td align="left">absolute path to count matrix .csv</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">clusterFile</td>
-<td align="left">&lsquo; &lsquo;</td>
-<td align="left">absolute path to cluster annotation .csv</td>
-<td align="left">No</td>
-</tr>
-<tr>
-<td align="left">userGenes</td>
-<td align="left">&lsquo; &lsquo;</td>
-<td align="left">absolute path to list of required genes .csv</td>
-<td align="left">No</td>
-</tr>
-<tr>
-<td align="left">nGenes</td>
-<td align="left">5</td>
-<td align="left">Number of genes to keep</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">nCells</td>
-<td align="left">20</td>
-<td align="left">Number of cells to keep</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">clusterArray</td>
-<td align="left">0</td>
-<td align="left">List of which clusters to keep</td>
-<td align="left">No</td>
-</tr>
-<tr>
-<td align="left">pcAlpha</td>
-<td align="left">0.05</td>
-<td align="left">Significance threshold to use for the PC-algorithm</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">bsResamps</td>
-<td align="left">1000</td>
-<td align="left">Number of bootstrap resamples to use when calculating confidence intervals on interactions</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">nCells</td>
-<td align="left">20</td>
-<td align="left">Number of cells to keep</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">nCells</td>
-<td align="left">20</td>
-<td align="left">Number of cells to keep</td>
-<td align="left">Yes</td>
-</tr>
-</tbody>
-</table>
-<!--
+<p>These affect the calculation and the results:
+| Parameter | Default | Description | Required? | 
+| :----- | :----- | :----- | :&ndash; |
+| dataType | &lsquo; &lsquo; | type of input data: determines preprocessing | Yes |
+| rawDataPath | &lsquo; &lsquo; | absolute path to count matrix .csv | Yes |
+| nGenes | &lsquo; &lsquo; | Number of genes to keep | Yes |
+| nCells | &lsquo; &lsquo; | Number of cells to keep | Yes |
+| clusterFile | &lsquo; &lsquo; | absolute path to cluster annotation .csv | No |
+| clusterArray | &lsquo; &lsquo; | List of which clusters to keep | No |
+| doubletFile | &lsquo; &lsquo; | absolute path to doublet annotation .csv | No |
+| userGenes | &lsquo; &lsquo; | absolute path to list of required genes .csv | No |
+| fracMito | 1 | cells with more than <code>fracMito</code> mitochondrial reads get dismissed | No |
+| fracExpressed | 1 | cells with more fewer than <code>fracExpressed</code> of all genes expressed get dismissed | No |
+| PCalpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
+| bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Yes |
+| nRandomHOIs | &lsquo; &lsquo; | How many random 4-7-point interactions to calculate | Yes |
+| minStateDeviation | &lsquo; &lsquo; | Min. enrichmnent factor for characteristic states | Yes |
+| stateDevAlpha | &lsquo; &lsquo; | Min. enrichmnent significance for characteristic states | Yes |
+| dendCutoff | &lsquo; &lsquo; | Dice distance at which the dendrogram gets cut | Yes |</p>
+<p>And these affect the resources accessible to each of the processes, but shouldn&rsquo;t affect the results:
+| Parameter | Default | Description | Required? | 
+| :----- | :----- | :----- | :&ndash; |
+| executor | &lsquo; &lsquo; | How to execute the pipeline (&lsquo;sge&rsquo; for cluster usage) | Yes |
+| maxQueueSize | &lsquo; &lsquo; | How many jobs are allowed to be scheduled at the same time | Only with &lsquo;sge&rsquo; |
+| [cores, mem, time]_makeData | [1, &lsquo;4G&rsquo;, &lsquo;1h&rsquo;] | How many [cores, memory, hours] are available when preparing the data | Only with &lsquo;sge&rsquo; |
+| [cores, mem, time]_PC | [1, &lsquo;4G&rsquo;, &lsquo;1h&rsquo;] | How many [cores, memory, hours] are available to the PC-algorithm | Only with &lsquo;sge&rsquo; |
+| [cores, mem, time]_MCMC | [1, &lsquo;4G&rsquo;, &lsquo;1h&rsquo;] | How many [cores, memory, hours] are available to the MCMC scheme | Only with &lsquo;sge&rsquo; |
+| [cores, mem, time]_1pt | [1, &lsquo;4G&rsquo;, &lsquo;1h&rsquo;] | How many [cores, memory, hours] are available to the 1-point estimation | Only with &lsquo;sge&rsquo; |
+| [cores, mem, time]_2pt | [1, &lsquo;4G&rsquo;, &lsquo;1h&rsquo;] | How many [cores, memory, hours] are available to the 2-point estimation | Only with &lsquo;sge&rsquo; |
+| [cores, mem, time]_3pt | [1, &lsquo;4G&rsquo;, &lsquo;1h&rsquo;] | How many [cores, memory, hours] are available to the 3-point estimation | Only with &lsquo;sge&rsquo; |
+| [cores, mem, time]_HOIs_MB | [1, &lsquo;4G&rsquo;, &lsquo;1h&rsquo;] | How many [cores, memory, hours] are available to the 3-5-point estimations within Markov blankets | Only with &lsquo;sge&rsquo; |
+| [cores, mem, time]_HOIs_6n7 | [1, &lsquo;4G&rsquo;, &lsquo;1h&rsquo;] | How many [cores, memory, hours] are available to the 6- and 7-point estimations | Only with &lsquo;sge&rsquo; |
+| [cores, mem, time]_HOIs_plots | [1, &lsquo;4G&rsquo;, &lsquo;1h&rsquo;] | How many [cores, memory, hours] are available for plotting the HOI summaries and characteristic states | Only with &lsquo;sge&rsquo; |</p>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
+<p>First, you need to pull the latest version of the pipeline from Github. This is done by:</p>
+<p><div class="highlight"><pre>nextflow pull AJnsm/NF_TL_pipeline -r branch
+</pre></div>
+where branch is set to either <code>main</code> (most stable) or <code>develop</code>. On a cluster, you need to load Singularity. On Eddie this is done with </p>
+<div class="highlight"><pre>module load singularity
+</pre></div>
 
-| dataType | 'agnostic'| Which QC steps to take (I recommend to leave this to default) | Yes 
-| fastq_screen_cache | `"${launchDir}/assets/fastq_screen"` | Path to folder containing fastq screen reference genomes, as generated by running the command fastq_screen --get_genomes. The folder must contain a folder named `FastQ_Screen_Genomes`, which again must contain a copy of `fastq_screen.conf`. The pipeline will automatically download these genomes if not specified. | No
-| bowtie2_index | `"s3://ngi-igenomes/igenomes/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/"` | Location of bowtie2 index files if using local cache | No
-| genome | `"genome"`| Name of the reference genome used for mapping. This should correspond to the file name for your local copy of hg19, if changed. | No 
-| fastqc_conf_pre | `"${workflow.projectDir}/data/before_limits.txt"` | `fastqc` configuration used for pre-screening| No
-| fastqc_conf_post | `"${workflow.projectDir}/data/after_limits.txt"`| `fastqc` configuration used after adapter trimming | No
-| report_dir | `"${workflow.launchDir}/reports/"`| Directory to place all reports in, defaults to a subfolder named `reports` in the launch directory. | No
-| run_gat | `true` | Whether to run GAT enrichment analysis against the ENSEMBL genome annotations | No
-| baal_chip_env | null | Only required when using the conda profile. Path to conda environment containing BaalChIP | Yes, if using the conda profile --></article></body></html>
+<p>Then, from the directory where you want the output directories to be generated, the pipeline can be run with the command:</p>
+<div class="highlight"><pre>nextflow run AJnsm/NF_TL_pipeline -r main -profile eddie_singularity -params-file params.json
+</pre></div>
+
+<p>Where <code>-r main</code> specifies the branch/revision, <code>-profile eddie_singularity</code> selects the right profile for the Eddie environment, and <code>-params-file params.json</code> specifies a JSON file with the necessary parameters. An example JSON file is provided in this repository.</p>
+<p><strong>NOTE: On a cluster, you need to make sure you are on a node that allows automated job submission. On Eddie these are known as the wild-west nodes.</strong></p>
+<h2 id="to-do">To do<a class="headerlink" href="#to-do" title="Permanent link"></a></h2>
+<ul>
+<li>make sure running locally is working, has a good profile, and is explained</li>
+<li>show a full run on some example data. </li>
+</ul></article></body></html>

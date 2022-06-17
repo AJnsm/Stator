@@ -28,21 +28,26 @@ Secondly, you must have access to either Docker or Singularity. Most clusters (l
 ## Input files
 
 * rawDataPath: A count matrix in csv format, where the rows are cells, and the columns genes. The first row should contain the gene names (does not matter in which format). 
-* clusterFile: A list of integer cluster annotations per cell in csv format: This should be in the same order as the cells in the count matrix. 
+* clusterFile (optional): A list of integer cluster annotations per cell in csv format: This should be in the same order as the cells in the count matrix. 
 * userGenes (optional): A list of genes that should be included in the final analysis, irrespective of their variability.  
 * genesToOne (optional): A list of genes that should be conditioned to a 1 instead of a 0.  
 * doubletFile (optional): A list of booleans on whether or not a cell should be included (e.g. on the basis of being a suspected doublet), in the same order as the cells in the count matrix. 
 
 
 ## Output files
-* .png plot with the mean-variance relationship among the genes (in `plots/`)
-* .csv files with the nGenes x nCells count matrices after filtering (in `output/`). 
-* .csv files with the nGenes x nGenes adjacency matrices for the graphs used in the estimation steps (in `output/`). 
-* .npy files with the interactions at each order for each of the data sets (in `coupling_output/`). 
-* CI_L(U)B.npy files with the bounds on the 95% confidence interval of the error on the interactions (in `coupling_output/`). 
-* CI_F.npy files with the proportion of bootstrap resamples that fall on the other side of zero (in `coupling_output/`). 
-* undef(inf).npy files with the proportion of bootstrap resamples that were undefined (infinite) (in `coupling_output/`). 
-* boundVal.npy files that indicate whether the estimate is a true estimate (0) or an artificial upper/lower bound (1/-1) (in `coupling_output/`). 
+* `trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv`: The nCells x nGenes count matrices after filtering (in `output/`). 
+* `{$graphType}graph_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv` files with the nGenes x nGenes adjacency matrices for the graphs used in the estimation steps (in `output/`). 
+* `interactions_order{$order}[...]_coup.npy` files with the interactions at each order (in `coupling_output/`). 
+* `interactions_order{$order}[...]_CI_U(L)B.npy` files with upper (lower) bound of the 95% confidence interval (in `coupling_output/`). 
+* `interactions_order{$order}[...]_CI_F.npy` files with fraction of resamples with a different sign than the point estimate (F-value) (in `coupling_output/`). 
+* `interactions_order{$order}[...]_inf(undef).npy` files with fraction of resamples that were infinite (undefined) (in `coupling_output/`). 
+* `interactions_withinMB){$order}pts[...]_inf(undef).npy` files with fraction of resamples that were infinite (undefined) (in `coupling_output/`). 
+* `trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes_{$embedding}coords.csv`: files with PCA or UMAP embeddings of the cells (in `embeddings/`). 
+* `{$genes}_summary.png`: Figures that summarise the 3-, 4-, and 5-point interactions (in `HOIsummaries/`). 
+* `topDeviatingHOIstates.csv`: A list of the significantly deviating characteristic states (in `HOIsummaries/`). 
+* `distinctDeviatingStates.png`: The characteristic states embedded in PCA coordinates (in `HOIsummaries/`). 
+* `distinctDeviatingStates_dendrogram.png`: The characteristic states embedded in PCA coordinates, in a dendrogram (in `HOIsummaries/`). 
+* `.png`: figures with basic QC metrics (in `plots/`)
 * some reports from Nextflow on resource usage etc. (in `reports/`).
 
 
@@ -61,7 +66,7 @@ These affect the calculation and the results:
 | doubletFile | ' ' | absolute path to doublet annotation .csv | No |
 | userGenes | ' ' | absolute path to list of required genes .csv | No |
 | fracMito | 1 | cells with more than `fracMito` mitochondrial reads get dismissed | No |
-| fracExpressed | 1 | cells with more fewer than `fracExpressed` of all genes expressed get ignored | No |
+| fracExpressed | 1 | cells with more fewer than `fracExpressed` of all genes expressed get dismissed | No |
 | PCalpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
 | bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Yes |
 | nRandomHOIs | ' ' | How many random 4-7-point interactions to calculate | Yes |

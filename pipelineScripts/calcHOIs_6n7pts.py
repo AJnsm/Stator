@@ -146,7 +146,7 @@ def calcInteractionsAndWriteNPYs(ID, maxWorkers, estimator, nResamps=1000):
         resultArr = np.array(list(results), dtype=object)
         if PrintBool: print('writing files...')
         
-        np.save(f'interactions_withinMB_{order}_ID', resultArr, allow_pickle=True)
+        np.save(f'interactions_withinMB_{order}_{ID}', resultArr, allow_pickle=True)
         
         if PrintBool: print(f'********** DONE with {ID} **********\n')
 
