@@ -35,20 +35,26 @@ Secondly, you must have access to either Docker or Singularity. Most clusters (l
 
 
 ## Output files
-* `trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv`: The nCells x nGenes count matrices after filtering (in `output/`). 
-* `{$graphType}graph_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv` files with the nGenes x nGenes adjacency matrices for the graphs used in the estimation steps (in `output/`). 
-* `interactions_order{$order}[...]_coup.npy` files with the interactions at each order (in `coupling_output/`). 
-* `interactions_order{$order}[...]_CI_U(L)B.npy` files with upper (lower) bound of the 95% confidence interval (in `coupling_output/`). 
-* `interactions_order{$order}[...]_CI_F.npy` files with fraction of resamples with a different sign than the point estimate (F-value) (in `coupling_output/`). 
-* `interactions_order{$order}[...]_inf(undef).npy` files with fraction of resamples that were infinite (undefined) (in `coupling_output/`). 
-* `interactions_withinMB){$order}pts[...]_inf(undef).npy` files with fraction of resamples that were infinite (undefined) (in `coupling_output/`). 
-* `trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes_{$embedding}coords.csv`: files with PCA or UMAP embeddings of the cells (in `embeddings/`). 
-* `{$genes}_summary.png`: Figures that summarise the 3-, 4-, and 5-point interactions (in `HOIsummaries/`). 
-* `topDeviatingHOIstates.csv`: A list of the significantly deviating characteristic states (in `HOIsummaries/`). 
-* `distinctDeviatingStates.png`: The characteristic states embedded in PCA coordinates (in `HOIsummaries/`). 
-* `distinctDeviatingStates_dendrogram.png`: The characteristic states embedded in PCA coordinates, in a dendrogram (in `HOIsummaries/`). 
-* `.png`: figures with basic QC metrics (in `plots/`)
-* some reports from Nextflow on resource usage etc. (in `reports/`).
+* `output/`
+    * `trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv`: The nCells x nGenes count matrices after filtering.
+    * `{$graphType}graph_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv` files with the nGenes x nGenes adjacency matrices for the graphs used in the estimation steps.
+* `coupling_output/`
+    * `interactions_order{$order}[...]_coup.npy` files with the interactions at each order (in `coupling_output/`). 
+    * `interactions_order{$order}[...]_CI_U(L)B.npy` files with upper (lower) bound of the 95% confidence interval.
+    * `interactions_order{$order}[...]_CI_F.npy` files with fraction of resamples with a different sign than the point estimate (F-value).
+    * `interactions_order{$order}[...]_inf(undef).npy` files with fraction of resamples that were infinite (undefined).
+    * `interactions_withinMB){$order}pts[...]_inf(undef).npy` files with fraction of resamples that were infinite (undefined).
+    * `trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes_{$embedding}coords.csv`: files with PCA or UMAP embeddings of the cells (in `embeddings/`). 
+
+* `HOIsummaries/`
+    * `{$genes}_summary.png`: Figures that summarise the 3-, 4-, and 5-point interactions. 
+    * `topDeviatingHOIstates.csv`: A list of the significantly deviating characteristic states. 
+    * `distinctDeviatingStates.png`: The characteristic states embedded in PCA coordinates. 
+    * `distinctDeviatingStates_dendrogram.png`: The characteristic states embedded in PCA coordinates, in a dendrogram. 
+* `plots/`
+    * `.png`: figures with basic QC metrics.
+* `reports/`
+    * some reports from Nextflow on resource usage etc.
 
 
 ## Parameters
