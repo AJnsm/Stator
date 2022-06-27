@@ -104,13 +104,17 @@ def fromImToArr(img):
 # Create image labels 
 sns.set_style('white')
 statePlots = {}
-intsInClusters = []
 
 truncatedClusters = max(devStates['cluster']) # The total number of clusters after truncation
 
-R_full = dendrogram(linked, labels = devStates['genes'].values, distance_sort='descending', no_plot=True)
-R_trunc =dendrogram(linked, labels = devStates['genes'].values, distance_sort='descending', no_plot=True, p=truncatedClusters, truncate_mode='lastp')
+# Labels that combine the genes and their states---once as list, once as string with underscores
+labsWithStates = devStates.apply(lambda x: [''.join(g) for g in list(zip(x['genes'].split('_'), ['+' if int(s)==1 else '-' for s in x['state']]))], axis=1)
+labsWithStates_str = labsWithStates.apply(lambda x: '_'.join(x)).values
 
+R_full = dendrogram(linked, labels = labsWithStates_str, distance_sort='descending', no_plot=True)
+R_trunc =dendrogram(linked, labels = labsWithStates_str, distance_sort='descending', no_plot=True, p=truncatedClusters, truncate_mode='lastp')
+
+intsInClusters = []
 index = 0
 for img, geneStr in enumerate(R_trunc['ivl']):
     cl = []
@@ -120,14 +124,15 @@ for img, geneStr in enumerate(R_trunc['ivl']):
     # To get proper labelling, I check if we are plotting a singleton cluster, or a bigger one
     # The index variable keeps track of how many clusters are plotted so the correct states are added to the correct embeddings.
     # This is a pretty confusing process: after plotting a cluster with n interactions, we increment the index by n. 
-    if geneStr in devStates['genes'].values:
-        genes = geneStr.rsplit('_')
-
+    if geneStr in labsWithStates_str:
+        geneState = geneStr.rsplit('_')
+        genes = [x[:-1] for x in geneState]
+        state = [1 if x[-1]=='+' else 0 for x in geneState]
+        
         # Plot all cells/observations in grey
         plt.plot(pcaCoords.values[:, 0], pcaCoords.values[:, 1], '.', color=(0.5, 0.5, 0.5, 0.05))
-        state = [int(x) for x in devStates[devStates['genes']==geneStr]['state'].values[0]]
         charCells = (trainDat[genes]==state).all(axis=1)
-        plt.plot(pcaCoords.values[charCells, 0], pcaCoords.values[charCells, 1], 'o', alpha=alph, label = ", ".join(labels))
+        plt.plot(pcaCoords.values[charCells, 0], pcaCoords.values[charCells, 1], 'o', alpha=alph)
         cl.append([''.join(s) for s in list(zip(genes, ['+' if x==1 else '-' for x in state]))])
         index+=1
 
@@ -140,10 +145,12 @@ for img, geneStr in enumerate(R_trunc['ivl']):
 
         # Loop over all interactions in this cluster/branch
         for i in range(index, index+toAdd):
-            genes = R_full['ivl'][i].rsplit('_')
-            state = [int(x) for x in devStates[devStates['genes']==R_full['ivl'][i]]['state'].values[0]]
+            geneState = R_full['ivl'][i].rsplit('_')
+            genes = [x[:-1] for x in geneState]
+            state = [1 if x[-1]=='+' else 0 for x in geneState]
+            
             charCells = (trainDat[genes]==state).all(axis=1)
-            plt.plot(pcaCoords.values[charCells, 0], pcaCoords.values[charCells, 1], 'o', alpha=alph, label = ", ".join(labels))
+            plt.plot(pcaCoords.values[charCells, 0], pcaCoords.values[charCells, 1], 'o', alpha=alph)
             cl.append([''.join(s) for s in list(zip(genes, ['+' if x==1 else '-' for x in state]))])
         index += toAdd
     
