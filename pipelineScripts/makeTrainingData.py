@@ -90,6 +90,19 @@ if args.dataType=='agnostic':
         
     scObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
 
+
+# ------------ add embedding coords -------------
+    print('Running PCA...')
+    sc.tl.pca(scObj, n_comps=2)
+
+    print('Running UMAP...')
+    sc.pp.neighbors(scObj)
+    sc.tl.umap(scObj)
+    print('DONE with embeddings.')
+
+
+
+
     selected_genes = np.hstack([userGenes, [s for s in scObj.var.index.values if not s in userGenes]])
     selected_genes = selected_genes[:nGenes]
     print('Number of genes selected:   ', selected_genes.shape)
@@ -108,6 +121,8 @@ if args.dataType=='agnostic':
     print('Final data set size: ', clDF.shape)
 
     clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
+    pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
+    pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
 
       
     print('****DONE****')
@@ -231,7 +246,7 @@ elif args.dataType=='expression':
     pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
 
 else:
-    print('ERROR: invalid dataType, choose agnostic or expression.')
+    print('ERROR: invalid dataType, choose agnostic or expression mode.')
     sys.exit()
 
 
