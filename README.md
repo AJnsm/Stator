@@ -11,9 +11,9 @@ This pipeline takes in single cell RNA-seq count matrices, and estimates gene-in
 The pipeline can be run directly from the command line. It pulls all code from Github, and the container from Dockerhub. It can run on your local machine, or on a cluster with the Sun Grid Engine scheduling system (like Eddie). 
 
 
-## Design/DAG (DEPRECATED!!!)
+## Design/DAG
 
-![Pipeline flow](diagram.png)
+![Pipeline flow](nextflowDAG.png)
 
 ## Requirements
 
