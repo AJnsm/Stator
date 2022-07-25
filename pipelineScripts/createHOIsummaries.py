@@ -1,12 +1,8 @@
-import requests 
-import os
 import pandas as pd
 import numpy as np
 import igraph as ig
-import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import cm
-import math
 import argparse
 import seaborn as sns
 viridis = cm.get_cmap('viridis', 12)

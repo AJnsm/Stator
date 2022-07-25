@@ -286,7 +286,7 @@ process createHOIsummaries {
 
 process identifyStates {
     
-    publishDir "${launchDir}/HOIsummaries", mode: 'copy'
+    publishDir "${launchDir}/states_output", mode: 'copy'
 
     input:
     path estimationScript from "${projectDir}/pipelineScripts/identifyStates.py" 
@@ -295,14 +295,16 @@ process identifyStates {
     path pcaCoords from PCAembeddings_forPlots
 
     output:
-    path '*.png' optional true into identifiedStatesImgs
-
+    path '*.png' optional true into stateID_dendograms
+    path '*.csv' optional true into stateID_outputs
     """
     python ${estimationScript} \
     --dataPath ${dataSet} \
     --PCApath ${pcaCoords} \
     --devStates ${devStates} \
-    --diffCutoff ${params.dendCutoff}
+    --diffCutoff ${params.dendCutoff} \
+    --bsResamps ${params.bsResamps_HC} \
+    --auThreshold ${params.auThreshold}
     """
 
 } 
