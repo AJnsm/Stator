@@ -24,7 +24,7 @@ parser.add_argument("--PCApath", type=str, help="Path to PCA embedding of traini
 parser.add_argument("--devStates", type=str, help="Path to list of most deviating states")
 parser.add_argument("--diffCutoff", type=float, help="Dice distance to slice dendrogram")
 parser.add_argument("--bsResamps", type=int, help="Number of bootstrap resamples")
-parser.add_argument("--auThreshold", type=int, help="AU threshold for state identification")
+parser.add_argument("--auThreshold", type=float, help="AU threshold for state identification")
 
 
 args = parser.parse_args()
