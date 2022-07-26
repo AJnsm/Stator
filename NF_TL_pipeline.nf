@@ -277,8 +277,10 @@ process createHOIsummaries {
     --pathTo3pts ${path3pts} \
     --pathTo4pts ${path4pts} \
     --pathTo5pts ${path5pts} \
+    --sigHOIthreshold ${params.sigHOIthreshold} \
     --minStateDeviation ${params.minStateDeviation} \
-    --stateDevAlpha ${params.stateDevAlpha} 
+    --stateDevAlpha ${params.stateDevAlpha}  \
+    --plotPairwiseUpsets ${params.plotPairwiseUpsets}
     """
 
 }
@@ -304,8 +306,7 @@ process identifyStates {
     --devStates ${devStates} \
     --diffCutoff ${params.dendCutoff} \
     --bsResamps ${params.bsResamps_HC} \
-    --auThreshold ${params.auThreshold} \
-    --plotPairwiseUpsets ${params.plotPairwiseUpsets}
+    --auThreshold ${params.auThreshold}
     """
 
 } 

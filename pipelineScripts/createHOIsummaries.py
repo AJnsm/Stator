@@ -44,6 +44,7 @@ parser.add_argument("--pathTo5pts", type=str, help="Path to calculated 5-point i
 parser.add_argument("--minStateDeviation", type=float, help="Minimum enrichment factor of a particular state.")
 parser.add_argument("--stateDevAlpha", type=float, help="significance threshold to call a state deviating")
 parser.add_argument("--plotPairwiseUpsets", type=int, help="Boolean int to decide whether to plot pairwise upset plots.")
+parser.add_argument("--sigHOIthreshold", type=int, help="Threshold for significance of HOIs")
 
 
 args = parser.parse_args()
@@ -79,7 +80,7 @@ coups_2pts_CI_F[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan
 
 # HHOIs stores all the significant (n>1)-point interactions present among interacting triplets, quadruplets, and pentuplets
 HHOIs = {}
-alpha=0.05
+alpha = args.sigHOIthreshold
 for order, intPath in enumerate([args.pathTo3pts, args.pathTo4pts, args.pathTo5pts]):
 	ints = np.load(intPath, allow_pickle=True)
 	if len(ints)>0:
