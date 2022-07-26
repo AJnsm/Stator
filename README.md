@@ -76,6 +76,8 @@ These affect the calculation and the results:
 | PCalpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
 | bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Yes |
 | nRandomHOIs | 1000 | How many random 4-7-point interactions to calculate | Yes |
+| plotPairwiseUpsets | 0 | Boolean int to determine if pairwise upset plots should be generated | Yes |
+| sigHOIthreshold | ' ' | Significance threshold to decide which HOIs get summarised and used for states | Yes |
 | minStateDeviation | 5 | Min. enrichmnent factor for characteristic states | Yes |
 | stateDevAlpha | 0.05 | Min. enrichmnent significance for characteristic states | Yes |
 | dendCutoff | 0.88 | Dice distance at which the dendrogram gets cut | Yes |
