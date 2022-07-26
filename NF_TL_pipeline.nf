@@ -304,7 +304,8 @@ process identifyStates {
     --devStates ${devStates} \
     --diffCutoff ${params.dendCutoff} \
     --bsResamps ${params.bsResamps_HC} \
-    --auThreshold ${params.auThreshold}
+    --auThreshold ${params.auThreshold} \
+    --plotPairwiseUpsets ${params.plotPairwiseUpsets}
     """
 
 } 

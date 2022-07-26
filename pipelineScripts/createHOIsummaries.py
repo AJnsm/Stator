@@ -43,6 +43,7 @@ parser.add_argument("--pathTo4pts", type=str, help="Path to calculated 4-point i
 parser.add_argument("--pathTo5pts", type=str, help="Path to calculated 5-point interactions")
 parser.add_argument("--minStateDeviation", type=float, help="Minimum enrichment factor of a particular state.")
 parser.add_argument("--stateDevAlpha", type=float, help="significance threshold to call a state deviating")
+parser.add_argument("--plotPairwiseUpsets", type=int, help="Boolean int to decide whether to plot pairwise upset plots.")
 
 
 args = parser.parse_args()
@@ -189,8 +190,13 @@ plotUpset_cond = {}
 plotUpset_uncond = {}
 plotMaxDev = {}
 
+if (args.plotPairwiseUpsets):
+	ordersToPlot = [2, 3, 4, 5]
+else:
+	ordersToPlot = [3, 4, 5]
 
-for order in [3, 4, 5]:
+
+for order in ordersToPlot:
 	nStates = 2**order
 	binStates = [np.array(list(format(x, f"0{order}b"))).astype(bool) for x in range(nStates)]
 	devs = []
@@ -320,7 +326,7 @@ for order in [3, 4, 5]:
 	else: deviations[f'n{order}'] = []
 		
 #  ************************ PCA embedding on max deviating state ************************ 
-for order in [3, 4, 5]:
+for order in ordersToPlot:
 	for devs, pvals, interactors in deviations[f'n{order}']:
 		ID = '_'.join(genes[interactors])
 		
@@ -351,7 +357,7 @@ for order in [3, 4, 5]:
 
 sns.set_style("white")
 
-for order in [3, 4, 5]:
+for order in ordersToPlot:
 	if len(HHOIs[f'n{order}'])>0:
 		for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
 			ID = '_'.join(genes[geneTuple])	  
