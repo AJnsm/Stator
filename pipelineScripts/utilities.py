@@ -79,9 +79,6 @@ def calcInteraction_expectations_numba(conditionedGenes_np):
     Calc the interactions from the conditioned data using expectation values. 
     Could see if using probabilities is faster. 
     Currently, orders are implemented separately.
-
-    NOTE: previously, each interactions was corrected by a factor to match the {-1, 1} basis of the Ising model.
-    I now just take logs and leave them in the {0, 1} basis, which makes more sense for gene expression.
     '''
     if (len(conditionedGenes_np)==0):
         return np.nan
@@ -89,9 +86,8 @@ def calcInteraction_expectations_numba(conditionedGenes_np):
     order = conditionedGenes_np.shape[-1]
     
     
-    
     if(order==1):
-        E = conditionedGenes_np[:].mean()
+        E = safeMean(conditionedGenes_np)
         num = E
         denom = 1-E
         
@@ -124,8 +120,7 @@ def calcInteraction_expectations_numba(conditionedGenes_np):
         
        
         num = E111*(1-E011)*(1-E101)*E001*E010*(1-E110)*E100*(1-E000)
-        denom = (1-E111)*E011*E101*(1-E001)*(1-E010)*E110*(1-E100)*E000
-        
+        denom = (1-E111)*E011*E101*(1-E001)*(1-E010)*E110*(1-E100)*E000 
     elif(order==5):
         E1111 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1)][:, 0])  
         E0000 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0)][:, 0])  
@@ -190,10 +185,6 @@ def calcInteraction_expectations_numba(conditionedGenes_np):
 
         denom = (1-E11111)*(1-E11001)*(1-E10101)*(1-E01101)*(1-E01011)*(1-E00111)*(1-E10011)*(1-E00001)*(E01111*E10111*E11011*E11101*E00011*E00101*E01001*E10001) * \
                 E11110*E11000*E10100*E01100*E01010*E00110*E10010*E00000 * (1-E01110)*(1-E10110)*(1-E11010)*(1-E11100)*(1-E00010)*(1-E00100)*(1-E01000)*(1-E10000)
-
-
-
-
     elif(order==7):
         E111101 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==1) & (conditionedGenes_np[:, 2]==1) & (conditionedGenes_np[:, 3]==1) & (conditionedGenes_np[:, 4]==1) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
         E000001 = safeMean(conditionedGenes_np[(conditionedGenes_np[:, 1]==0) & (conditionedGenes_np[:, 2]==0) & (conditionedGenes_np[:, 3]==0) & (conditionedGenes_np[:, 4]==0) & (conditionedGenes_np[:, 5]==0) & (conditionedGenes_np[:, 6]==1)][:, 0])  
@@ -287,6 +278,7 @@ def calcInteraction_expectations_numba(conditionedGenes_np):
     else:
         return np.log(num/denom)
 
+
 def calcInteraction_expectations(conditionedGenes):
     '''
     Calc the interactions from the conditioned data using expectation values. 
@@ -373,10 +365,11 @@ def calcInteraction_expectations(conditionedGenes):
         return np.inf
     else:
         return np.log(num/denom)
-    
+
+
 def calcInteraction_expectations_np(conditionedGenes):
     '''
-    Same as calcInteraction_expectations, but might be 10x faster?!
+    Same as calcInteraction_expectations, but much faster
     '''
     
     order = len(conditionedGenes.columns)
@@ -489,6 +482,7 @@ def calcInteraction_binTrick(conditionedGenes):
 
         return calcInteraction_binTrick_allOrders(conditionedGenes)
 
+
 def calcInteraction_binTrick_allOrders(conditionedGenes):
     # This function is relatively slow compared to using expectation values, but will work for any order of interactions. 
 
@@ -504,7 +498,6 @@ def calcInteraction_binTrick_allOrders(conditionedGenes):
     binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
         
     return np.log(np.prod(np.array([x**p for (x, p) in zip(binCounts, powers)])))  
-
 
 
 def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne=[], dataDups=0, boundBool=0, nResamps=1000):
@@ -616,7 +609,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOn
 
 
     return [val0, CI[0], CI[1], propDifSign, propUndefined, propInfinite, boundVal, genes]
-    
+
 def calcInteraction_withCI_parallel(args):
     '''
     wrapper to unpack function arguments so that it can be mapped over process pool with one arg.
