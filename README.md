@@ -125,6 +125,14 @@ Where ```-r main ``` specifies the branch/revision, ```-profile eddie_singularit
 
 **NOTE: On a cluster, you need to make sure you are on a node that allows automated job submission. On Eddie these are known as the wild-west nodes.**
 
+## Unit tests
+The `pipelineScripts` directory contains a file `pipelineScripts/unit_tests.py`. This is a collection of `pytest` unit tests to assert that various parts of the estimation procedure function properly. As it is not necessary to run the pipeline, `pytest` is not part of the containerised `Python` environment. To run the unit test, install `pytest` using e.g. `pip` or `conda`, and run the following command from the `pipelineScripts` directory:
+```bash
+pytest unit_tests.py
+```
+This should run over 20 unit tests. Compiling the `numba` estimation function can take a few minutes. Running all tests takes around 5 minutes on a 2018 Macbook Pro (2.9 GHz 6-Core Intel Core i9, 16GB memory). 
+
+
 ## To do
 
 * make sure running locally is working, has a good profile, and is explained
