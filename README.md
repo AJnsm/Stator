@@ -132,6 +132,21 @@ pytest unit_tests.py
 ```
 This should run over 20 unit tests. Compiling the `numba` estimation function can take a few minutes. Running all tests takes around 5 minutes on a 2018 Macbook Pro (2.9 GHz 6-Core Intel Core i9, 16GB memory). 
 
+## Integration tests
+**These are tests I used in the development, but require some dependencies.**
+The `integration tests` directory contains a bash script `runTests.py` that generates 100k states from a nearest neighbour Ising model, using the `magneto` simulation software, and estimates the 1st and 2nd order interactions. This is already done, and all generated files are located in the same directory. Running 
+
+```bash
+sh runTests.py
+pytest -rP integration_tests.py
+```
+verifies that the inferred interactions are approximately correct. This done once using the full pipeline---PC algorithm, MCMC optimisation, and MFI estimation---and once using the true underlying conditional dependency graph---the nearest-neighbour strucure. 
+
+**Results:**
+- Using the MCMC graph, the 67% of the estimable 1-point interactions were significant at alpha=0.1 (in theory all should be significant), and the 2-point interactions identified the nearest-neighbour structure with an F1-score of  0.53, vs. 0.37 for randomly shuffled 2-point interactions. 
+- Using the known nearest-neighbour structure as the causal graph, the 100% of the estimable 1-point interactions were significant at alpha=0.1, and the 2-point interactions identified the nearest-neighbour structure with an F1-score of 0.92, vs. 0.54 for randomly shuffled 2-point interactions. 
+
+
 
 ## To do
 
