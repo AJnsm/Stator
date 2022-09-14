@@ -31,6 +31,8 @@ parser.add_argument("--nRandoms", type=int, help="Number of random interactions 
 parser.add_argument("--genesToOne", type=str, help="Path to list of genes that should be set to 1")
 parser.add_argument("--dataDups", type=int, help="Number of data duplications. 0 is no duplication, and another value is the min binsize allowed (recommended to be 15). ")
 parser.add_argument("--boundBool", type=int, help="Boolean that decided whether bounds should also be considered.")
+parser.add_argument("--asympBool", type=str, help="Boolean to decide whether to use Bootstrap resampling (0) or asymptotic uncertainty estimation (1).")
+
 
 args = parser.parse_args()
     
@@ -42,6 +44,7 @@ nRands = args.nRandoms
 genesToOnePath = args.genesToOne
 dataDups = args.dataDups
 boundBool = args.boundBool
+asympBool = args.asympBool
 
 trainDat = pd.read_csv(dataPath)
 
@@ -69,15 +72,15 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
     # First, generate random 3-, 4-, and 5- tuples
     print('Generating random triplets...')
     randTrips = np.array([np.random.choice(np.arange(n), 3, replace=False) for i in range(nRands)]).astype(int)
-    args_randTrips = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for triplet in randTrips]
+    args_randTrips = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for triplet in randTrips]
 
     print('Generating random quads...')
     randQuads = np.array([np.random.choice(np.arange(n), 4, replace=False) for i in range(nRands)]).astype(int)
-    args_randQuads = [(quad, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for quad in randQuads]
+    args_randQuads = [(quad, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for quad in randQuads]
 
     print('Generating random pents...')
     randPents = np.array([np.random.choice(np.arange(n), 5, replace=False) for i in range(nRands)]).astype(int)
-    args_randPents = [(pent, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for pent in randPents]
+    args_randPents = [(pent, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for pent in randPents]
 
 
     ints_2pt = []
@@ -124,10 +127,10 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
     ints_4pt = onlySmallestMB(ints_4pt)
     ints_5pt = onlySmallestMB(ints_5pt)
 
-    ints_2pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for intSet in ints_2pt]
-    ints_3pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for intSet in ints_3pt]
-    ints_4pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for intSet in ints_4pt]
-    ints_5pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for intSet in ints_5pt]
+    ints_2pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_2pt]
+    ints_3pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_3pt]
+    ints_4pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_4pt]
+    ints_5pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_5pt]
 
     if PrintBool:
         print(f'Markov-connected trips: {len(ints_3pt)}, Quads: {len(ints_4pt)}, Pents: {len(ints_5pt)}')

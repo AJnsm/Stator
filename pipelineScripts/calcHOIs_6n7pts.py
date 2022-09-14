@@ -95,11 +95,11 @@ def calcInteractionsAndWriteNPYs(ID, maxWorkers, estimator, nResamps=1000):
     # Generate random 6- and 7-tuples. 
     print('Generating random sextuples...')
     randSexs = np.array([np.random.choice(np.arange(len(genes)), 6, replace=False) for i in range(nRands)]).astype(int)
-    args_randSexs = [(Sextet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for Sextet in randSexs]
+    args_randSexs = [(Sextet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for Sextet in randSexs]
 
     print('Generating random Septuples...')
     randSepts = np.array([np.random.choice(np.arange(len(genes)), 7, replace=False) for i in range(nRands)]).astype(int)
-    args_randSepts = [(Septet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for Septet in randSepts]
+    args_randSepts = [(Septet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for Septet in randSepts]
 
     ints_6pt = []
     ints_7pt = []
@@ -128,8 +128,8 @@ def calcInteractionsAndWriteNPYs(ID, maxWorkers, estimator, nResamps=1000):
     ints_6pt = onlySmallestMB(ints_6pt)
     ints_7pt = onlySmallestMB(ints_7pt)
 
-    ints_6pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for intSet in ints_6pt]
-    ints_7pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for intSet in ints_7pt]
+    ints_6pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_6pt]
+    ints_7pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_7pt]
 
     if PrintBool:
         print(f'Connected sextuplets: {len(ints_6pt)}, Septuplets: {len(ints_7pt)}')
