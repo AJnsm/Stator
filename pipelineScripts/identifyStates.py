@@ -139,6 +139,7 @@ X = pd.DataFrame(binReps.T)
 pv = PvClust(X, method="average", metric="dice", nboot=bsResamps, parallel=True)
 pvalues = pv._result[['AU', 'BP']].values
 pv.result.to_csv('bootstrapStats.csv')
+print('Done with first clustering')
 
 # clusterDict keeps track of which original states are contained in which cluster index:
 originalclusterDict = {i:[i] for i in range(n)}
@@ -237,11 +238,20 @@ for stateList in states:
     fullStateBinReps.append(fullStateBinRep)
 fullStateBinReps = np.array(fullStateBinReps)
 
+
+if len(fullStateBinReps)==0:
+    print('No robust combined states, terminating...')
+    sys.exit()
+
+if len(fullStateBinReps)==1:
+    print('Only robust combined state, terminating...')
+    sys.exit()
+
+
 # Redo the bootstrap analysis with the significant states:
 X = pd.DataFrame(fullStateBinReps.T)
-print(f'Shape of binary representations: {X.shape}')
 pv = PvClust(X, method="average", metric="dice", nboot=bsResamps, parallel=True)
-print('Done with clustering')
+print('Done with second clustering')
 
 # Create the labels for the significant states from the top 6 occuring genes
 labs = []
