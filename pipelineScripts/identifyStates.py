@@ -239,6 +239,7 @@ fullStateBinReps = np.array(fullStateBinReps)
 
 # Redo the bootstrap analysis with the significant states:
 X = pd.DataFrame(fullStateBinReps.T)
+print(f'Shape of binary representations: {X.shape}')
 pv = PvClust(X, method="average", metric="dice", nboot=bsResamps, parallel=True)
 print('Done with clustering')
 
