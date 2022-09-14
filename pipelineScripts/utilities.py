@@ -568,7 +568,6 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOn
 
     # Asymptotic estimation
     if asympBool:
-        print('RUNNING ASYMPTOTIC APPROXIMATION')
         binCounts = fastBinCount(conditionedGenes.values.astype(np.float32), order=len(conditionedGenes.columns))
         # Asymptotic standard error of log-odds ratios
         se = np.sqrt(sum([1/x for x in binCounts]))
