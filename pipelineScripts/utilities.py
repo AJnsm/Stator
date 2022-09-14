@@ -2,9 +2,8 @@ import concurrent.futures
 import numpy as np
 import pandas as pd
 import igraph as ig
-import time
-import sys
 import scipy
+from scipy.stats import norm
 import numba
 from numba import njit
 
@@ -72,6 +71,10 @@ def safeMean(a):
     else:
         return 0
 
+@njit(cache=True)
+def fastBinCount(conditionedGenes, order):
+    bases = np.array([2**x for x in range(order)][::-1], dtype=np.float32)
+    return np.bincount(np.dot(bases, conditionedGenes.T).astype(np.int32), minlength=int(2**order))
 
 @njit(cache=True)
 def calcInteraction_expectations_numba(conditionedGenes_np):
@@ -487,24 +490,20 @@ def calcInteraction_binTrick_allOrders(conditionedGenes):
     # This function is relatively slow compared to using expectation values, but will work for any order of interactions. 
 
     order = len(conditionedGenes.columns)
-    nStates = 2**order
-
     # This assigns every state to numerator or denominator, depending on the number of 1s:
     # In numerator: states where the number of ones has same parity as order itself. 
     # In denom: When this is not the case.
     powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
     
-    f = lambda x: ''.join(map(str, x))
-    binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
+    binCounts = fastBinCount(conditionedGenes.values.astype(np.float32), order=order)
         
     return np.log(np.prod(np.array([x**p for (x, p) in zip(binCounts, powers)])))  
 
 
-def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne=[], dataDups=0, boundBool=0, nResamps=1000):
+def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOne=[], dataDups=0, boundBool=0, asympBool=0, nResamps=1000):
     '''
-    Add 95% confidence interval bounds from bootstrap resamples,
-    and the F value: the proportion of resamples with a different sign.
-    Note that to check for function equality, you need to use bytecode
+    Add 95% confidence interval bounds and F-value from bootstrap resamples, or asymptotic approximation.
+    To check for function equality, you need to use bytecode.
     '''
     
     if estimator.__code__.co_code == calcInteraction_expectations.__code__.co_code:
@@ -513,7 +512,6 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOn
         MBmode = '0' # Use first gene to get MB
     elif estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
         MBmode = '0' # Use first gene to get MB
-
     else:
         MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
 
@@ -521,12 +519,9 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOn
     
     # Check if data needs to be duplicated
     dupFactor=1
-
-    # auto mode:
+    # automatically decide on the duplication factor to reach min bin size of ${dataDups}
     if dataDups>0:
-
-        f = lambda x: ''.join(map(str, x))
-        binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=2**len(genes))
+        binCounts = fastBinCount(conditionedGenes.values.astype(np.float32), order=len(conditionedGenes.columns))
         minBin = min(binCounts)
 
         try:
@@ -535,19 +530,16 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOn
             else:
                 dupFactor = 1
         except:
-            dubFactor = 1
-
+            dupFactor = 1
     # duplicate data
     if dupFactor>1:
         conditionedGenes = pd.concat([conditionedGenes for _ in range(dupFactor)])
 
-
+    # Numba estimator needs numpy input
     if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
         val0 = estimator(conditionedGenes.values)
-
     else:
         val0 = estimator(conditionedGenes)
-    vals = np.zeros(nResamps)
     
     # Stores if estimate is real val: 0, or UB/LB: 1/-1
     boundVal = 0
@@ -559,16 +551,11 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOn
 
     if np.isinf(val0):
 
-        # if empirical is +/- inf, then we can add artificial cells to put bounds:
+        # If empirical is +/- inf, then we can add artificial cells to put bounds.
+        # This is not yet statistically analysed or proven, so proceed carefully with this option.
         if boundBool:
             order = len(genes)
-            # This assigns every state to numerator or denominator, depending on the number of 1s:
-            # In numerator: states where the number of ones has same parity as order itself. 
-            # In denom: When this is not the case.
-            # powers = 2*np.array([np.base_repr(i).count('1')%2==order%2 for i in range(2**order)]).astype(float)-1
-            nStates = 2**order
-            f = lambda x: ''.join(map(str, x))
-            binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(f, conditionedGenes.values)))), minlength=nStates)
+            binCounts = binCounts = fastBinCount(conditionedGenes.values.astype(np.float32), order=order)
 
             # find the binary rep of the state that was missing, and see if we can put upper/lower bound
             boundVal = -1*int(np.sign(val0))
@@ -579,34 +566,49 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOn
         else:
             return [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, genes]
 
+    # Asymptotic estimation
+    if asympBool:
+        binCounts = fastBinCount(conditionedGenes.astype(np.float32), order=len(conditionedGenes.columns))
+        # Asymptotic standard error of log-odds ratios
+        se = np.sqrt(sum([1/x for x in binCounts]))
+        CI = (val0 - 1.96*se, val0 + 1.96*se)
+        if val0>=0:
+            propDifSign = norm.cdf(0, loc=val0, scale=se)
+        else:
+            propDifSign = 1-norm.cdf(0, loc=val0, scale=se)
 
-    if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
-        rng = np.random.default_rng()
-        conditionedGenes_np = conditionedGenes.values
-        for i in range(nResamps):
-            resampled = conditionedGenes_np[rng.choice(len(conditionedGenes_np), len(conditionedGenes_np), replace=True)]
-            vals[i] = estimator(resampled)
+        propUndefined = 0
+        propInfinite = 0
 
+    # Bootstrap estimation
     else:
-
-        for i in range(nResamps):
-            genes_resampled = conditionedGenes.sample(frac=1, replace=True)
-            vals[i] = estimator(genes_resampled)
+        vals = np.zeros(nResamps)
+        # Numba needs numpy random numbers:
+        if estimator.__code__.co_code == calcInteraction_expectations_numba.__code__.co_code:
+            rng = np.random.default_rng()
+            conditionedGenes_np = conditionedGenes.values
+            for i in range(nResamps):
+                resampled = conditionedGenes_np[rng.choice(len(conditionedGenes_np), len(conditionedGenes_np), replace=True)]
+                vals[i] = estimator(resampled)
+        # The other functions can use pandas' random numbers:
+        else:
+            for i in range(nResamps):
+                genes_resampled = conditionedGenes.sample(frac=1, replace=True)
+                vals[i] = estimator(genes_resampled)
     
+        vals.sort()
+        vals_noNan = vals[~np.isnan(vals)]
 
-    vals.sort()
-    vals_noNan = vals[~np.isnan(vals)]
+        # Correcting for the reduced variance if the data was duplicated
+        if dupFactor>1:
+            vals = np.sqrt(dupFactor)*(vals-val0) + val0
+        
+        # Defines the 95% confidence interval 
+        CI = (vals_noNan[int(np.around(len(vals_noNan)/40))], vals_noNan[int(np.floor(len(vals_noNan)*39/40))])
 
-    if dupFactor>1:
-        vals = np.sqrt(dupFactor)*(vals-val0) + val0
-
-    CI = (vals_noNan[int(np.around(len(vals_noNan)/40))], vals_noNan[int(np.floor(len(vals_noNan)*39/40))])
-
-    propDifSign = sum(np.sign(vals_noNan)==-np.sign(val0))/len(vals_noNan)
-    propUndefined = sum(np.isnan(vals))/len(vals)
-    propInfinite = sum(np.isinf(vals))/len(vals)
-
-
+        propDifSign = sum(np.sign(vals_noNan)==-np.sign(val0))/len(vals_noNan)
+        propUndefined = sum(np.isnan(vals))/len(vals)
+        propInfinite = sum(np.isinf(vals))/len(vals)
 
     return [val0, CI[0], CI[1], propDifSign, propUndefined, propInfinite, boundVal, genes]
 
@@ -615,9 +617,9 @@ def calcInteraction_withCI_parallel(args):
     wrapper to unpack function arguments so that it can be mapped over process pool with one arg.
     (I actually think there should be something like executor.starmap that could do this for us)
     '''
-    genes, graph, dataSet, estimator, nResamps, genesToOne, dataDups, boundBool = args
+    genes, graph, dataSet, estimator, nResamps, genesToOne, dataDups, boundBool, asympBool = args
 
-    return calcInteraction_withCI_andBounds(genes=genes, graph=graph, dataSet=dataSet, estimator=estimator, genesToOne=genesToOne, dataDups=dataDups, boundBool=boundBool, nResamps=nResamps) 
+    return calcInteraction_withCI_andBounds(genes=genes, graph=graph, dataSet=dataSet, estimator=estimator, genesToOne=genesToOne, dataDups=dataDups, boundBool=boundBool, nResamps=nResamps, asympBool=asympBool) 
 
 
 

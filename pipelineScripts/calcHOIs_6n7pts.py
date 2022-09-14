@@ -34,6 +34,8 @@ parser.add_argument("--dataDups", type=int, help="Number of data duplications. 0
 parser.add_argument("--pathTo5pts", type=str, help="Path to calculated 5-point interactions")
 parser.add_argument("--alpha5pts", type=float, help="Significance threshold on 5-pts to search for 6- and 7-pts.")
 parser.add_argument("--boundBool", type=int, help="Boolean that decided whether bounds should also be considered.")
+parser.add_argument("--asympBool", type=str, help="Boolean to decide whether to use Bootstrap resampling (0) or asymptotic uncertainty estimation (1).")
+
 
 args = parser.parse_args()
     
@@ -46,6 +48,7 @@ pathTo5pts = args.pathTo5pts
 genesToOnePath = args.genesToOne
 boundBool = args.boundBool
 dataDups = args.dataDups
+asympBool = args.asympBool
 
 trainDat = pd.read_csv(dataPath)
 
