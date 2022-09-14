@@ -34,8 +34,8 @@ auThreshold = args.auThreshold
 diffCutoff = args.diffCutoff
 trainDat = pd.read_csv(args.dataPath)
 pcaCoords= pd.read_csv(args.PCApath)
-
 devStates = pd.read_csv(args.devStates, dtype=str, index_col=0)
+
 if len(devStates)==0:
     print('no deviating states, terminating...')
     sys.exit()
@@ -240,6 +240,7 @@ fullStateBinReps = np.array(fullStateBinReps)
 # Redo the bootstrap analysis with the significant states:
 X = pd.DataFrame(fullStateBinReps.T)
 pv = PvClust(X, method="average", metric="dice", nboot=bsResamps, parallel=True)
+print('Done with clustering')
 
 # Create the labels for the significant states from the top 6 occuring genes
 labs = []
