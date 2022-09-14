@@ -244,7 +244,7 @@ if len(fullStateBinReps)==0:
     sys.exit()
 
 if len(fullStateBinReps)==1:
-    print('Only robust combined state, terminating...')
+    print('Only one robust combined state, terminating...')
     sys.exit()
 
 
