@@ -96,10 +96,10 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
     # Each n-point interaction is calculated in n different ways since there are n Markov blankets to choose from. 
     # The args contains a list of arguments to distribute over the processes.
     if (order==1):
-        args = [([x], graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for x in range(n)]
+        args = [([x], graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for x in range(n)]
 
     if (order==2):
-        args = [([x, y], graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for x in range(n) for y in range(n)]
+        args = [([x, y], graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for x in range(n) for y in range(n)]
     
     # For the 3-points, only connected triplets are calculated. 
     # Since we will calculate all within-MB interactions later on, this calculation could be omitted.
@@ -114,7 +114,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
                             if (int(a in set(graph.neighbors(b))) + int(b in set(graph.neighbors(c))) + int(c in set(graph.neighbors(a)))>1):
                                 trips.append([a, b, c])
         print(f'{len(trips)} triplets generated')
-        args = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool) for triplet in trips]
+        args = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for triplet in trips]
     
     # Estimation is done in parallel processes. 
     # Note that the map operators preserves the order in the results iterator. 
