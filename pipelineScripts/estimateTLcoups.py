@@ -33,7 +33,7 @@ parser.add_argument("--edgeListAlpha", type=float, help="Significance threshold 
 parser.add_argument("--genesToOne", type=str, help="Path to list of genes that should be set to 1")
 parser.add_argument("--dataDups", type=int, help="Number of data duplications. 0 is no duplication, and another value is the min binsize allowed (recommended to be 15). ")
 parser.add_argument("--boundBool", type=int, help="Boolean to decide whether bounds should also be considered.")
-parser.add_argument("--asympBool", type=str, help="Boolean to decide whether to use Bootstrap resampling (0) or asymptotic uncertainty estimation (1).")
+parser.add_argument("--asympBool", type=int, help="Boolean to decide whether to use Bootstrap resampling (0) or asymptotic uncertainty estimation (1).")
 
 
 args = parser.parse_args()
