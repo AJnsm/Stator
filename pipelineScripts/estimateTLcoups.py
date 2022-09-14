@@ -269,7 +269,7 @@ def main():
     print(f'Calculating interactions at order {intOrder}')
     print(f'With {nResamps} bootstrap resamples')
     print(f'Parallelised over {nCores} cores. ')
-
+    print(f'Asymptotic variance estimation: {bool(asympBool)}')
     notes = ''
     
     # All estimation methods except for expectations are essentially obsolete, but available for experimenting
@@ -296,8 +296,3 @@ def main():
 if __name__=="__main__":
     main()
     
-    
-    
-
-
-

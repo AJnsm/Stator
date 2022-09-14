@@ -167,9 +167,9 @@ def main():
     
     print('Starting calculation on ' )
     print('Using estimation method:  ', estimationMethod)
-
     print(f'With {nResamps} bootstrap resamples')
     print(f'Parallelised over {nCores} cores. ')
+    print(f'Asymptotic variance estimation: {bool(asympBool)}')
 
     calcInteractionsAndWriteNPYs(DSname + '_' + estimationMethod+notes, graph, trainDat, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
     

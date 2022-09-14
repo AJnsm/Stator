@@ -102,7 +102,8 @@ process estimateCoups_1pts {
     --edgeListAlpha ${params.edgeListAlpha} \
     --genesToOne ${genesToOne} \
     --dataDups ${params.dataDups} \
-    --boundBool ${params.boundBool}
+    --boundBool ${params.boundBool} \
+    --asympBool ${params.asympBool}
     """
 
 }
@@ -138,7 +139,8 @@ process estimateCoups_2pts {
     --edgeListAlpha ${params.edgeListAlpha} \
     --genesToOne ${genesToOne} \
     --dataDups ${params.dataDups} \
-    --boundBool ${params.boundBool}
+    --boundBool ${params.boundBool} \
+    --asympBool ${params.asympBool}
     """
 
 }
@@ -170,7 +172,8 @@ process estimateCoups_3pts {
     --edgeListAlpha ${params.edgeListAlpha} \
     --genesToOne ${genesToOne} \
     --dataDups ${params.dataDups} \
-    --boundBool ${params.boundBool}
+    --boundBool ${params.boundBool} \
+    --asympBool ${params.asympBool}
     """
 
 }
@@ -201,7 +204,8 @@ process estimateCoups_345pts_WithinMB {
     --nRandoms ${params.nRandomHOIs} \
     --genesToOne ${genesToOne} \
     --dataDups ${params.dataDups} \
-    --boundBool ${params.boundBool}
+    --boundBool ${params.boundBool} \
+    --asympBool ${params.asympBool}
     """
 
 }
@@ -233,7 +237,8 @@ process estimateCoups_6n7pts {
     --nRandoms ${params.nRandomHOIs} \
     --genesToOne ${genesToOne} \
     --dataDups ${params.dataDups} \
-    --boundBool ${params.boundBool}
+    --boundBool ${params.boundBool} \
+    --asympBool ${params.asympBool}
     """
 
 }

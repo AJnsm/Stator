@@ -75,6 +75,7 @@ These affect the calculation and the results:
 | fracExpressed | 1 | cells with more fewer than `fracExpressed` of all genes expressed get dismissed | No |
 | PCalpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
 | bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Yes |
+| asympBool | 0 | Boolean that determines if the variance is estimated from bootstrap resamples (0) or an asymptotic approximation (1) | Yes |
 | nRandomHOIs | 1000 | How many random 4-7-point interactions to calculate | Yes |
 | plotPairwiseUpsets | 0 | Boolean int to determine if pairwise upset plots should be generated | Yes |
 | sigHOIthreshold | 0.05 | Significance threshold to decide which HOIs get summarised and used for states | Yes |
