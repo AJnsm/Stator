@@ -212,7 +212,10 @@ for order in ordersToPlot:
 			layout_c = g.layout('circle')
 
 			# Layout needs to be manipulated a bit so that hypernetx can use it for the hypergraph:
-			tmp = dict(zip([x.replace('.', '-') for x in g.vs['label']], np.array(layout_c)*np.array([1, -1])))
+			# tmp = dict(zip([x.replace('.', '-') for x in g.vs['label']], np.array(layout_c)*np.array([1, -1])))
+			# NOTE: I have removed the string replacement, as it no longer seems to be necessary and was causing problems. 
+			tmp = dict(zip([x for x in g.vs['label']], np.array(layout_c)*np.array([1, -1])))
+
 
 			# Constructing the hypergraph
 			edges = {'maxOrder': genes[geneTuple]}

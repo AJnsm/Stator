@@ -1,0 +1,106 @@
+digraph "pipeline" {
+p0 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.from"];
+p5 [label="makeData"];
+p0 -> p5 [label="cellTypes_ch"];
+
+p1 [shape=point,label="",fixedsize=true,width=0.1];
+p5 [label="makeData"];
+p1 -> p5 [label="dataScript"];
+
+p2 [shape=point,label="",fixedsize=true,width=0.1];
+p5 [label="makeData"];
+p2 -> p5 [label="rawData"];
+
+p3 [shape=point,label="",fixedsize=true,width=0.1];
+p5 [label="makeData"];
+p3 -> p5 [label="clusters"];
+
+p4 [shape=point,label="",fixedsize=true,width=0.1];
+p5 [label="makeData"];
+p4 -> p5 [label="bcDoublets"];
+
+p5 [label="makeData"];
+p9 [label="estimatePCgraph"];
+p5 -> p9 [label="dataSets"];
+
+p5 [label="makeData"];
+p7 [shape=point];
+p5 -> p7 [label="plots"];
+
+p5 [label="makeData"];
+p6 [shape=point];
+p5 -> p6 [label="embeddings"];
+
+p8 [shape=point,label="",fixedsize=true,width=0.1];
+p9 [label="estimatePCgraph"];
+p8 -> p9 [label="PCgraphEstScript"];
+
+p9 [label="estimatePCgraph"];
+p11 [label="iterMCMCscheme"];
+p9 -> p11 [label="PCgraphs_forMCMC_ch"];
+
+p9 [label="estimatePCgraph"];
+p12 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
+p9 -> p12 [label="PC_and_ctrl_graphs_ch"];
+
+p10 [shape=point,label="",fixedsize=true,width=0.1];
+p11 [label="iterMCMCscheme"];
+p10 -> p11 [label="MCMCscript"];
+
+p11 [label="iterMCMCscheme"];
+p12 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
+p11 -> p12 [label="MCMCgraphs_ch"];
+
+p12 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
+p13 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="into"];
+p12 -> p13 [label="data_and_graphs_ch"];
+
+p13 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="into"];
+p24 [label="estimateCoups_3pts"];
+p13 -> p24 [label="data_and_graphs_3pts"];
+
+p13 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="into"];
+p16 [label="estimateCoups_1pts"];
+p13 -> p16 [label="data_and_graphs_1pts"];
+
+p13 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="into"];
+p20 [label="estimateCoups_2pts"];
+p13 -> p20 [label="data_and_graphs_2pts"];
+
+p14 [shape=point,label="",fixedsize=true,width=0.1];
+p16 [label="estimateCoups_1pts"];
+p14 -> p16 [label="estimationScript"];
+
+p15 [shape=point,label="",fixedsize=true,width=0.1];
+p16 [label="estimateCoups_1pts"];
+p15 -> p16 [label="dipTest_pVals"];
+
+p16 [label="estimateCoups_1pts"];
+p17 [shape=point];
+p16 -> p17 [label="interaction_1pts_ch"];
+
+p18 [shape=point,label="",fixedsize=true,width=0.1];
+p20 [label="estimateCoups_2pts"];
+p18 -> p20 [label="estimationScript"];
+
+p19 [shape=point,label="",fixedsize=true,width=0.1];
+p20 [label="estimateCoups_2pts"];
+p19 -> p20 [label="dipTest_pVals"];
+
+p20 [label="estimateCoups_2pts"];
+p21 [shape=point];
+p20 -> p21 [label="interaction_2pts_ch"];
+
+p22 [shape=point,label="",fixedsize=true,width=0.1];
+p24 [label="estimateCoups_3pts"];
+p22 -> p24 [label="estimationScript"];
+
+p23 [shape=point,label="",fixedsize=true,width=0.1];
+p24 [label="estimateCoups_3pts"];
+p23 -> p24 [label="dipTest_pVals"];
+
+p24 [label="estimateCoups_3pts"];
+p25 [shape=point];
+p24 -> p25 [label="interaction_3pts_ch"];
+
+}
