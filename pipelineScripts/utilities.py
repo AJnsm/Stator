@@ -59,7 +59,6 @@ def findLocalGraph(v, g, order):
 
 from itertools import chain, combinations
 
-
 def powerset(iterable):
     items = list(iterable)
     return chain.from_iterable(combinations(items,n) for n in range(len(items)+1))
@@ -622,20 +621,11 @@ def calcInteraction_withCI_parallel(args):
     return calcInteraction_withCI_andBounds(genes=genes, graph=graph, dataSet=dataSet, estimator=estimator, genesToOne=genesToOne, dataDups=dataDups, boundBool=boundBool, nResamps=nResamps, asympBool=asympBool) 
 
 
-
 # Bootstrap algorithm for dendrogram resampling:
 
-"""
-The original algorithm is implemented in R by Suzuki and Shimodira (2006):
-Pvclust: an R package for assessing the uncertanity in hierarchical
-clustering. This is its Python reimplementation. The final values produced are
-Approximately Unbiased p-value (AU) and Bootstrap Probability (BP) which
-are reporting the significance of each cluster in clustering structure.
-The AU value is less biased and clusters that have this value greater than
-95% are considered significant.
-
-Both values are calculated using Multiscale Bootstrap Resampling.
-"""
+'''
+Below: the PVclust algorithm implementation, and some helper functions. 
+'''
 
 from math import sqrt
 from multiprocessing import Pool, cpu_count
@@ -648,6 +638,88 @@ from scipy.cluster.hierarchy import (dendrogram, set_link_color_palette,
 import matplotlib.pyplot as plt
 
 from sklearn.linear_model import LinearRegression
+from scipy.cluster import _hierarchy
+import scipy.spatial.distance as distance
+import warnings
+
+# First, I need to modify the scipy linkage function so that undefined distances are manually set to 1, the maximum. 
+def _convert_to_double(X):
+    if X.dtype != np.double:
+        X = X.astype(np.double)
+    if not X.flags.contiguous:
+        X = X.copy()
+    return X
+
+def _warning(s):
+    warnings.warn('scipy.cluster: %s' % s, ClusterWarning, stacklevel=3)
+
+_LINKAGE_METHODS = {'single': 0, 'complete': 1, 'average': 2, 'centroid': 3,
+                    'median': 4, 'ward': 5, 'weighted': 6}
+_EUCLIDEAN_METHODS = ('centroid', 'median', 'ward')
+
+def myLinkage(y, method='single', metric='euclidean', optimal_ordering=False):
+    if method not in _LINKAGE_METHODS:
+        raise ValueError("Invalid method: {0}".format(method))
+
+    y = _convert_to_double(np.asarray(y, order='c'))
+    # if y.ndim == 1:
+        # distance.is_valid_y(y, throw=True, name='y')
+        # [y] = _copy_arrays_if_base_present([y])
+    # elif y.ndim == 2:
+    if y.ndim == 2:
+        if method in _EUCLIDEAN_METHODS and metric != 'euclidean':
+            raise ValueError("Method '{0}' requires the distance metric "
+                             "to be Euclidean".format(method))
+        if y.shape[0] == y.shape[1] and np.allclose(np.diag(y), 0):
+            if np.all(y >= 0) and np.allclose(y, y.T):
+                _warning('The symmetric non-negative hollow observation '
+                         'matrix looks suspiciously like an uncondensed '
+                         'distance matrix')
+        y = distance.pdist(y, metric)
+
+        # This is the only real change I implemented:
+        y[np.isnan(y)]=1
+        
+    else:
+        raise ValueError("`y` must be 2 dimensional.")
+
+    if not np.all(np.isfinite(y)):
+        raise ValueError("The condensed distance matrix must contain only "
+                         "finite values.")
+
+    n = int(distance.num_obs_y(y))
+    method_code = _LINKAGE_METHODS[method]
+
+    if method == 'single':
+        result = _hierarchy.mst_single_linkage(y, n)
+    elif method in ['complete', 'average', 'weighted', 'ward']:
+        result = _hierarchy.nn_chain(y, n, method_code)
+    else:
+        result = _hierarchy.fast_linkage(y, n, method_code)
+
+
+    # I have commented this out; I don't need it.
+    # if optimal_ordering:
+    #     return optimal_leaf_ordering(result, y)
+    # else:
+    return result
+
+
+
+"""
+Modified from https://github.com/aturanjanin/pvclust/blob/master/pvclust.py
+
+The original algorithm is implemented in R by Suzuki and Shimodira (2006):
+Pvclust: an R package for assessing the uncertanity in hierarchical
+clustering. This is its Python reimplementation. The final values produced are
+Approximately Unbiased p-value (AU) and Bootstrap Probability (BP) which
+are reporting the significance of each cluster in clustering structure.
+The AU value is less biased and clusters that have this value greater than
+95% are considered significant.
+
+Both values are calculated using Multiscale Bootstrap Resampling.
+"""
+
 
 class PvClust:
     """ Calcuclate AU and BP probabilities for each cluster of the data."""
@@ -851,7 +923,7 @@ class HierarchicalClusteringClusters:
     each cluster"""
     def __init__(self, data, method='ward', metric='euclidean'):
 
-        self.linkage_matrix = linkage(data, method, metric)
+        self.linkage_matrix = myLinkage(data, method, metric)
         self.nodes = to_tree(self.linkage_matrix, rd=True)[1]
 
     def l_branch(self, left, node, nodes):
