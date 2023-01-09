@@ -306,7 +306,7 @@ for order in ordersToPlot:
 
 			fig = plt.figure(figsize=[10, 10])
 			buf = io.BytesIO()
-			plotUpsetPlot(d = unConditionedGenes,fig=fig, legend=False, title = 'Unonditioned', filename=buf, save=True)
+			plotUpsetPlot(d = unConditionedGenes,fig=fig, legend=False, title = 'Unconditioned', filename=buf, save=True)
 			buf.seek(0)
 			plotUpset_uncond[ID] = fromImToArr(Image.open(buf))
 			plt.close()
