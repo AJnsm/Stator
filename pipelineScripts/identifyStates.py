@@ -173,7 +173,7 @@ d = dendrogram(linked_full, labels = labsWithStates_str, distance_sort='descendi
 
 
 ax = plt.gca()
-# Adding the bootstrap stats to the dendogram plot
+# Adding the bootstrap stats to the dendrogram plot
 for node, (x, y) in pos.items():
 
     if node == (len(pos.items())-1):
@@ -204,7 +204,7 @@ plt.xticks(x_labLocs, labels = d['ivl'], rotation=0, fontsize=10)
 sns.despine(left=True, top=True, right=True, bottom=True)
 plt.ylabel('Dice-distance')
 plt.ylim(-0.03, 1)
-plt.savefig('deviatingStates_FullDendrogram.png', bbox_inches='tight')
+plt.savefig('dendrogram_allDeviatingStates.png', bbox_inches='tight')
 plt.close()
 
 
@@ -329,7 +329,7 @@ plt.xticks(x_labLocs, labels = d['ivl'], rotation=0, fontsize=10)
 sns.despine(left=True, top=True, right=True, bottom=True)
 plt.ylabel('Dice-distance')
 plt.ylim(-0.03, 1)
-plt.savefig('deviatingStates_sigStatesDendogram.png', bbox_inches='tight')
+plt.savefig('dendrogram_RobustStatesOnly.png', bbox_inches='tight')
 plt.close()
 
 
@@ -446,21 +446,5 @@ plt.xticks(x_labLocs, labels = labs, rotation=0)
 sns.despine(left=True, top=True, right=True, bottom=True)
 plt.yticks(np.linspace(diffCutoff, 1.0, 4))
 plt.ylabel('Dice-distance')
-plt.savefig('distinctDeviatingStates_dendrogram.png', bbox_inches='tight')
+plt.savefig('dendrogram_allDeviatingStates_cut.png', bbox_inches='tight')
 plt.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
