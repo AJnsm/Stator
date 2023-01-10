@@ -17,3 +17,4 @@ doubTest.py
 *.npz
 *.icloud
 *~
+.DS_Store
