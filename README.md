@@ -1,14 +1,9 @@
-# SCIBERNets
-
-**S**ingle **C**ell **I**nference as **B**oolean **E**xpression **R**egulation **Net**works. 
-
-or maybe:
-# CoComix
-**Co**nditional **Co**uplings in (transcript-)**omics** data. 
+# Stator
 
 ## Introduction
-This pipeline takes in single cell RNA-seq count matrices, and estimates gene-interactions at first, second, and third order. 
-The pipeline can be run directly from the command line. It pulls all code from Github, and the container from Dockerhub. It can run on your local machine, or on a cluster with the Sun Grid Engine scheduling system (like Eddie). 
+The Stator pipeline takes in single cell RNA-seq count matrices, and estimates gene-gene interactions at up to seventh order. The 3-, 4-, and 5-point interactions among Markov-connected genes are used to find characteristic, multi-type states present in the cell population. 
+
+The pipeline can be run directly from the command line. It pulls all code from Github, and the required containers from Dockerhub. It can run on your local machine, or on a cluster with the Sun Grid Engine scheduling system (like Eddie). 
 
 
 ## Design/DAG
@@ -23,7 +18,7 @@ Nextflow needs to be installed on the machine you want to run the pipeline on, w
 curl -s https://get.nextflow.io | bash
 ```
 
-Secondly, you must have access to either Docker or Singularity. Most clusters (like Eddie) use Singularity for security reasons, but both will automatically pull the right container from DockerHub. (Conda environments are supported, but not recommended or guaranteed to work.)
+You must have access to either Docker or Singularity. Most clusters (like Eddie) use Singularity for security reasons, but both will automatically pull the right container from DockerHub. (Conda environments are supported, but not recommended or guaranteed to work.)
 
 ## Input files
 
