@@ -50,6 +50,10 @@ devStates.columns = ['genes', 'state', 'dev', 'pval']
 binReps = np.array(devStates.apply(lambda x: (trainDat[x['genes'].rsplit('_')]==[int(g) for g in list(str(x['state']))]).all(axis=1), axis=1))*1
 n = len(binReps)
 
+# Add the cell IDs to each of the states, and write to file:
+devStates['cellIDs'] = [np.where(binRep)[0] for binRep in binReps]
+pd.DataFrame(devStates).to_csv('allDeviatingStatesWithCellIDs.csv')
+
 # Labels that combine the genes and their states---once as list, once as string with newlines
 labsWithStates = devStates.apply(lambda x: [''.join(g) for g in list(zip(x['genes'].split('_'), ['+' if int(s)==1 else '-' for s in x['state']]))], axis=1)
 labsWithStates_str = labsWithStates.apply(lambda x: '\n'.join(x)).values

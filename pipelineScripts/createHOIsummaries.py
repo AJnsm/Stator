@@ -407,12 +407,8 @@ for order in [3, 4, 5]:
 if len(devDict)>0:
 	strongDeviators = pd.DataFrame(devDict, columns=['genes', 'state', 'dev', 'pval'])
 	strongDeviators = strongDeviators.sort_values(by='dev', ascending=False)
-	strongDeviators.to_csv(f'topDeviatingHOIstates.csv')
+	strongDeviators.to_csv(f'allDeviatingStates.csv')
 
 else: 
-	pd.DataFrame(data=[]).to_csv(f'topDeviatingHOIstates.csv')
-
-
-
-
+	pd.DataFrame(data=[]).to_csv(f'allDeviatingStates.csv')
 
