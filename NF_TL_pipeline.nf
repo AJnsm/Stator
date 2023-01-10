@@ -126,7 +126,6 @@ process estimateCoups_2pts {
     path 'interactions_order2_MCMCgraph*_inf.npy' optional true into interaction_2pts_inf_ch
     path 'interactions_order2_MCMCgraph*_coup.npy' optional true into interaction_2pts_ch
     path 'interactions*.npy' into interaction_2pts_publish_ch
-    path 'edgeList*.csv' into interaction_2pts_ch_edgeList
 
     """
     python ${estimationScript} \
