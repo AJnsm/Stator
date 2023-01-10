@@ -87,16 +87,16 @@ And these affect the resources accessible to each of the processes, but shouldn'
 | Parameter | Default | Description | Required? | 
 | :----- | :----- | :----- | :-- |
 | executor | ' ' | How to execute the pipeline ('sge' for cluster usage) | Yes |
-| maxQueueSize | ' ' | How many jobs are allowed to be scheduled at the same time | Only with 'sge' |
-| [cores, mem, time]\_makeData | ' ' | How many [cores, memory, hours] are available when preparing the data | Only with 'sge' |
-| [cores, mem, time]\_PC | ' ' | How many [cores, memory, hours] are available to the PC-algorithm | Only with 'sge' |
-| [cores, mem, time]\_MCMC | ' ' | How many [cores, memory, hours] are available to the MCMC scheme | Only with 'sge' |
-| [cores, mem, time]\_1pt | ' ' | How many [cores, memory, hours] are available to the 1-point estimation | Only with 'sge' |
-| [cores, mem, time]\_2pt | ' ' | How many [cores, memory, hours] are available to the 2-point estimation | Only with 'sge' |
-| [cores, mem, time]\_3pt | ' ' | How many [cores, memory, hours] are available to the 3-point estimation | Only with 'sge' |
-| [cores, mem, time]\_HOIs_MB | ' ' | How many [cores, memory, hours] are available to the 3-5-point estimations within Markov blankets | Only with 'sge' |
-| [cores, mem, time]\_HOIs_6n7 | ' ' | How many [cores, memory, hours] are available to the 6- and 7-point estimations | Only with 'sge' |
-| [cores, mem, time]\_HOIs_plots | ' ' | How many [cores, memory, hours] are available for plotting the HOI summaries and characteristic states | Only with 'sge' |
+| maxQueueSize | ' ' | How many jobs are allowed to be scheduled at the same time | Only when `executor=='sge'` |
+| [cores, mem, time]\_makeData | ' ' | How many [cores, memory, hours] are available when preparing the data | Only when `executor=='sge'` |
+| [cores, mem, time]\_PC | ' ' | How many [cores, memory, hours] are available to the PC-algorithm | Only when `executor=='sge'` |
+| [cores, mem, time]\_MCMC | ' ' | How many [cores, memory, hours] are available to the MCMC scheme | Only when `executor=='sge'` |
+| [cores, mem, time]\_1pt | ' ' | How many [cores, memory, hours] are available to the 1-point estimation | Only when `executor=='sge'` |
+| [cores, mem, time]\_2pt | ' ' | How many [cores, memory, hours] are available to the 2-point estimation | Only when `executor=='sge'` |
+| [cores, mem, time]\_3pt | ' ' | How many [cores, memory, hours] are available to the 3-point estimation | Only when `executor=='sge'` |
+| [cores, mem, time]\_HOIs_MB | ' ' | How many [cores, memory, hours] are available to the 3-5-point estimations within Markov blankets | Only when `executor=='sge'` |
+| [cores, mem, time]\_HOIs_6n7 | ' ' | How many [cores, memory, hours] are available to the 6- and 7-point estimations | Only when `executor=='sge'` |
+| [cores, mem, time]\_HOIs_plots | ' ' | How many [cores, memory, hours] are available for plotting the HOI summaries and characteristic states | Only when `executor=='sge'` |
 
 
 ## Usage
