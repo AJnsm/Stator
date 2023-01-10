@@ -58,25 +58,29 @@ The pipeline takes in a number of parameters, which can be set by the user in th
 These affect the calculation and the results:
 | Parameter | Default | Description | Required? | 
 | :----- | :----- | :----- | :-- |
-| dataType | ' ' | type of input data: determines preprocessing | Yes |
-| rawDataPath | ' ' | absolute path to count matrix .csv | Yes |
+| dataType | 'agnostic' | type of input data: determines preprocessing | Yes |
+| rawDataPath | ' ' | absolute path to count matrix (`.csv`) | Yes |
 | nGenes | ' ' | Number of genes to keep | Yes |
 | nCells | ' ' | Number of cells to keep | Yes |
-| clusterFile | ' ' | absolute path to cluster annotation .csv | No |
-| clusterArray | ' ' | List of which clusters to keep | No |
-| doubletFile | ' ' | absolute path to doublet annotation .csv | No |
-| userGenes | ' ' | absolute path to list of required genes .csv | No |
-| fracMito | 1 | cells with more than `fracMito` mitochondrial reads get dismissed | No |
-| fracExpressed | 1 | cells with more fewer than `fracExpressed` of all genes expressed get dismissed | No |
+| clusterFile | ' ' | absolute path to cluster annotation (`.csv`) | No |
+| clusterArray | [1] | List of which clusters to keep | No |
+| doubletFile | ' ' | absolute path to doublet annotation (`.csv`) | No |
+| userGenes | ' ' | absolute path to list of required genes (`.csv`) | No |
+| fracMito | 1 | cells with more than `fracMito` mitochondrial reads get dismissed | Only when `dataType=='expression'` |
+| fracExpressed | 0 | cells with fewer than `fracExpressed` of all genes expressed get dismissed | Only when `dataType=='expression'` |
 | PCalpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
-| bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Yes |
 | asympBool | 0 | Boolean that determines if the variance is estimated from bootstrap resamples (0) or an asymptotic approximation (1) | Yes |
+| boundBool | 0 |  Boolean that determines if inestimable interactions be bounded | Yes |
+| bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Only when `asympBool==0` |
 | nRandomHOIs | 1000 | How many random 4-7-point interactions to calculate | Yes |
-| plotPairwiseUpsets | 0 | Boolean int to determine if pairwise upset plots should be generated | Yes |
-| sigHOIthreshold | 0.05 | Significance threshold to decide which HOIs get summarised and used for states | Yes |
-| minStateDeviation | 5 | Min. enrichmnent factor for characteristic states | Yes |
-| stateDevAlpha | 0.05 | Min. enrichmnent significance for characteristic states | Yes |
+| plotPairwiseUpsets | 0 | Boolean to determine if pairwise upset plots should be generated | Yes |
+| sigHOIthreshold | 0.05 | Significance threshold on F-value to decide which HOIs get summarised and used for states | Yes |
+| minStateDeviation | 5 | Min. enrichment factor for characteristic states | Yes |
+| stateDevAlpha | 0.05 | Min. enrichment significance for characteristic states | Yes |
 | dendCutoff | 0.88 | Dice distance at which the dendrogram gets cut | Yes |
+| bsResamps_HC | 100 | Number of bootstrap resampled state dendrograms to generate | Yes |
+| auThreshold | 0.95 | AU threshold that determines if a dendrogram branch is significant | Yes |
+
 
 
 And these affect the resources accessible to each of the processes, but shouldn't affect the results:
