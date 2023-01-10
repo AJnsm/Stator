@@ -73,7 +73,7 @@ process iterMCMCscheme {
 
 MCMCgraphs_ch.into {MCMCgraphs_ch1; MCMCgraphs_ch2; MCMCgraphs_ch3; MCMCgraphs_ch4}
 data_and_graphs_ch = CTRLgraphs_ch.mix(MCMCgraphs_ch1)
-data_and_graphs_ch.into {data_and_graphs_1pts; data_and_graphs_2pts; data_and_graphs_3pts}
+data_and_graphs_ch.into {data_and_graphs_1pts; data_and_graphs_2pts}
 
 
 process estimateCoups_1pts {
@@ -145,38 +145,39 @@ process estimateCoups_2pts {
 
 }
 
-
-process estimateCoups_3pts {
-    label 'interactionEstimation'
+// Deprecated functionality. 
+// If enabling: add the right container in the config files and add data and graph flow in this file
+// process estimateCoups_3pts {
+//     label 'interactionEstimation'
     
-    publishDir "${launchDir}/coupling_output", mode: 'copy'
+//     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
-    input:
-    path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
-    path utilities from "${projectDir}/pipelineScripts/utilities.py" 
-    path genesToOne from params.genesToOne
-    tuple path(dataSet), path(graph) from data_and_graphs_3pts
+//     input:
+//     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
+//     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
+//     path genesToOne from params.genesToOne
+//     tuple path(dataSet), path(graph) from data_and_graphs_3pts
     
-    output:
-    path 'interactions*.npy' into interaction_3pts_ch
-    path 'edgeList*.csv' into interaction_3pts_ch_edgeList
+//     output:
+//     path 'interactions*.npy' into interaction_3pts_ch
+//     path 'edgeList*.csv' into interaction_3pts_ch_edgeList
 
-    """
-    python ${estimationScript} \
-    --dataPath ${dataSet} \
-    --graphPath ${graph} \
-    --intOrder 3 \
-    --nResamps ${params.bsResamps} \
-    --nCores ${params.cores_3pt} \
-    --estimationMethod ${params.estimationMethod} \
-    --edgeListAlpha ${params.edgeListAlpha} \
-    --genesToOne ${genesToOne} \
-    --dataDups ${params.dataDups} \
-    --boundBool ${params.boundBool} \
-    --asympBool ${params.asympBool}
-    """
+//     """
+//     python ${estimationScript} \
+//     --dataPath ${dataSet} \
+//     --graphPath ${graph} \
+//     --intOrder 3 \
+//     --nResamps ${params.bsResamps} \
+//     --nCores ${params.cores_3pt} \
+//     --estimationMethod ${params.estimationMethod}\
+//     --edgeListAlpha ${params.edgeListAlpha} \
+//     --genesToOne ${genesToOne} \
+//     --dataDups ${params.dataDups} \
+//     --boundBool ${params.boundBool} \
+//     --asympBool ${params.asympBool}
+//     """
 
-}
+// }
 
 
 process estimateCoups_345pts_WithinMB {

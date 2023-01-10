@@ -98,23 +98,27 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
     if (order==1):
         args = [([x], graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for x in range(n)]
 
-    if (order==2):
+    elif (order==2):
         args = [([x, y], graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for x in range(n) for y in range(n)]
     
     # For the 3-points, only connected triplets are calculated. 
     # Since we will calculate all within-MB interactions later on, this calculation could be omitted.
-    if (order==3):
-        trips = []
-        print('Generating all connected triplets...')
-        for a in range(n):
-            for b in range(n):
-                if(b!=a):
-                    for c in range(n):
-                        if((c!=b) & (c!=a)):
-                            if (int(a in set(graph.neighbors(b))) + int(b in set(graph.neighbors(c))) + int(c in set(graph.neighbors(a)))>1):
-                                trips.append([a, b, c])
-        print(f'{len(trips)} triplets generated')
-        args = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for triplet in trips]
+    # DEPRECATED FUNCTIONALITY
+    # if (order==3):
+    #     trips = []
+    #     print('Generating all connected triplets...')
+    #     for a in range(n):
+    #         for b in range(n):
+    #             if(b!=a):
+    #                 for c in range(n):
+    #                     if((c!=b) & (c!=a)):
+    #                         if (int(a in set(graph.neighbors(b))) + int(b in set(graph.neighbors(c))) + int(c in set(graph.neighbors(a)))>1):
+    #                             trips.append([a, b, c])
+    #     print(f'{len(trips)} triplets generated')
+    #     args = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for triplet in trips]
+    
+
+
     
     # Estimation is done in parallel processes. 
     # Note that the map operators preserves the order in the results iterator. 
@@ -138,7 +142,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
         TLcoups_inf = resultArr[:, 5]
         boundArr = resultArr[:, 6]
 
-    if (order==2):
+    elif (order==2):
         TLcoups = resultArr[:, 0].reshape([n for i in range(order)])
         TLcoups_LB = resultArr[:, 1].reshape([n for i in range(order)])
         TLcoups_UB = resultArr[:, 2].reshape([n for i in range(order)])
@@ -148,17 +152,18 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
         boundArr = resultArr[:, 6].reshape([n for i in range(order)])
 
 
-    elif (order==3):
-        TLcoups, TLcoups_LB, TLcoups_UB, TLcoups_nonZero, TLcoups_undef, TLcoups_inf, boundArr = np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n))
-        TLcoups[:], TLcoups_LB[:], TLcoups_UB[:], TLcoups_nonZero[:], TLcoups_undef[:], TLcoups_inf[:], boundArr[:] = np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
-        for r in resultArr:
-            TLcoups[tuple(r[-1])] = r[0]
-            TLcoups_LB[tuple(r[-1])] = r[1]
-            TLcoups_UB[tuple(r[-1])] = r[2]
-            TLcoups_nonZero[tuple(r[-1])] = r[3]
-            TLcoups_undef[tuple(r[-1])] = r[4]
-            TLcoups_inf[tuple(r[-1])] = r[5]
-            boundArr[tuple(r[-1])] = r[6]
+    # elif (order==3):
+    # DEPRECATED FUNCTIONALITY
+    #     TLcoups, TLcoups_LB, TLcoups_UB, TLcoups_nonZero, TLcoups_undef, TLcoups_inf, boundArr = np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n))
+    #     TLcoups[:], TLcoups_LB[:], TLcoups_UB[:], TLcoups_nonZero[:], TLcoups_undef[:], TLcoups_inf[:], boundArr[:] = np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
+    #     for r in resultArr:
+    #         TLcoups[tuple(r[-1])] = r[0]
+    #         TLcoups_LB[tuple(r[-1])] = r[1]
+    #         TLcoups_UB[tuple(r[-1])] = r[2]
+    #         TLcoups_nonZero[tuple(r[-1])] = r[3]
+    #         TLcoups_undef[tuple(r[-1])] = r[4]
+    #         TLcoups_inf[tuple(r[-1])] = r[5]
+    #         boundArr[tuple(r[-1])] = r[6]
             
     np.save(f'interactions_order{order}_{ID}_coup', TLcoups)
     np.save(f'interactions_order{order}_{ID}_CI_LB', TLcoups_LB)
@@ -173,7 +178,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
 
 
     # # ********** writing Cytoscape files ************
-    # Deprecated functionality
+    # DEPRECATED FUNCTIONALITY
 
     # def compTups(t1, t2):
     #     for i in range(len(t1)):
