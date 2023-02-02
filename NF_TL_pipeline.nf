@@ -234,6 +234,7 @@ process createHOIsummaries {
     output:
     path '*.png' optional true into HOIsummaries
     path 'top*.csv' optional true into topDeviators
+    path 'all*.csv' optional true into allDeviators_csv
     path dataSet into dataSet_forPlots
     path pcaCoords into PCAembeddings_forPlots
 
