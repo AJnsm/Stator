@@ -214,7 +214,7 @@ process estimateCoups_6n7pts {
 
 process createHOIsummaries {
     
-    publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*.csv'
+    publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*DTuples*.csv'
     publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*_summary.png'
 
     input:
