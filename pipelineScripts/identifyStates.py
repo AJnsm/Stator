@@ -343,7 +343,6 @@ devStates['state'] = fcluster(linked_full, diffCutoff, criterion = 'distance')
 
 devStates.to_csv(f'top_DTuples_withStatesFromCut.csv')
 
-
 # Create image labels 
 statePlots = {}
 truncatedClusters = max(devStates['state']) # The total number of clusters after truncation
