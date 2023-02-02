@@ -432,7 +432,7 @@ if len(devDict)>0:
 	deviators.to_csv(f'all_DTuples.csv')
 	strongDeviators.to_csv(f'top_DTuples.csv')
 
-	binReps.to_csv(f'DTuples_binaryReps.csv')
+	pd.DataFrame(binReps).to_csv(f'DTuples_binaryReps.csv')
 
 else: 
 	pd.DataFrame(data=[]).to_csv(f'all_DTuples.csv')
