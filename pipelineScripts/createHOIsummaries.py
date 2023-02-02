@@ -43,7 +43,7 @@ parser.add_argument("--pathTo2pts_inf", type=str, help="Path to calculated 2-poi
 parser.add_argument("--pathTo3pts", type=str, help="Path to calculated 3-point interactions")
 parser.add_argument("--pathTo4pts", type=str, help="Path to calculated 4-point interactions")
 parser.add_argument("--pathTo5pts", type=str, help="Path to calculated 5-point interactions")
-parser.add_argument("--minStateEnrichment", type=float, help="Minimum enrichment factor of a particular state.")
+parser.add_argument("--minStateDeviation", type=float, help="Minimum enrichment factor of a particular state.")
 parser.add_argument("--stateDevAlpha", type=float, help="significance threshold to call a state deviating")
 parser.add_argument("--plotPairwiseUpsets", type=int, help="Boolean int to decide whether to plot pairwise upset plots.")
 parser.add_argument("--sigHOIthreshold", type=float, help="Threshold for significance of HOIs")
@@ -404,7 +404,7 @@ for order in ordersToPlot:
 			plt.close(fig) 
 
 
-# For further analysis, states that deviate more than a factor `minStateEnrichment` (could be set to 0) with significance (Benjamini-Yekutieli) beyond `stateDevAlpha` are written to a file. 
+# For further analysis, states that deviate more than a factor `minStateDeviation` (could be set to 0) with significance (Benjamini-Yekutieli) beyond `stateDevAlpha` are written to a file. 
 devDict = []
 for order in [3, 4, 5]:
 	for devs, pvals, interactors in enrichments[f'n{order}']:
@@ -427,7 +427,7 @@ if len(devDict)>0:
 	deviators['cellIDs'] = [np.where(binRep)[0] for binRep in binReps]
 
 	# Filter out the d-tuples that are significantly enriched:
-	strongDeviators = deviators.query(f'pval_corrected <= {args.stateDevAlpha} and enrichment >= {args.minStateEnrichment}').copy()
+	strongDeviators = deviators.query(f'pval_corrected <= {args.stateDevAlpha} and enrichment >= {args.minStateDeviation}').copy()
 
 	deviators.to_csv(f'all_DTuples.csv')
 	strongDeviators.to_csv(f'top_DTuples.csv')
