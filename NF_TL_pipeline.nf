@@ -6,6 +6,7 @@ process makeData {
 
     publishDir "${launchDir}/plots", mode: 'copy', pattern: '*.png'
     publishDir "${launchDir}/embeddings", mode: 'copy', pattern: '*coords.csv'
+    publishDir "${launchDir}/output", mode: 'copy', pattern: 'originalIndexOfSelectedCells.csv'
 
     input:
     path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py" 
@@ -144,39 +145,6 @@ process estimateCoups_2pts {
 
 }
 
-// Deprecated functionality. 
-// If enabling: add the right container in the config files and add data and graph flow in this file
-// process estimateCoups_3pts {
-//     label 'interactionEstimation'
-    
-//     publishDir "${launchDir}/coupling_output", mode: 'copy'
-
-//     input:
-//     path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
-//     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
-//     path genesToOne from params.genesToOne
-//     tuple path(dataSet), path(graph) from data_and_graphs_3pts
-    
-//     output:
-//     path 'interactions*.npy' into interaction_3pts_ch
-//     path 'edgeList*.csv' into interaction_3pts_ch_edgeList
-
-//     """
-//     python ${estimationScript} \
-//     --dataPath ${dataSet} \
-//     --graphPath ${graph} \
-//     --intOrder 3 \
-//     --nResamps ${params.bsResamps} \
-//     --nCores ${params.cores_3pt} \
-//     --estimationMethod ${params.estimationMethod}\
-//     --edgeListAlpha ${params.edgeListAlpha} \
-//     --genesToOne ${genesToOne} \
-//     --dataDups ${params.dataDups} \
-//     --boundBool ${params.boundBool} \
-//     --asympBool ${params.asympBool}
-//     """
-
-// }
 
 
 process estimateCoups_345pts_WithinMB {
@@ -246,7 +214,7 @@ process estimateCoups_6n7pts {
 
 process createHOIsummaries {
     
-    publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: 'topDeviatingHOIstates.csv'
+    publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*.csv'
     publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*_summary.png'
 
     input:
@@ -265,7 +233,7 @@ process createHOIsummaries {
 
     output:
     path '*.png' optional true into HOIsummaries
-    path '*.csv' optional true into topDeviators
+    path 'top*.csv' optional true into topDeviators
     path dataSet into dataSet_forPlots
     path pcaCoords into PCAembeddings_forPlots
 

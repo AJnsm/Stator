@@ -17,7 +17,9 @@ import random
 
 import hypernetx as hnx
 import scanpy as sc
+
 from scipy.stats import binom_test
+from statsmodels.stats.multitest import multipletests
 
 import upsetplot as up
 from upsetplot import generate_counts
@@ -41,7 +43,7 @@ parser.add_argument("--pathTo2pts_inf", type=str, help="Path to calculated 2-poi
 parser.add_argument("--pathTo3pts", type=str, help="Path to calculated 3-point interactions")
 parser.add_argument("--pathTo4pts", type=str, help="Path to calculated 4-point interactions")
 parser.add_argument("--pathTo5pts", type=str, help="Path to calculated 5-point interactions")
-parser.add_argument("--minStateDeviation", type=float, help="Minimum enrichment factor of a particular state.")
+parser.add_argument("--minStateEnrichment", type=float, help="Minimum enrichment factor of a particular state.")
 parser.add_argument("--stateDevAlpha", type=float, help="significance threshold to call a state deviating")
 parser.add_argument("--plotPairwiseUpsets", type=int, help="Boolean int to decide whether to plot pairwise upset plots.")
 parser.add_argument("--sigHOIthreshold", type=float, help="Threshold for significance of HOIs")
@@ -177,7 +179,7 @@ def fromImToArr(img):
 f=2
 kwargs = {'with_node_counts': False, 'with_node_labels':False, 'with_edge_labels':False}
 concatInts = lambda x: ''.join(map(str, x))
-deviations = {}
+
 
 # I write the plots to a buffer, and store them in dictionaries where the entries are the names of the interacting variables
 # Once they are stored like this, I can compose them more easily into a summary figure. 
@@ -196,14 +198,19 @@ if (args.plotPairwiseUpsets):
 else:
 	ordersToPlot = [3, 4, 5]
 
+enrichments = {}
 
 for order in ordersToPlot:
 	nStates = 2**order
-	binStates = [np.array(list(format(x, f"0{order}b"))).astype(bool) for x in range(nStates)]
-	devs = []
 
+	# Binary representation of each possible state:
+	binStates = [np.array(list(format(x, f"0{order}b"))).astype(bool) for x in range(nStates)]
+	
+	# Stores the log 2-fold change of each d-tuple
+	log2Fs = []
 
 	if len(HHOIs[f'n{order}'])>0:
+		# loop over the HOIs, use their value (weight w) and gene tuple:
 		for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
 			ID = '_'.join(genes[geneTuple])
 
@@ -314,24 +321,27 @@ for order in ordersToPlot:
 
 			#  ************************ Calculate deviations ************************ 
 
+			# Count the occurence of each of the possible binary states in the conditioned data:
 			binCounts = np.bincount(list(map(lambda x: int(x, 2), list(map(concatInts, conditionedGenes.values)))), minlength=nStates)
+
+			# The means determine the null hypothesis
 			means = conditionedGenes.mean(axis=0)
 			pStates = np.array([np.prod([m if state[i] else 1-m for i, m in enumerate(means)]) for state in binStates])
 			expected = pStates*len(conditionedGenes)
 			
-			deviation = (binCounts - expected)/(expected)
-			deviation_pval = np.array([binom_test(binCounts[i], p = pStates[i], n = len(conditionedGenes), alternative='greater') for i in range(len(binCounts))])
+			# Calculate the log 2-fold enrichment, and p-values based on the binomial null
+			log2FoldEnrichment = np.log2(binCounts/expected)
+			enrichment_pval = np.array([binom_test(binCounts[i], p = pStates[i], n = len(conditionedGenes), alternative='greater') for i in range(len(binCounts))])
 			
-			devs.append([deviation, deviation_pval, geneTuple])
-	
-		devs  = np.array(devs, dtype=object)
-		devs = devs[(-np.array(list(map(np.max, devs[:, 0])))).argsort()]
-		deviations[f'n{order}'] = devs
-	else: deviations[f'n{order}'] = []
+			log2Fs.append([log2FoldEnrichment, enrichment_pval, geneTuple])
+		
+		log2Fs  = np.array(log2Fs, dtype=object)
+		enrichments[f'n{order}'] = log2Fs
+	else: enrichments[f'n{order}'] = []
 		
 #  ************************ PCA embedding on max deviating state ************************ 
 for order in ordersToPlot:
-	for devs, pvals, interactors in deviations[f'n{order}']:
+	for devs, pvals, interactors in enrichments[f'n{order}']:
 		ID = '_'.join(genes[interactors])
 		
 		# maxDevState is the most deviating state
@@ -394,21 +404,37 @@ for order in ordersToPlot:
 			plt.close(fig) 
 
 
-# For further analysis, states that deviate more than a factor [minStateDeviation] with significance beyond [stateDevAlpha] are written to a file. 
+# For further analysis, states that deviate more than a factor `minStateEnrichment` (could be set to 0) with significance (Benjamini-Yekutieli) beyond `stateDevAlpha` are written to a file. 
 devDict = []
 for order in [3, 4, 5]:
-	for devs, pvals, interactors in deviations[f'n{order}']:
+	for devs, pvals, interactors in enrichments[f'n{order}']:
 
 		ID = '_'.join(genes[interactors])
-		for devStateInd in np.where((devs>=args.minStateDeviation) & (pvals<=args.stateDevAlpha))[0]:
+		for devStateInd in np.where((devs>=0))[0]:
 			maxDevState = format(devStateInd, f"0{order}b")
 			devDict.append([ID, maxDevState, devs[devStateInd], pvals[devStateInd]])
 
 if len(devDict)>0:
-	strongDeviators = pd.DataFrame(devDict, columns=['genes', 'state', 'dev', 'pval'])
-	strongDeviators = strongDeviators.sort_values(by='dev', ascending=False)
-	strongDeviators.to_csv(f'allDeviatingStates.csv')
+	deviators = pd.DataFrame(devDict, columns=['genes', 'state', 'enrichment', 'pval'])
+	deviators = deviators.sort_values(by='pval', ascending=True)
+	deviators['pval_corrected'] = multipletests(deviators['pval'], method='fdr_by')[1]
+
+	# Binreps is the binary represenation of the interactions: binReps[i] is 1 if cell i is in the deviating state, 0 otherwise.  
+	binReps = np.array(deviators.apply(lambda x: (trainDat[x['genes'].rsplit('_')]==[int(g) for g in list(str(x['state']))]).all(axis=1), axis=1))*1
+	n = len(binReps)
+
+	# Add the cell IDs to each of the d-tuples:
+	deviators['cellIDs'] = [np.where(binRep)[0] for binRep in binReps]
+
+	# Filter out the d-tuples that are significantly enriched:
+	strongDeviators = deviators.query(f'pval_corrected <= {args.stateDevAlpha} and enrichment >= {args.minStateEnrichment}').copy()
+
+	deviators.to_csv(f'all_DTuples.csv')
+	strongDeviators.to_csv(f'top_DTuples.csv')
+
+	binReps.to_csv(f'DTuples_binaryReps.csv')
 
 else: 
-	pd.DataFrame(data=[]).to_csv(f'allDeviatingStates.csv')
+	pd.DataFrame(data=[]).to_csv(f'all_DTuples.csv')
+	pd.DataFrame(data=[]).to_csv(f'top_DTuples.csv')
 

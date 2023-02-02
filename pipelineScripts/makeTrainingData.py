@@ -107,18 +107,22 @@ if args.dataType=='agnostic':
     selected_genes = selected_genes[:nGenes]
     print('Number of genes selected:   ', selected_genes.shape)
 
-    # Binarising the data
+    sc.pp.subsample(scObj, fraction=1.) #Shufle full cluster so that any selection is randomised. 
+
+    scObj[:nCells].write('unbinarised_cell_data.h5ad')
+    
     scObjBin = scObj.copy()
     scObjBin.X = (scObjBin.X>0)*1
 
-    #Shufle data so that any selection is randomised. 
-    sc.pp.subsample(scObjBin, fraction=1., random_state=0) #Shufle full cluster so that any selection is randomised. 
-
-
     selectedCellsAndGenes = scObjBin[:,scObjBin.var.index.isin(selected_genes)]
+
     clDF = pd.DataFrame(selectedCellsAndGenes.X.toarray())
     clDF.columns = selectedCellsAndGenes.var.index
-    print('Final data set size: ', clDF.shape)
+    print('Final QCd data set size: ', clDF.shape)
+
+    # Save the original indices of the selected cells:
+    originalIndexOfSelectedCells = pd.DataFrame(selectedCellsAndGenes.obs['index'][:nCells]).reset_index(drop=True)
+    originalIndexOfSelectedCells.to_csv('originalIndexOfSelectedCells.csv')
 
     clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
     pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
@@ -229,13 +233,16 @@ elif args.dataType=='expression':
     selected_genes = np.hstack([userGenes, [s for s in sorted_HVG if not s in userGenes]])
     selected_genes = selected_genes[:nGenes]
     print('Number of genes selected:   ', selected_genes.shape)
+
+    sc.pp.subsample(scObj, fraction=1.) #Shufle full cluster so that any selection is randomised. 
+
+    scObj[:nCells].write('unbinarised_cell_data.h5ad')
+    
     scObjBin = scObj.copy()
     scObjBin.X = (scObjBin.X>0)*1
 
-    sc.pp.subsample(scObjBin, fraction=1.) #Shufle full cluster so that any selection is randomised. 
-
-
     selectedCellsAndGenes = scObjBin[:,scObjBin.var.index.isin(selected_genes)]
+
     clDF = pd.DataFrame(selectedCellsAndGenes.X.toarray())
     clDF.columns = selectedCellsAndGenes.var.index
     print('Final QCd data set size: ', clDF.shape)

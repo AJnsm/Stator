@@ -44,15 +44,12 @@ if len(devStates)==1:
     print('Only one deviation state, terminating...')
     sys.exit()
 
-devStates.columns = ['genes', 'state', 'dev', 'pval']
+devStates.columns = ['genes', 'state', 'enrichment', 'pval', 'pval_corrected', 'CellIDs']
 
 # Binreps is the binary represenations of the interactions: binReps[i] is 1 if cell i is in the deviating state, 0 otherwise.  
 binReps = np.array(devStates.apply(lambda x: (trainDat[x['genes'].rsplit('_')]==[int(g) for g in list(str(x['state']))]).all(axis=1), axis=1))*1
 n = len(binReps)
 
-# Add the cell IDs to each of the states, and write to file:
-devStates['cellIDs'] = [np.where(binRep)[0] for binRep in binReps]
-pd.DataFrame(devStates).to_csv('allDeviatingStatesWithCellIDs.csv')
 
 # Labels that combine the genes and their states---once as list, once as string with newlines
 labsWithStates = devStates.apply(lambda x: [''.join(g) for g in list(zip(x['genes'].split('_'), ['+' if int(s)==1 else '-' for s in x['state']]))], axis=1)
@@ -62,8 +59,8 @@ labsWithStates_str = labsWithStates.apply(lambda x: '\n'.join(x)).values
 linked_full = linkage(binReps, 'average', metric='dice')
 
 
-pd.DataFrame(linked_full).to_csv('fullLinkageMatrix.csv')
-pd.DataFrame(labsWithStates_str).to_csv('fullLinkageMatrix_labels.csv')
+# pd.DataFrame(linked_full).to_csv('fullLinkageMatrix.csv')
+# pd.DataFrame(labsWithStates_str).to_csv('fullLinkageMatrix_labels.csv')
 
 
 def fromImToArr(img):
@@ -208,7 +205,7 @@ plt.xticks(x_labLocs, labels = d['ivl'], rotation=0, fontsize=10)
 sns.despine(left=True, top=True, right=True, bottom=True)
 plt.ylabel('Dice-distance')
 plt.ylim(-0.03, 1)
-plt.savefig('dendrogram_allDeviatingStates.png', bbox_inches='tight')
+plt.savefig('dendrogram_all_dTuples.png', bbox_inches='tight')
 plt.close()
 
 
@@ -333,7 +330,7 @@ plt.xticks(x_labLocs, labels = d['ivl'], rotation=0, fontsize=10)
 sns.despine(left=True, top=True, right=True, bottom=True)
 plt.ylabel('Dice-distance')
 plt.ylim(-0.03, 1)
-plt.savefig('dendrogram_RobustStatesOnly.png', bbox_inches='tight')
+plt.savefig('dendrogram_reclustered_robust_states.png', bbox_inches='tight')
 plt.close()
 
 
@@ -342,11 +339,14 @@ plt.close()
 # Finally, create the states that result from a simple cutoff:
 
 # Each interaction is put in a cluster by cutting the dendrogram at a threshold
-devStates['cluster'] = fcluster(linked_full, diffCutoff, criterion = 'distance')
+devStates['state'] = fcluster(linked_full, diffCutoff, criterion = 'distance')
+
+devStates.to_csv(f'top_DTuples_withStatesFromCut.csv')
+
 
 # Create image labels 
 statePlots = {}
-truncatedClusters = max(devStates['cluster']) # The total number of clusters after truncation
+truncatedClusters = max(devStates['state']) # The total number of clusters after truncation
 
 # Labels that combine the genes and their states---once as list, once as string with underscores
 
@@ -450,5 +450,5 @@ plt.xticks(x_labLocs, labels = labs, rotation=0)
 sns.despine(left=True, top=True, right=True, bottom=True)
 plt.yticks(np.linspace(diffCutoff, 1.0, 4))
 plt.ylabel('Dice-distance')
-plt.savefig('dendrogram_allDeviatingStates_cut.png', bbox_inches='tight')
+plt.savefig('dendrogram_all_dTuples_cut.png', bbox_inches='tight')
 plt.close()
