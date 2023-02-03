@@ -28,7 +28,6 @@ python ../pipelineScripts/estimateTLcoups.py \
     --nResamps 1000 \
     --nCores 4 \
     --estimationMethod expectations \
-    --edgeListAlpha 0 \
     --dataDups 0 --boundBool 0
 
 python ../pipelineScripts/estimateTLcoups.py \
@@ -38,7 +37,6 @@ python ../pipelineScripts/estimateTLcoups.py \
     --nResamps 1000 \
     --nCores 4 \
     --estimationMethod expectations \
-    --edgeListAlpha 0 \
     --dataDups 0 --boundBool 0
 
 python ../pipelineScripts/estimateTLcoups.py \
@@ -48,7 +46,6 @@ python ../pipelineScripts/estimateTLcoups.py \
     --nResamps 1000 \
     --nCores 4 \
     --estimationMethod expectations \
-    --edgeListAlpha 0 \
     --dataDups 0 --boundBool 0
 
 python ../pipelineScripts/estimateTLcoups.py \
@@ -58,5 +55,4 @@ python ../pipelineScripts/estimateTLcoups.py \
     --nResamps 1000 \
     --nCores 4 \
     --estimationMethod expectations \
-    --edgeListAlpha 0 \
     --dataDups 0 --boundBool 0

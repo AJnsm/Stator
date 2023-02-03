@@ -99,7 +99,6 @@ process estimateCoups_1pts {
     --nResamps ${params.bsResamps} \
     --nCores ${params.cores_1pt} \
     --estimationMethod ${params.estimationMethod} \
-    --edgeListAlpha ${params.edgeListAlpha} \
     --genesToOne ${genesToOne} \
     --dataDups ${params.dataDups} \
     --boundBool ${params.boundBool} \
@@ -135,7 +134,6 @@ process estimateCoups_2pts {
     --nResamps ${params.bsResamps} \
     --nCores ${params.cores_2pt} \
     --estimationMethod ${params.estimationMethod} \
-    --edgeListAlpha ${params.edgeListAlpha} \
     --genesToOne ${genesToOne} \
     --dataDups ${params.dataDups} \
     --boundBool ${params.boundBool} \

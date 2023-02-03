@@ -29,7 +29,6 @@ parser.add_argument("--intOrder", type=int, help="order of interaction")
 parser.add_argument("--nResamps", type=int, help="Number of BS resamples")
 parser.add_argument("--nCores", type=int, help="Number of cores")
 parser.add_argument("--estimationMethod", type=str, help="Estimation method to use")
-parser.add_argument("--edgeListAlpha", type=float, help="Significance threshold for edge list inclusion")
 parser.add_argument("--genesToOne", type=str, help="Path to list of genes that should be set to 1")
 parser.add_argument("--dataDups", type=int, help="Number of data duplications. 0 is no duplication, and another value is the min binsize allowed (recommended to be 15). ")
 parser.add_argument("--boundBool", type=int, help="Boolean to decide whether bounds should also be considered.")
@@ -44,7 +43,6 @@ intOrder = args.intOrder
 nResamps = args.nResamps
 nCores = args.nCores
 estimationMethod = args.estimationMethod
-edgeListAlpha = args.edgeListAlpha
 genesToOnePath = args.genesToOne
 dataDups = args.dataDups
 boundBool = args.boundBool
@@ -174,97 +172,6 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
 
     if boundBool:
         np.save(f'interactions_order{order}_{ID}_boundVal', boundArr)
-
-
-
-    # # ********** writing Cytoscape files ************
-    # DEPRECATED FUNCTIONALITY
-
-    # def compTups(t1, t2):
-    #     for i in range(len(t1)):
-    #         if t1[i]!=t2[i]:
-    #             return False
-    #     else:
-    #         return True
-
-    # def arr2SIF(coups, Fs, alpha = 0.05):    
-    #     nanMask = (~np.isnan(np.array(coups).astype(float)))
-    #     fMask = (Fs<=alpha)
-        
-    #     sigCoups = np.array(np.where(nanMask & fMask)).T
-        
-        
-    #     return pd.DataFrame.from_dict({'genes' : [sigCoup for sigCoup in sigCoups],
-    #                'coup' : [coups[tuple(sigCoup)] for sigCoup in sigCoups],
-    #                'F' : [Fs[tuple(sigCoup)] for sigCoup in sigCoups]})
-
-    # def onlyUniques_mostSig(sigArr):
-    #     us_mostSig = []
-    #     trips = [tuple(np.sort(gs)) for gs in sigArr['genes'].values]
-    #     us, inds, cs = np.unique(trips, axis=0, return_index=True, return_counts=True)
-    #     for i, u in enumerate(us):
-    #         dups = sigArr[[compTups(x, u) for x in trips]]
-    #         mostSig = np.argmin(dups['F'])
-    #         us_mostSig.append(dups.iloc[mostSig])
-    #     df = pd.DataFrame(data = us_mostSig)
-    #     return df
-
-
-    # if (order==2):
-    #     with open(f"edgeList_interactions_order{order}_{ID}.csv", 'w', encoding = 'utf-8') as f:
-    #         f.write('G1,G2,coup,1-F\n')
-    #         for i, row in onlyUniques_mostSig(arr2SIF(TLcoups, TLcoups_nonZero, alpha = edgeListAlpha)).iterrows():
-    #             s = f"{genes[row['genes'][0]]},{genes[row['genes'][1]]},"
-    #             f.write(s)
-    #             f.write(str(round(row['coup'], 5)) + ',')
-    #             f.write(str(round(1-row['F'], 5)))
-    #             f.write('\n')
-
-    # if (order==3):
-    #     with open(f"edgeList_interactions_order{order}_{ID}.csv", 'w', encoding = 'utf-8') as f:
-    #         f.write('G1,G2,coup,1-F\n')
-    #         for i, row in onlyUniques_mostSig(arr2SIF(TLcoups, TLcoups_nonZero, alpha = edgeListAlpha)).iterrows():
-    #             s = f"{genes[row['genes'][0]]},{genes[row['genes'][1]]},"
-    #             f.write(s)
-    #             f.write(str(round(row['coup'], 5)) + ',')
-    #             f.write(str(round(1-row['F'], 5)))
-    #             f.write('\n')
-                
-    #             s = f"{genes[row['genes'][1]]},{genes[row['genes'][2]]},"
-    #             f.write(s)
-    #             f.write(str(round(row['coup'], 5)) + ',')
-    #             f.write(str(round(1-row['F'], 5)))
-    #             f.write('\n')
-                
-    #             s = f"{genes[row['genes'][0]]},{genes[row['genes'][2]]},"
-    #             f.write(s)
-    #             f.write(str(round(row['coup'], 5)) + ',')
-    #             f.write(str(round(1-row['F'], 5)))
-    #             f.write('\n')
-
-
-    #     with open(f"edgeList_interactions_order{order}_collapsed_{ID}.csv", 'w', encoding = 'utf-8') as f:
-    #         f.write('S1,C1,S2,C2\n')
-    #         arr = onlyUniques_mostSig(arr2SIF(TLcoups, TLcoups_nonZero, alpha = edgeListAlpha))
-    #         if len(arr)>0:
-    #             geneSets = [set(x) for x in arr['genes']]
-                
-    #             for i in range(len(geneSets)):
-    #                 for j in range(i+1, len(geneSets)):
-    #                     g1 = list(geneSets[i])
-    #                     g2 = list(geneSets[j])
-    #                     for k in range(len(geneSets[i].intersection(geneSets[j]))):
-    #                         f.write(f'{genes[g1[0]]};{genes[g1[1]]};{genes[g1[2]]}')
-    #                         f.write(',')
-    #                         f.write(str(round(arr.iloc[i]['coup'], 5)))
-    #                         f.write(',')
-                            
-    #                         f.write(f'{genes[g2[0]]};{genes[g2[1]]};{genes[g2[2]]}')
-    #                         f.write(',')
-    #                         f.write(str(round(arr.iloc[j]['coup'], 5)))
-    #                         f.write('\n')
-
-
 
     if PrintBool: print(f'DONE with {ID}...\n')
     
