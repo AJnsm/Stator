@@ -6,7 +6,7 @@ process makeData {
 
     publishDir "${launchDir}/plots", mode: 'copy', pattern: '*.png'
     publishDir "${launchDir}/embeddings", mode: 'copy', pattern: '*coords.csv'
-    publishDir "${launchDir}/output", mode: 'copy', pattern: 'originalIndexOfSelectedCells.csv'
+    publishDir "${launchDir}/output", mode: 'copy'
 
     input:
     path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py" 
@@ -14,6 +14,7 @@ process makeData {
     path rawData from params.rawDataPath
     
     output:
+    path "*.h5ad" into unbinarizedData
     path "trainingData_*Genes.csv" into dataSets mode flatten
     path "*.png" optional true into plots
     path "*PCAcoords.csv" optional true into PCAembeddings
@@ -214,7 +215,7 @@ process estimateCoups_6n7pts {
 
 process createHOIsummaries {
     
-    publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*DTuples*.csv'
+    publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*.csv'
     publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*_summary.png'
 
     input:
