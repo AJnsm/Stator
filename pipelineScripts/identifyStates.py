@@ -339,13 +339,13 @@ plt.close()
 # Finally, create the states that result from a simple cutoff:
 
 # Each interaction is put in a cluster by cutting the dendrogram at a threshold
-devStates['state'] = fcluster(linked_full, diffCutoff, criterion = 'distance')
+devStates['cluster'] = fcluster(linked_full, diffCutoff, criterion = 'distance')
 
 devStates.to_csv(f'top_DTuples_withStatesFromCut.csv')
 
 # Create image labels 
 statePlots = {}
-truncatedClusters = max(devStates['state']) # The total number of clusters after truncation
+truncatedClusters = max(devStates['cluster']) # The total number of clusters after truncation
 
 # Labels that combine the genes and their states---once as list, once as string with underscores
 
