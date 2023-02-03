@@ -424,7 +424,8 @@ if len(devDict)>0:
 	n = len(binReps)
 
 	# Add the cell IDs to each of the d-tuples:
-	deviators['cellIDs'] = [np.where(binRep)[0] for binRep in binReps]
+	# (has to be made into a list to avoid the ellipsis in the output)
+	deviators['cellIDs'] = [np.where(binRep)[0].astype(int).tolist() for binRep in binReps]
 
 	# Filter out the d-tuples that are significantly enriched:
 	strongDeviators = deviators.query(f'pval_corrected <= {args.stateDevAlpha} and enrichment >= {args.minStateDeviation}').copy()

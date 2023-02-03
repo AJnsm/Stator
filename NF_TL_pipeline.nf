@@ -230,8 +230,9 @@ process createHOIsummaries {
 
     output:
     path '*.png' optional true into HOIsummaries
-    path 'top*.csv' optional true into topDeviators
-    path 'all*.csv' optional true into allDeviators_csv
+    path 'top_DTuples.csv' optional true into topDeviators
+    path 'all_DTuples.csv' optional true into allDeviators_csv
+    path 'DTuples_binaryReps.csv' optional true into binaryReps_csv
     path dataSet into dataSet_forPlots
     path pcaCoords into PCAembeddings_forPlots
 
