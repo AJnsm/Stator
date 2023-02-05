@@ -73,9 +73,7 @@ labsWithStates_str = labsWithStates.apply(lambda x: '\n'.join(x)).values
 # add the cell counts to the labels:
 cellCounts = binReps.sum(axis=1)
 labsWithStates_str = list(map(lambda x: x[0]+f'\n({x[1]} cells)', list(zip(labsWithStates_str, cellCounts))))
-print(cellCounts)
-print(labsWithStates_str)
-print(binReps)
+
 
 # linkage defines the distances between the binReps, using the Dice-distance: https://en.wikipedia.org/wiki/Sørensen–Dice_coefficient
 linked_full = linkage(binReps, 'average', metric='dice')
