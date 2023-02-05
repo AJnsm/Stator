@@ -71,7 +71,7 @@ labsWithStates = devStates.apply(lambda x: [''.join(g) for g in list(zip(x['gene
 labsWithStates_str = labsWithStates.apply(lambda x: '\n'.join(x)).values
 
 # add the cell counts to the labels:
-cellCounts = binReps.sum(axis=0)
+cellCounts = binReps.sum(axis=1)
 labsWithStates_str = list(map(lambda x: x[0]+f'\n({x[1]} cells)', list(zip(labsWithStates_str, cellCounts))))
 print(cellCounts)
 print(labsWithStates_str)
