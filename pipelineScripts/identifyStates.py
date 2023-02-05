@@ -137,7 +137,7 @@ for img, geneStr in enumerate(d['ivl']):
     cl = []
     plt.figure(figsize=[6, 3])
 
-    geneState = geneStr.rsplit('\n')
+    geneState = geneStr.rsplit('\n')[:-1]
     genes = [x[:-1] for x in geneState]
     state = [1 if x[-1]=='+' else 0 for x in geneState]
 
@@ -403,7 +403,7 @@ for img, geneStr in enumerate(R_trunc['ivl']):
 
         # Loop over all interactions in this cluster/branch
         for i in range(index, index+toAdd):
-            geneState = R_full['ivl'][i].rsplit('\n')
+            geneState = R_full['ivl'][i].rsplit('\n')[:-1]
             genes = [x[:-1] for x in geneState]
             state = [1 if x[-1]=='+' else 0 for x in geneState]
             
