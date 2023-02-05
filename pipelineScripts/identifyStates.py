@@ -73,6 +73,7 @@ labsWithStates_str = labsWithStates.apply(lambda x: '\n'.join(x)).values
 # add the cell counts to the labels:
 cellCounts = binReps.sum(axis=0)
 labsWithStates_str = list(map(lambda x: x[0]+f'\n({x[1]} cells)', list(zip(labsWithStates_str, cellCounts))))
+print(cellCounts)
 print(labsWithStates_str)
 print(binReps)
 
