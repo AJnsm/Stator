@@ -381,7 +381,8 @@ for img, geneStr in enumerate(R_trunc['ivl']):
     # The index variable keeps track of how many clusters are plotted so the correct states are added to the correct embeddings.
     # This is a pretty confusing process: after plotting a cluster with n interactions, we increment the index by n. 
     if geneStr in labsWithStates_str:
-        geneState = geneStr.rsplit('\n')
+        # Remove the last entry, which is the cell count of that state. 
+        geneState = geneStr.rsplit('\n')[:-1]
         genes = [x[:-1] for x in geneState]
         state = [1 if x[-1]=='+' else 0 for x in geneState]
         
