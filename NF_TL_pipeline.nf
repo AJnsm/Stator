@@ -13,7 +13,6 @@ process makeData {
     
     output:
     path "*.h5ad" into unbinarizedData
-    path "originalIndexOfSelectedCells.csv" into originalIndex
     path "trainingData_*Genes.csv" into dataSets mode flatten
     path "*.png" optional true into plots
     path "*PCAcoords.csv" optional true into PCAembeddings

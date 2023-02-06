@@ -120,10 +120,6 @@ if args.dataType=='agnostic':
     clDF.columns = selectedCellsAndGenes.var.index
     print('Final QCd data set size: ', clDF.shape)
 
-    # Save the original indices of the selected cells:
-    originalIndexOfSelectedCells = pd.DataFrame(selectedCellsAndGenes.obs['index'][:nCells]).reset_index(drop=True)
-    originalIndexOfSelectedCells.to_csv('originalIndexOfSelectedCells.csv')
-
     clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
     pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
     pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
@@ -246,10 +242,6 @@ elif args.dataType=='expression':
     clDF = pd.DataFrame(selectedCellsAndGenes.X.toarray())
     clDF.columns = selectedCellsAndGenes.var.index
     print('Final QCd data set size: ', clDF.shape)
-
-    # Save the original indices of the selected cells:
-    originalIndexOfSelectedCells = pd.DataFrame(selectedCellsAndGenes.obs['index'][:nCells]).reset_index(drop=True)
-    originalIndexOfSelectedCells.to_csv('originalIndexOfSelectedCells.csv')
 
     # Output the selected cells and genes:
     clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
