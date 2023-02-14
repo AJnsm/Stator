@@ -162,25 +162,27 @@ except:
 
 
 try:
-    # Run bootstrap resampling to get the bootstrap statistics of the dendrogram.
-    X = pd.DataFrame(binReps.T)
-    pv = PvClust(X, method="average", metric="dice", nboot=bsResamps, parallel=True)
-    pvalues = pv._result[['AU', 'BP']].values
-    pv.result.to_csv('bootstrapStats.csv')
-    print('Done with first clustering')
+    # Only calculate the bootstrap statistics if there are not too many d-tuples:
+    if len(labsWithStates_str) < 250:
+        # Run bootstrap resampling to get the bootstrap statistics of the dendrogram.
+        X = pd.DataFrame(binReps.T)
+        pv = PvClust(X, method="average", metric="dice", nboot=bsResamps, parallel=True)
+        pvalues = pv._result[['AU', 'BP']].values
+        pv.result.to_csv('bootstrapStats.csv')
+        print('Done with first clustering')
 
-    # clusterDict keeps track of which original states are contained in which cluster index:
-    originalclusterDict = {i:[i] for i in range(n)}
-    newClusterDict = extract_levels(linked_full)
-    clusterDict = {**originalclusterDict, **newClusterDict}
+        # clusterDict keeps track of which original states are contained in which cluster index:
+        originalclusterDict = {i:[i] for i in range(n)}
+        newClusterDict = extract_levels(linked_full)
+        clusterDict = {**originalclusterDict, **newClusterDict}
 
-    # Export the bootstrap statistics to a csv file
-    stateDF = []
-    for i, merge in enumerate(linked_full):
-            stateDF.append([labsWithStates[clusterDict[n+i]].values, pvalues[i][0], pvalues[i][1]])
-    stateDF = pd.DataFrame(stateDF)
-    stateDF.columns = ['State', 'AU', 'BP']
-    stateDF.to_csv('statesWithBootstrapStats.csv')
+        # Export the bootstrap statistics to a csv file
+        stateDF = []
+        for i, merge in enumerate(linked_full):
+                stateDF.append([labsWithStates[clusterDict[n+i]].values, pvalues[i][0], pvalues[i][1]])
+        stateDF = pd.DataFrame(stateDF)
+        stateDF.columns = ['State', 'AU', 'BP']
+        stateDF.to_csv('statesWithBootstrapStats.csv')
 
 except:
     print('Error in bootstrapping the dendrogram, most likely caused by too many states in the dendrogram.')
