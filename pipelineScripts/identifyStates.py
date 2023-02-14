@@ -75,9 +75,10 @@ cellCounts = binReps.sum(axis=1)
 labsWithStates_str = list(map(lambda x: x[0]+f'\n({x[1]} cells)', list(zip(labsWithStates_str, cellCounts))))
 
 
+print('Calculating linkage matrix...')
 # linkage defines the distances between the binReps, using the Dice-distance: https://en.wikipedia.org/wiki/Sørensen–Dice_coefficient
 linked_full = linkage(binReps, 'average', metric='dice')
-
+print('Linkage matrix calculated \n')
 
 # pd.DataFrame(linked_full).to_csv('fullLinkageMatrix.csv')
 # pd.DataFrame(labsWithStates_str).to_csv('fullLinkageMatrix_labels.csv')
@@ -159,25 +160,30 @@ try:
 except:
     print('Error in plotting the dendrogram, most likely caused by too many states in the dendrogram.')
 
-# Run bootstrap resampling to get the bootstrap statistics of the dendrogram.
-X = pd.DataFrame(binReps.T)
-pv = PvClust(X, method="average", metric="dice", nboot=bsResamps, parallel=True)
-pvalues = pv._result[['AU', 'BP']].values
-pv.result.to_csv('bootstrapStats.csv')
-print('Done with first clustering')
 
-# clusterDict keeps track of which original states are contained in which cluster index:
-originalclusterDict = {i:[i] for i in range(n)}
-newClusterDict = extract_levels(linked_full)
-clusterDict = {**originalclusterDict, **newClusterDict}
+try:
+    # Run bootstrap resampling to get the bootstrap statistics of the dendrogram.
+    X = pd.DataFrame(binReps.T)
+    pv = PvClust(X, method="average", metric="dice", nboot=bsResamps, parallel=True)
+    pvalues = pv._result[['AU', 'BP']].values
+    pv.result.to_csv('bootstrapStats.csv')
+    print('Done with first clustering')
 
-# Export the bootstrap statistics to a csv file
-stateDF = []
-for i, merge in enumerate(linked_full):
-        stateDF.append([labsWithStates[clusterDict[n+i]].values, pvalues[i][0], pvalues[i][1]])
-stateDF = pd.DataFrame(stateDF)
-stateDF.columns = ['State', 'AU', 'BP']
-stateDF.to_csv('statesWithBootstrapStats.csv')
+    # clusterDict keeps track of which original states are contained in which cluster index:
+    originalclusterDict = {i:[i] for i in range(n)}
+    newClusterDict = extract_levels(linked_full)
+    clusterDict = {**originalclusterDict, **newClusterDict}
+
+    # Export the bootstrap statistics to a csv file
+    stateDF = []
+    for i, merge in enumerate(linked_full):
+            stateDF.append([labsWithStates[clusterDict[n+i]].values, pvalues[i][0], pvalues[i][1]])
+    stateDF = pd.DataFrame(stateDF)
+    stateDF.columns = ['State', 'AU', 'BP']
+    stateDF.to_csv('statesWithBootstrapStats.csv')
+
+except:
+    print('Error in bootstrapping the dendrogram, most likely caused by too many states in the dendrogram.')
 
 xcoord = d["icoord"]
 ycoord = d["dcoord"]
