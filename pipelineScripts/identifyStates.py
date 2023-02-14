@@ -133,27 +133,31 @@ sns.set_style('white')
 statePlots = {}
 d = dendrogram(linked_full, labels = labsWithStates_str, distance_sort='descending', no_plot=True)
 index = 0
-for img, geneStr in enumerate(d['ivl']):
-    cl = []
-    plt.figure(figsize=[6, 3])
 
-    geneState = geneStr.rsplit('\n')[:-1]
-    genes = [x[:-1] for x in geneState]
-    state = [1 if x[-1]=='+' else 0 for x in geneState]
+# Try to plot the dendrogram, though this can fail due to memory issues if the dendrogram is too large
+try:
+    for img, geneStr in enumerate(d['ivl']):
+        cl = []
+        plt.figure(figsize=[6, 3])
 
-    # Plot all cells/observations in grey
-    plt.plot(pcaCoords.values[:, 0], pcaCoords.values[:, 1], '.', color=(0.5, 0.5, 0.5, 0.05))
-    charCells = (trainDat[genes]==state).all(axis=1)
-    plt.plot(pcaCoords.values[charCells, 0], pcaCoords.values[charCells, 1], 'o', alpha=alph)
+        geneState = geneStr.rsplit('\n')[:-1]
+        genes = [x[:-1] for x in geneState]
+        state = [1 if x[-1]=='+' else 0 for x in geneState]
 
-    plt.xticks([])
-    plt.yticks([])
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight',pad_inches = 0)
-    buf.seek(0)
-    statePlots[img] = fromImToArr(Image.open(buf))
-    plt.close()
+        # Plot all cells/observations in grey
+        plt.plot(pcaCoords.values[:, 0], pcaCoords.values[:, 1], '.', color=(0.5, 0.5, 0.5, 0.05))
+        charCells = (trainDat[genes]==state).all(axis=1)
+        plt.plot(pcaCoords.values[charCells, 0], pcaCoords.values[charCells, 1], 'o', alpha=alph)
 
+        plt.xticks([])
+        plt.yticks([])
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight',pad_inches = 0)
+        buf.seek(0)
+        statePlots[img] = fromImToArr(Image.open(buf))
+        plt.close()
+except:
+    print('Error in plotting the dendrogram, most likely caused by too many states in the dendrogram.')
 
 # Run bootstrap resampling to get the bootstrap statistics of the dendrogram.
 X = pd.DataFrame(binReps.T)
@@ -182,49 +186,53 @@ x = {i: (j[1]+j[2])/2 for i, j in enumerate(xcoord)}
 y = {i: j[1] for i, j in enumerate(ycoord)}
 pos = node_positions(y, x)
 
+# Try to plot the dendrogram, though this can fail due to memory issues if the dendrogram is too large
+try:
+    # Plot the full dendrogram with the bootstrap values:
+    plt.figure(figsize=(len(labsWithStates_str)+20, 10))
+    plt.tight_layout()
+    set_link_color_palette(['c', 'g'])
+    d = dendrogram(linked_full, labels = labsWithStates_str, distance_sort='descending', above_threshold_color='c',
+                color_threshold=1.0)
 
-# Plot the full dendrogram with the bootstrap values:
-plt.figure(figsize=(len(labsWithStates_str)+20, 10))
-plt.tight_layout()
-set_link_color_palette(['c', 'g'])
-d = dendrogram(linked_full, labels = labsWithStates_str, distance_sort='descending', above_threshold_color='c',
-               color_threshold=1.0)
 
+    ax = plt.gca()
+    # Adding the bootstrap stats to the dendrogram plot
+    for node, (x, y) in pos.items():
 
-ax = plt.gca()
-# Adding the bootstrap stats to the dendrogram plot
-for node, (x, y) in pos.items():
-
-    if node == (len(pos.items())-1):
-        ax.text(x-6, y, 'AU', fontsize=14, fontweight='bold',
-                color='black')
-        ax.text(x+1, y, 'BP', fontsize=14, fontweight='bold',
-                color='black')
-    else:
-        if pvalues[node][0] >= auThreshold:
-            ax.text(x-5, y, f' {pvalues[node][0]*100:.0f}', fontsize=10,
-                    color='green', fontweight='bold')
-            ax.text(x+1, y, f'{pvalues[node][1]*100:.0f}', fontsize=10,
-                    color='green', fontweight='bold')
+        if node == (len(pos.items())-1):
+            ax.text(x-6, y, 'AU', fontsize=14, fontweight='bold',
+                    color='black')
+            ax.text(x+1, y, 'BP', fontsize=14, fontweight='bold',
+                    color='black')
         else:
-            ax.text(x-5, y, f' {pvalues[node][0]*100:.0f}', fontsize=10,
-                    color='black')
-            ax.text(x+1, y, f'{pvalues[node][1]*100:.0f}', fontsize=10,
-                    color='black')
+            if pvalues[node][0] >= auThreshold:
+                ax.text(x-5, y, f' {pvalues[node][0]*100:.0f}', fontsize=10,
+                        color='green', fontweight='bold')
+                ax.text(x+1, y, f'{pvalues[node][1]*100:.0f}', fontsize=10,
+                        color='green', fontweight='bold')
+            else:
+                ax.text(x-5, y, f' {pvalues[node][0]*100:.0f}', fontsize=10,
+                        color='black')
+                ax.text(x+1, y, f'{pvalues[node][1]*100:.0f}', fontsize=10,
+                        color='black')
 
-ax = plt.gca()
-x_labLocs = [x.get_position()[0] for x in ax.get_xmajorticklabels()]
+    ax = plt.gca()
+    x_labLocs = [x.get_position()[0] for x in ax.get_xmajorticklabels()]
 
-# Adding the PCA embeddings as labels to the dendrogram plot
-for i, xL in enumerate(x_labLocs):
-    add_imgLab(xL, -0.03, statePlots[i], ax, zoom=0.18)
-    
-plt.xticks(x_labLocs, labels = d['ivl'], rotation=0, fontsize=10)    
-sns.despine(left=True, top=True, right=True, bottom=True)
-plt.ylabel('Dice-distance')
-plt.ylim(-0.03, 1)
-plt.savefig('dendrogram_all_dTuples.png', bbox_inches='tight')
-plt.close()
+    # Adding the PCA embeddings as labels to the dendrogram plot
+    for i, xL in enumerate(x_labLocs):
+        add_imgLab(xL, -0.03, statePlots[i], ax, zoom=0.18)
+        
+    plt.xticks(x_labLocs, labels = d['ivl'], rotation=0, fontsize=10)    
+    sns.despine(left=True, top=True, right=True, bottom=True)
+    plt.ylabel('Dice-distance')
+    plt.ylim(-0.03, 1)
+    plt.savefig('dendrogram_all_dTuples.png', bbox_inches='tight')
+    plt.close()
+
+except:
+    print('Error in plotting the dendrogram, most likely caused by too many states in the dendrogram.')
 
 
 
@@ -360,120 +368,127 @@ devStates['cluster'] = fcluster(linked_full, diffCutoff, criterion = 'distance')
 
 devStates.to_csv(f'top_DTuples_withStatesFromCut.csv')
 
-# Create image labels 
-statePlots = {}
-truncatedClusters = max(devStates['cluster']) # The total number of clusters after truncation
+# Try to plot the dendrogram, though this can fail due to memory issues if the dendrogram is too large
+try:
+
+    # Create image labels 
+    statePlots = {}
+    truncatedClusters = max(devStates['cluster']) # The total number of clusters after truncation
 
 
-R_full = dendrogram(linked_full, labels = labsWithStates_str, distance_sort='descending', no_plot=True)
-R_trunc =dendrogram(linked_full, labels = labsWithStates_str, distance_sort='descending', no_plot=True, p=truncatedClusters, truncate_mode='lastp')
+    R_full = dendrogram(linked_full, labels = labsWithStates_str, distance_sort='descending', no_plot=True)
+    R_trunc =dendrogram(linked_full, labels = labsWithStates_str, distance_sort='descending', no_plot=True, p=truncatedClusters, truncate_mode='lastp')
 
-intsInClusters = []
-cellsInClusters = []
-index = 0
-for img, geneStr in enumerate(R_trunc['ivl']):
-    cl = []
-    cellNumber = 0
-    plt.figure(figsize=[6, 3])
+    intsInClusters = []
+    cellsInClusters = []
+    index = 0
+    for img, geneStr in enumerate(R_trunc['ivl']):
+        cl = []
+        cellNumber = 0
+        plt.figure(figsize=[6, 3])
 
-    # Truncation renames a cluster to '(n)' if it is the result of merging n clusters
-    # To get proper labelling, I check if we are plotting a singleton cluster, or a bigger one
-    # The index variable keeps track of how many clusters are plotted so the correct states are added to the correct embeddings.
-    # This is a pretty confusing process: after plotting a cluster with n interactions, we increment the index by n. 
-    if geneStr in labsWithStates_str:
-        # Remove the last entry, which is the cell count of that state. 
-        geneState = geneStr.rsplit('\n')[:-1]
-        genes = [x[:-1] for x in geneState]
-        state = [1 if x[-1]=='+' else 0 for x in geneState]
-        
-        # Plot all cells/observations in grey
-        plt.plot(pcaCoords.values[:, 0], pcaCoords.values[:, 1], '.', color=(0.5, 0.5, 0.5, 0.05))
-        charCells = (trainDat[genes]==state).all(axis=1)
-        plt.plot(pcaCoords.values[charCells, 0], pcaCoords.values[charCells, 1], 'o', alpha=alph)
-        cl.append([''.join(s) for s in list(zip(genes, ['+' if x==1 else '-' for x in state]))])
-        cellNumber += charCells.sum()
-        index+=1
-
-    else:
-        # Extract the number of interactings in this cluster/branch from the label it has
-        toAdd = int(geneStr.replace('(', '').replace(')', ''))
-        
-        # Plot all cells/observations in grey    
-        plt.plot(pcaCoords.values[:, 0], pcaCoords.values[:, 1], '.', color=(0.5, 0.5, 0.5, 0.05))
-
-        # Loop over all interactions in this cluster/branch
-        for i in range(index, index+toAdd):
-            geneState = R_full['ivl'][i].rsplit('\n')[:-1]
+        # Truncation renames a cluster to '(n)' if it is the result of merging n clusters
+        # To get proper labelling, I check if we are plotting a singleton cluster, or a bigger one
+        # The index variable keeps track of how many clusters are plotted so the correct states are added to the correct embeddings.
+        # This is a pretty confusing process: after plotting a cluster with n interactions, we increment the index by n. 
+        if geneStr in labsWithStates_str:
+            # Remove the last entry, which is the cell count of that state. 
+            geneState = geneStr.rsplit('\n')[:-1]
             genes = [x[:-1] for x in geneState]
             state = [1 if x[-1]=='+' else 0 for x in geneState]
             
+            # Plot all cells/observations in grey
+            plt.plot(pcaCoords.values[:, 0], pcaCoords.values[:, 1], '.', color=(0.5, 0.5, 0.5, 0.05))
             charCells = (trainDat[genes]==state).all(axis=1)
             plt.plot(pcaCoords.values[charCells, 0], pcaCoords.values[charCells, 1], 'o', alpha=alph)
             cl.append([''.join(s) for s in list(zip(genes, ['+' if x==1 else '-' for x in state]))])
             cellNumber += charCells.sum()
-        index += toAdd
-    
-    
-    intsInClusters.append(cl)
-    cellsInClusters.append(cellNumber)
-    plt.xticks([])
-    plt.yticks([])
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight',pad_inches = 0)
-    buf.seek(0)
-    statePlots[img] = fromImToArr(Image.open(buf))
+            index+=1
+
+        else:
+            # Extract the number of interactings in this cluster/branch from the label it has
+            toAdd = int(geneStr.replace('(', '').replace(')', ''))
+            
+            # Plot all cells/observations in grey    
+            plt.plot(pcaCoords.values[:, 0], pcaCoords.values[:, 1], '.', color=(0.5, 0.5, 0.5, 0.05))
+
+            # Loop over all interactions in this cluster/branch
+            for i in range(index, index+toAdd):
+                geneState = R_full['ivl'][i].rsplit('\n')[:-1]
+                genes = [x[:-1] for x in geneState]
+                state = [1 if x[-1]=='+' else 0 for x in geneState]
+                
+                charCells = (trainDat[genes]==state).all(axis=1)
+                plt.plot(pcaCoords.values[charCells, 0], pcaCoords.values[charCells, 1], 'o', alpha=alph)
+                cl.append([''.join(s) for s in list(zip(genes, ['+' if x==1 else '-' for x in state]))])
+                cellNumber += charCells.sum()
+            index += toAdd
+        
+        
+        intsInClusters.append(cl)
+        cellsInClusters.append(cellNumber)
+        plt.xticks([])
+        plt.yticks([])
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight',pad_inches = 0)
+        buf.seek(0)
+        statePlots[img] = fromImToArr(Image.open(buf))
+        plt.close()
+
+
+    def add_imgLab(xCoord, yCoord, img, ax):
+        '''
+        Adds an image from statePlots to the ax.
+        '''
+        
+        # Crop the image a little bit
+        img = img[5:-5, 5:-5, :]
+        im = OffsetImage(img, zoom=0.25)
+        im.image.axes = ax
+
+        ab = AnnotationBbox(im, (xCoord, yCoord),  xybox=(0., 30.), frameon=False,
+                            xycoords='data',  boxcoords="offset points", pad=0)
+
+        ax.add_artist(ab)
+
+
+    sns.set_style('white')
+
+    # create list of top occuring genes across interactions in a cluster to add to the label
+
+    labs = []
+    for (cellNr, intList) in list(zip(cellsInClusters, intsInClusters)):
+        gs = np.array([a for b in intList for a in b])
+        sortedGenes = list(np.unique(gs)[np.argsort(-np.unique(gs, return_counts=True)[1])])
+        if len(sortedGenes) > maxInLab:
+            sortedGenes = sortedGenes[:maxInLab] + [f'...']
+        sortedGenes = sortedGenes + [f'({len(intList)} d-tuples)'] + [f'({cellNr} cells)']
+        labs.append('\n'.join(sortedGenes))
+
+    plt.figure(figsize=(truncatedClusters*2, 5))
+    R = dendrogram(linked_full,
+                orientation='top',
+                truncate_mode='lastp',
+                p = truncatedClusters,
+                distance_sort='descending',
+                show_leaf_counts=True)
+    plt.ylim(diffCutoff-0.03, 1)
+
+    ax = plt.gca()
+    x_labLocs = [x.get_position()[0] for x in ax.get_xmajorticklabels()]
+
+    # Adding the PCA embeddings as labels to the dendrogram plot
+    for i, xL in enumerate(x_labLocs):
+        add_imgLab(xL, diffCutoff-0.03, statePlots[i], ax)
+        
+    plt.xticks(x_labLocs, labels = labs, rotation=0)    
+
+    sns.despine(left=True, top=True, right=True, bottom=True)
+    plt.yticks(np.linspace(diffCutoff, 1.0, 4))
+    plt.ylabel('Dice-distance')
+    plt.savefig('dendrogram_all_dTuples_cut.png', bbox_inches='tight')
     plt.close()
 
+except:
+    print('Error in plotting the dendrogram, most likely caused by too many states in the dendrogram.')
 
-def add_imgLab(xCoord, yCoord, img, ax):
-    '''
-    Adds an image from statePlots to the ax.
-    '''
-    
-    # Crop the image a little bit
-    img = img[5:-5, 5:-5, :]
-    im = OffsetImage(img, zoom=0.25)
-    im.image.axes = ax
-
-    ab = AnnotationBbox(im, (xCoord, yCoord),  xybox=(0., 30.), frameon=False,
-                        xycoords='data',  boxcoords="offset points", pad=0)
-
-    ax.add_artist(ab)
-
-
-sns.set_style('white')
-
-# create list of top occuring genes across interactions in a cluster to add to the label
-
-labs = []
-for (cellNr, intList) in list(zip(cellsInClusters, intsInClusters)):
-    gs = np.array([a for b in intList for a in b])
-    sortedGenes = list(np.unique(gs)[np.argsort(-np.unique(gs, return_counts=True)[1])])
-    if len(sortedGenes) > maxInLab:
-        sortedGenes = sortedGenes[:maxInLab] + [f'...']
-    sortedGenes = sortedGenes + [f'({len(intList)} d-tuples)'] + [f'({cellNr} cells)']
-    labs.append('\n'.join(sortedGenes))
-
-plt.figure(figsize=(truncatedClusters*2, 5))
-R = dendrogram(linked_full,
-            orientation='top',
-            truncate_mode='lastp',
-            p = truncatedClusters,
-            distance_sort='descending',
-            show_leaf_counts=True)
-plt.ylim(diffCutoff-0.03, 1)
-
-ax = plt.gca()
-x_labLocs = [x.get_position()[0] for x in ax.get_xmajorticklabels()]
-
-# Adding the PCA embeddings as labels to the dendrogram plot
-for i, xL in enumerate(x_labLocs):
-    add_imgLab(xL, diffCutoff-0.03, statePlots[i], ax)
-    
-plt.xticks(x_labLocs, labels = labs, rotation=0)    
-
-sns.despine(left=True, top=True, right=True, bottom=True)
-plt.yticks(np.linspace(diffCutoff, 1.0, 4))
-plt.ylabel('Dice-distance')
-plt.savefig('dendrogram_all_dTuples_cut.png', bbox_inches='tight')
-plt.close()
