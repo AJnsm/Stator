@@ -421,6 +421,7 @@ try:
             plt.plot(pcaCoords.values[:, 0], pcaCoords.values[:, 1], '.', color=(0.5, 0.5, 0.5, 0.05))
 
             # Loop over all interactions in this cluster/branch
+            charCellArray = np.zeros(trainDat.shape[0], dtype=bool)
             for i in range(index, index+toAdd):
                 geneState = R_full['ivl'][i].rsplit('\n')[:-1]
                 genes = [x[:-1] for x in geneState]
@@ -429,7 +430,11 @@ try:
                 charCells = (trainDat[genes]==state).all(axis=1)
                 plt.plot(pcaCoords.values[charCells, 0], pcaCoords.values[charCells, 1], 'o', alpha=alph)
                 cl.append([''.join(s) for s in list(zip(genes, ['+' if x==1 else '-' for x in state]))])
-                cellNumber += charCells.sum()
+                # The cells corresponding to each sub branch has to be ORred together to get the cells in the full branch.
+                # Ignoring this will result in double counting of cells.
+                charCellArray = charCellArray | charCells
+
+            cellNumber += charCellArray.sum()
             index += toAdd
         
         
