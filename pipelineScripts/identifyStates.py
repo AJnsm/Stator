@@ -55,7 +55,7 @@ devStates.columns = ['genes', 'state', 'enrichment', 'pval', 'pval_corrected', '
 def makeGeneState(dtupleDFrow):
     genes = dtupleDFrow.genes.split('_')
     state = list(dtupleDFrow.state)
-    zipped =  list(zip(genes, ['+' if s else '-' for s in state]))
+    zipped =  list(zip(genes, ['+' if int(s) else '-' for s in state]))
     return [a + b for (a, b) in zipped]
     
 devStates['geneState'] = devStates.apply(makeGeneState, axis=1)
