@@ -76,7 +76,6 @@ if args.dataType=='agnostic':
 
     except:
         print('NOTE: continuing without cluster file.')
-        scObj.obs['doublet'] = False
         scObj.obs['cluster'] = 1
         cl = 1
 
@@ -172,7 +171,6 @@ elif args.dataType=='expression':
 
     except:
         print('NOTE: continuing without cluster file.')
-        scObj.obs['doublet'] = False
         scObj.obs['cluster'] = 1
         cl = 1
 
