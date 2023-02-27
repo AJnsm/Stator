@@ -330,6 +330,7 @@ for order in ordersToPlot:
 			expected = pStates*len(conditionedGenes)
 			
 			# Calculate the log 2-fold enrichment, and p-values based on the binomial null
+			# Vectorised over the 2^n states
 			log2FoldEnrichment = np.log2(binCounts/expected)
 			enrichment_pval = np.array([binom_test(binCounts[i], p = pStates[i], n = len(conditionedGenes), alternative='greater') for i in range(len(binCounts))])
 			
@@ -404,24 +405,25 @@ for order in ordersToPlot:
 			plt.close(fig) 
 
 
-# For further analysis, states that deviate more than a factor `minStateDeviation` (could be set to 0) with significance (Benjamini-Yekutieli) beyond `stateDevAlpha` are written to a file. 
+# Construct a dataframe with the deviations of each positively enriched state:
 devDict = []
 for order in [3, 4, 5]:
 	for devs, pvals, interactors in enrichments[f'n{order}']:
 
 		ID = '_'.join(genes[interactors])
 		for devStateInd in np.where((devs>=0))[0]:
+			# Format the binary state
 			maxDevState = format(devStateInd, f"0{order}b")
 			devDict.append([ID, maxDevState, devs[devStateInd], pvals[devStateInd]])
 
 if len(devDict)>0:
 	deviators = pd.DataFrame(devDict, columns=['genes', 'state', 'enrichment', 'pval'])
 	deviators = deviators.sort_values(by='pval', ascending=True)
+	# Add the Benjamini-Yekutieli corrected p-values:
 	deviators['pval_corrected'] = multipletests(deviators['pval'], method='fdr_by')[1]
 
 	# Binreps is the binary represenation of the interactions: binReps[i] is 1 if cell i is in the deviating state, 0 otherwise.  
 	binReps = np.array(deviators.apply(lambda x: (trainDat[x['genes'].rsplit('_')]==[int(g) for g in list(str(x['state']))]).all(axis=1), axis=1))*1
-	n = len(binReps)
 
 	# Add the cell IDs to each of the d-tuples:
 	# (has to be made into a list to avoid the ellipsis in the output)

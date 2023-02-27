@@ -4,7 +4,10 @@ import igraph as ig
 import argparse
 import sys
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster, cut_tree
+from sklearn.metrics import pairwise_distances
 from utilities import *
+
+
 
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -370,6 +373,44 @@ except:
 
 
 # Finally, create the states that result from a simple cutoff:
+
+
+
+def modularity_score(adjMat, cluster_labels, verbose=False):
+    '''
+    Calculate the modularity score for a given clustering of a graph.
+    '''
+    n = len(adjMat)
+    m = np.sum(adjMat) / 2.0
+    k = np.sum(adjMat, axis=1)
+    q = 0.0
+    for i in range(n):
+        for j in range(n):
+            if (cluster_labels[i] == cluster_labels[j]) & (i!=j):
+                q += (adjMat[i][j] - k[i]*k[j]/(2.0*m))       
+    if verbose:
+        print(f'n:{n}')
+        print(f'm:{m}')
+        print(f'k:{k}')
+        print(f'q:{q}')
+    return q/(2.0*m)
+
+# function to calculate the cluster labels for a given cutoff
+cutAt = lambda x: fcluster(linked, x, criterion = 'distance')
+
+
+pairwiseDists = pairwise_distances(binReps, metric='dice')
+
+# Modularity calculation for a range of N cutoffs (set to 50 for round values)
+N = 50
+cutoffs = np.linspace(0.01, 0.99, N)
+modScores = [modularity_score((1-pairwiseDists), cutAt(d)) for d in cutoffs]
+
+
+# The cutoff is either what the user specified, or what maximises the modularity score:
+if diffCutoff == -1:
+    diffCutoff = cutoffs[np.argmax(modScores)]
+    print(f'Using cutoff of {diffCutoff} to maximise modularity score')
 
 # Each interaction is put in a cluster by cutting the dendrogram at a threshold
 devStates['cluster'] = fcluster(linked_full, diffCutoff, criterion = 'distance')
