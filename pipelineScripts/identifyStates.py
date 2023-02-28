@@ -396,7 +396,7 @@ def modularity_score(adjMat, cluster_labels, verbose=False):
     return q/(2.0*m)
 
 # function to calculate the cluster labels for a given cutoff
-cutAt = lambda x: fcluster(linked, x, criterion = 'distance')
+cutAt = lambda x: fcluster(linked_full, x, criterion = 'distance')
 
 
 pairwiseDists = pairwise_distances(binReps, metric='dice')

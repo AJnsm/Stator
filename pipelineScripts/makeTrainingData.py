@@ -209,7 +209,7 @@ elif args.dataType=='expression':
     scObj.raw = scObj
 
     # Mean and max set to include all possible counts. 
-    sc.pp.highly_variable_genes(scObj, min_mean=0.0125, max_mean=13, min_disp=0.2)
+    sc.pp.highly_variable_genes(scObj, min_mean=0.0125, max_mean=14, min_disp=0.2)
     sc.pl.highly_variable_genes(scObj, save=f'QC_HVG_selection_CL'+'{:0>2}'.format(cl) + '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
     print('selected genes: ', sum(scObj.var['highly_variable']))
 
