@@ -401,9 +401,11 @@ cutAt = lambda x: fcluster(linked_full, x, criterion = 'distance')
 
 pairwiseDists = pairwise_distances(binReps, metric='dice')
 
-# Modularity calculation for a range of N cutoffs (set to 50 for round values)
+# Modularity calculation for a range of N cutoffs (set to 50 for round numbers, but also forced to be round to 2 decimal places)
 N = 50
 cutoffs = np.linspace(0.01, 0.99, N)
+cutoffs = np.round(cutoffs, 2)
+
 modScores = [modularity_score((1-pairwiseDists), cutAt(d)) for d in cutoffs]
 
 
