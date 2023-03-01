@@ -412,6 +412,10 @@ if diffCutoff == -1:
     diffCutoff = cutoffs[np.argmax(modScores)]
     print(f'Using cutoff of {diffCutoff} to maximise modularity score')
 
+print(f'Max modularity score: {max(modScores)}')
+pd.DataFrame(zip(cutoffs, modScores), columns=['Cutoff', 'Modularity score']).to_csv('modularity_scores.csv')
+
+
 # Each interaction is put in a cluster by cutting the dendrogram at a threshold
 devStates['cluster'] = fcluster(linked_full, diffCutoff, criterion = 'distance')
 
