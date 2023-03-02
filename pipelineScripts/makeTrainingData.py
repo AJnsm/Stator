@@ -32,7 +32,8 @@ parser.add_argument("--nCells", type=int, nargs=1, help="Number of cells to keep
 parser.add_argument("--cluster", type=int, nargs='?', help="Which cluster/cell Type to use")
 parser.add_argument("--bcDoublets", type=str, nargs='?', help="Path to file with booleans for doublets")
 parser.add_argument("--fracMito", type=float, nargs='?', help="Max percentage of mitochondrial transcripts")
-parser.add_argument("--fracExpressed", type=float, nargs='?', help="Min number of genes expressed")
+parser.add_argument("--minGenes", type=int, nargs='?', help="Min number of genes expressed in a cell")
+parser.add_argument("--minCells", type=int, nargs='?', help="Min number of cells in which a gene is present")
 
 args = parser.parse_args()
 
@@ -159,7 +160,6 @@ elif args.dataType=='expression':
         print('NOTE: continuing without user-defined genes')
         userGenes = np.array([])
 
-
     print('adding doublet and cluster data')
 
 
@@ -181,13 +181,16 @@ elif args.dataType=='expression':
     except:
         print('NOTE: continuing without doublet annotation.')
         scObj.obs['doublet'] = False
-        
+
     scObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
-    print(f'Filtering -- mitochondrial fraction less than: {args.fracMito} ')
-    print(f'Filtering -- Fraction of genes expressed more than: {args.fracExpressed} ')
-    
-    # Remove cells with high mito, low n_genes.
-    sc.pp.filter_cells(scObj, min_genes=int(len(scObj.var.index)*args.fracExpressed))
+
+    print('Starting QC')
+    print(f'Filtering -- Keeping cells with less than {args.fracMito} mitochondrial transcripts...')
+    print(f'Filtering -- Keeping cells with at least {args.minGenes} genes expressed...')
+    print(f'Filtering -- Keeping genes expressed in at least {args.minCells} cells...')
+
+    sc.pp.filter_cells(scObj, min_genes=args.minGenes)
+    sc.pp.filter_genes(scObj, min_cells=args.minCells)
 
     mito_genes = scObj.var_names.str.startswith('mt-')
     scObj.obs['percent_mito'] = np.sum(
@@ -203,13 +206,16 @@ elif args.dataType=='expression':
 
 
 
-
+    print('Normalise & log-transform...')
     sc.pp.normalize_total(scObj, target_sum=1e6)
     sc.pp.log1p(scObj)
     scObj.raw = scObj
 
-    # Mean and max set to include all possible counts. 
-    sc.pp.highly_variable_genes(scObj, min_mean=0.0125, max_mean=14, min_disp=0.2)
+    print('Selecting highly variable genes...')
+#     Min mean is low enough to include all genes
+#     Max mean 14, because that is ln(10^6)
+#     Min dispersion doesn't matter because only the top N are taken anyway
+    sc.pp.highly_variable_genes(scObj, min_mean=0.01, max_mean=14, min_disp=0.0)
     sc.pl.highly_variable_genes(scObj, save=f'QC_HVG_selection_CL'+'{:0>2}'.format(cl) + '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
     print('selected genes: ', sum(scObj.var['highly_variable']))
 
@@ -228,15 +234,19 @@ elif args.dataType=='expression':
     selected_genes = selected_genes[:nGenes]
     print('Number of genes selected:   ', selected_genes.shape)
 
-    sc.pp.subsample(scObj, fraction=1.) #Shufle full cluster so that any selection is randomised. 
+    print('Shuffling data...')
+    sc.pp.subsample(scObj, fraction=1.) #Shufle data so that any selection is randomised. 
 
+    print('Saving unbinarised expression of selected cells...')
     scObj[:nCells].write('unbinarised_cell_data.h5ad')
     
+    print('Binarising data...')
     scObjBin = scObj.copy()
     scObjBin.X = (scObjBin.X>0)*1
 
     selectedCellsAndGenes = scObjBin[:,scObjBin.var.index.isin(selected_genes)]
 
+    print('Saving final binarised count matrix of selected cells and genes...')
     clDF = pd.DataFrame(selectedCellsAndGenes.X.toarray())
     clDF.columns = selectedCellsAndGenes.var.index
     print('Final QCd data set size: ', clDF.shape)
@@ -244,10 +254,13 @@ elif args.dataType=='expression':
     # Output the selected cells and genes:
     clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
 
+    print('Saving embedding coordinates...')
     # Output the embedding coordinates of the selected cells:
     pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
     pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
 
+    print('****DONE****')
+    
 else:
     print('ERROR: invalid dataType, choose agnostic or expression mode.')
     sys.exit()
