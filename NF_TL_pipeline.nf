@@ -31,7 +31,8 @@ process makeData {
     --bcDoublets ${params.doubletFile} \
     --userGenes ${params.userGenes} \
     --fracMito ${params.fracMito} \
-    --fracExpressed ${params.fracExpressed}
+    --minGenes ${params.minGenes} \
+    --minCells ${params.minCells}
     """
 }
 
