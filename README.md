@@ -67,7 +67,8 @@ These affect the calculation and the results:
 | doubletFile | ' ' | absolute path to doublet annotation (`.csv`) | No |
 | userGenes | ' ' | absolute path to list of required genes (`.csv`) | No |
 | fracMito | 1 | cells with more than `fracMito` mitochondrial reads get dismissed | Only when `dataType=='expression'` |
-| fracExpressed | 0 | cells with fewer than `fracExpressed` of all genes expressed get dismissed | Only when `dataType=='expression'` |
+| minGenes | 0 | cells with fewer than `minGenes` expressed get dismissed | Only when `dataType=='expression'` |
+| minCells | 0 | genes expressed in fewer than `minCells` get dismissed | Only when `dataType=='expression'` |
 | PCalpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
 | asympBool | 0 | Boolean that determines if the variance is estimated from bootstrap resamples (0) or an asymptotic approximation (1) | Yes |
 | boundBool | 0 |  Boolean that determines if inestimable interactions be bounded | Yes |
