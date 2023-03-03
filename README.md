@@ -3,7 +3,7 @@
 ## Introduction
 The Stator pipeline takes in single cell RNA-seq count matrices, and estimates gene-gene interactions at up to seventh order. The 3-, 4-, and 5-point interactions among Markov-connected genes are used to find characteristic, multi-type states present in the cell population. 
 
-The pipeline can be run directly from the command line. It pulls all code from Github, and the required containers from Dockerhub. It can run on your local machine, or on a cluster with the Sun Grid Engine scheduling system (like Eddie). 
+The pipeline can be run directly from the command line. It pulls all code from Github, and the required containers from Dockerhub. It can run on your local machine (though I have not tested this thoroughly), or on a cluster with the Sun Grid Engine scheduling system (like Eddie). 
 
 
 ## Design/DAG
@@ -26,30 +26,39 @@ You must have access to either Docker or Singularity. Most clusters (like Eddie)
 * clusterFile (optional): A list of integer cluster annotations per cell in csv format: This should be in the same order as the cells in the count matrix. 
 * userGenes (optional): A list of genes that should be included in the final analysis, irrespective of their variability.  
 * genesToOne (optional): A list of genes that should be conditioned to a 1 instead of a 0.  
-* doubletFile (optional): A list of booleans on whether or not a cell should be included (e.g. on the basis of being a suspected doublet), in the same order as the cells in the count matrix. 
+* doubletFile (optional): A list of booleans that indicate whether a cell should be included (e.g. on the basis of being a suspected doublet), in the same order as the cells in the count matrix. 
 
 
 ## Output files
 * `output/`
     * `trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv`: The nCells x nGenes count matrices after filtering.
-    * `{$graphType}graph_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv` files with the nGenes x nGenes adjacency matrices for the graphs used in the estimation steps.
+    * `unbinarised_cell_data.h5ad`: The unbinarised expression of all genes in the selected cells. 
+    * `{$graphType}graph_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv`: The nGenes x nGenes adjacency matrices for the graphs used in the estimation steps.
+    * `trainingData_CL01_02000Cells_0020Genes_{$embedding}coords.csv`: Embedding coordinates of the selected cells. 
+    * `.png`: Figures with basic QC metrics.
 * `coupling_output/`
-    * `interactions_order{$order}[...]_coup.npy`: The interactions at order 1-3 (in `coupling_output/`). 
+    * `interactions_order{$order}[...]_coup.npy`: The interaction point estimates at order 1 & 2.
     * `interactions_order{$order}[...]_CI_U(L)B.npy`: The upper (lower) bound of the 95% confidence interval.
     * `interactions_order{$order}[...]_CI_F.npy`: The fraction of resamples with a different sign than the point estimate (F-value).
     * `interactions_order{$order}[...]_inf(undef).npy`: The fraction of resamples that were infinite (undefined).
-    * `interactions_withinMB_{$order}pts[...].npy`: The interaction estimates at order 3-5 (within Markov blanket only).
-    * `trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes_{$embedding}coords.csv`: The PCA or UMAP embeddings of the cells (in `embeddings/`). 
-
+    * `interactions_withinMB_{$order}pts[...].npy`: The interaction estimates and statistics at order 3-7 (within Markov blanket and `nRandomHOIs` random ones).
 * `HOIsummaries/`
-    * `{$genes}_summary.png`: Figures that summarise the 3-, 4-, and 5-point interactions. 
-    * `topDeviatingHOIstates.csv`: A list of the significantly deviating characteristic states. 
-    * `distinctDeviatingStates.png`: The characteristic states embedded in PCA coordinates. 
+    * `{$genes}_summary.png`: Figures that summarise the significant 3-, 4-, and 5-point interactions. 
+    * `all_DTuples.csv`: A list of the positively enriched d-tuples. 
+    * `top_DTuples.csv`: A list of the positively and significantly enriched d-tuples. 
+    * `DTuples_binaryReps.csv`: Binary representations of all positively enriched d-tuples.
     * `distinctDeviatingStates_dendrogram.png`: The characteristic states embedded in PCA coordinates, in a dendrogram. 
-* `plots/`
-    * `.png`: Figures with basic QC metrics.
+* `states_output/`
+    * `modularity_scores.csv`: Cutoffs and modularity scores of the hierarchical clustering of the binary representation.
+    * `top_DTuples_withStatesFromCut.csv`: A list of the positively and significantly enriched d-tuples, with the associated cluster resulting from the cut.
+    * `bootstrapStats.csv`: The bootstrap statistics of the dendrogram branches.
+    * `statesWithBootstrapStats.csv`: The cell states with their associated bootstrap statistics. 
+    * `dendrogram_all_dTuples.png`: A figure of the full dendrogram of all d-tuples.
+    * `dendrogram_all_dTuples_cut.png`: A figure of the dendrogram after the cut.
 * `reports/`
     * Some reports from Nextflow on resource usage etc.
+* `work/`
+    * The working directory of Nextflow, useful for debugging. 
 
 
 ## Parameters
@@ -73,7 +82,7 @@ These affect the calculation and the results:
 | asympBool | 0 | Boolean that determines if the variance is estimated from bootstrap resamples (0) or an asymptotic approximation (1) | Yes |
 | boundBool | 0 |  Boolean that determines if inestimable interactions be bounded | Yes |
 | bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Only when `asympBool==0` |
-| nRandomHOIs | 1000 | How many random 4-7-point interactions to calculate | Yes |
+| nRandomHOIs | 1000 | How many random 6 & 7-point interactions to calculate | Yes |
 | plotPairwiseUpsets | 0 | Boolean to determine if pairwise upset plots should be generated | Yes |
 | sigHOIthreshold | 0.05 | Significance threshold on F-value to decide which HOIs get summarised and used for states | Yes |
 | minStateDeviation | 5 | Min. enrichment factor for characteristic states | Yes |
