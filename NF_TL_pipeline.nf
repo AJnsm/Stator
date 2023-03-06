@@ -1,6 +1,5 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=1
-cellTypes_ch = Channel.from(params.clusterArray) 
 
 process makeData {
 
@@ -8,7 +7,6 @@ process makeData {
 
     input:
     path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py" 
-    val cellType from cellTypes_ch
     path rawData from params.rawDataPath
     
     output:
@@ -24,10 +22,8 @@ process makeData {
     python ${dataScript} \
     --dataType ${params.dataType} \
     --rawData ${rawData} \
-    --clusters ${params.clusterFile} \
     --nGenes ${params.nGenes} \
     --nCells ${params.nCells} \
-    --cluster ${cellType} \
     --bcDoublets ${params.doubletFile} \
     --userGenes ${params.userGenes} \
     --fracMito ${params.fracMito} \
