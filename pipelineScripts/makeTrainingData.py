@@ -25,11 +25,9 @@ parser = argparse.ArgumentParser(description='Prepare the training data')
 
 parser.add_argument("--dataType", type=str, nargs='?', help="From which experiment does the data come (10X/Zeisel)")
 parser.add_argument("--rawData", type=str, nargs=1, help="Path to the raw data file")
-parser.add_argument("--clusters", type=str, nargs='?', help="Path to file with cluster annotation")
 parser.add_argument("--nGenes", type=int, nargs=1, help="Number of genes to keep")
 parser.add_argument("--userGenes", type=str, nargs='?', help="List of genes to always include")
 parser.add_argument("--nCells", type=int, nargs=1, help="Number of cells to keep")
-parser.add_argument("--cluster", type=int, nargs='?', help="Which cluster/cell Type to use")
 parser.add_argument("--bcDoublets", type=str, nargs='?', help="Path to file with booleans for doublets")
 parser.add_argument("--fracMito", type=float, nargs='?', help="Max percentage of mitochondrial transcripts")
 parser.add_argument("--minGenes", type=int, nargs='?', help="Min number of genes expressed in a cell")
@@ -66,29 +64,17 @@ if args.dataType=='agnostic':
         userGenes = np.array([])
 
 
-    print('adding doublet and cluster data')
-
-
-    try:
-        print('loading cluster data')
-        clusters = pd.read_csv(args.clusters, index_col=0)
-        scObj.obs['cluster'] = clusters.values
-        cl = int(args.cluster)
-
-    except:
-        print('NOTE: continuing without cluster file.')
-        scObj.obs['cluster'] = 1
-        cl = 1
+    print('adding doublet data')
 
     try:
         print('loading doublet data')
-        doubs = pd.read_csv(args.bcDoublets[0], index_col=0)
+        doubs = pd.read_csv(args.bcDoublets[0])
         scObj.obs['doublet'] = doubs
     except:
         print('NOTE: continuing without doublet annotation.')
         scObj.obs['doublet'] = False
         
-    scObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
+    scObj = scObj[scObj.obs['doublet']==False]
 
 
 # ------------ add embedding coords -------------
@@ -120,9 +106,9 @@ if args.dataType=='agnostic':
     clDF.columns = selectedCellsAndGenes.var.index
     print('Final QCd data set size: ', clDF.shape)
 
-    clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
-    pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
-    pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
+    clDF.iloc[:nCells].to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
+    pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
+    pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
 
       
     print('****DONE****')
@@ -160,29 +146,17 @@ elif args.dataType=='expression':
         print('NOTE: continuing without user-defined genes')
         userGenes = np.array([])
 
-    print('adding doublet and cluster data')
-
-
-    try:
-        print('loading cluster data')
-        clusters = pd.read_csv(args.clusters, index_col=0)
-        scObj.obs['cluster'] = clusters.values
-        cl = int(args.cluster)
-
-    except:
-        print('NOTE: continuing without cluster file.')
-        scObj.obs['cluster'] = 1
-        cl = 1
+    print('adding doublet data')
 
     try:
         print('loading doublet data')
-        doubs = pd.read_csv(args.bcDoublets[0], index_col=0)
+        doubs = pd.read_csv(args.bcDoublets[0])
         scObj.obs['doublet'] = doubs
     except:
         print('NOTE: continuing without doublet annotation.')
         scObj.obs['doublet'] = False
 
-    scObj = scObj[(scObj.obs['doublet']==False) & (scObj.obs['cluster']==cl)]
+    scObj = scObj[scObj.obs['doublet']==False]
 
     print('Starting QC')
     print(f'Filtering -- Keeping cells with less than {args.fracMito} mitochondrial transcripts...')
@@ -199,10 +173,10 @@ elif args.dataType=='expression':
     scObj = scObj[scObj.obs['percent_mito']<(args.fracMito)]
 
     sc.pl.violin(scObj, ['n_genes'],
-                 jitter=0.4, multi_panel=True, save='QC_n_genes_CL'+'{:0>2}'.format(cl) + '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
+                 jitter=0.4, multi_panel=True, save='QC_n_genes_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
 
     sc.pl.violin(scObj, ['percent_mito'],
-                 jitter=0.4, multi_panel=True, save='QC_percent_mito_CL'+'{:0>2}'.format(cl) + '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
+                 jitter=0.4, multi_panel=True, save='QC_percent_mito_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
 
 
 
@@ -216,7 +190,7 @@ elif args.dataType=='expression':
 #     Max mean 14, because that is ln(10^6)
 #     Min dispersion doesn't matter because only the top N are taken anyway
     sc.pp.highly_variable_genes(scObj, min_mean=0.01, max_mean=14, min_disp=0.0)
-    sc.pl.highly_variable_genes(scObj, save=f'QC_HVG_selection_CL'+'{:0>2}'.format(cl) + '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
+    sc.pl.highly_variable_genes(scObj, save=f'QC_HVG_selection_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
     print('selected genes: ', sum(scObj.var['highly_variable']))
 
     # ------------ add embedding coords -------------
@@ -252,12 +226,12 @@ elif args.dataType=='expression':
     print('Final QCd data set size: ', clDF.shape)
 
     # Output the selected cells and genes:
-    clDF.iloc[:nCells].to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
+    clDF.iloc[:nCells].to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
 
     print('Saving embedding coordinates...')
     # Output the embedding coordinates of the selected cells:
-    pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
-    pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_CL'+'{:0>2}'.format(cl)+ '_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
+    pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
+    pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
 
     print('****DONE****')
     
