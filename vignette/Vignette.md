@@ -1,7 +1,7 @@
 # Minimal working example
 
 We will run Stator on some gene expression data from astrocytes, publicly available from 10X. This directory contains the necessary files:
-* `vignetteAstrocyteData.csv`: the raw count matrix where each row is a cell, and each column a gene, with a header of gene names.
+* `vignetteAstrocyteData.csv`: the raw count matrix (23900 rows × 35 columns) where each row is a cell, and each column a gene, with a header of gene names.
 * `vignetteDoublets.csv`: a doublet annotation for each cell, in the same order as the cells in `vignetteAstrocyteData.csv`. In this case, it is just a list of zeros, which indicates none of the listed cells are annotated as doublets, so it might as well be excluded.
 * `userGenes.csv`: A list of genes that should be included in the analysis. 
 
@@ -199,7 +199,7 @@ The d-tuples are combined to form cell states by cutting a hierarchical clusteri
 
 ![an example dendrogram](https://github.com/AJnsm/NF_TL_pipeline/blob/develop/vignette/dendrogram_vignette_example.png)
 
-(Note that for this crude selection of genes and cells, the PCA embedding of the cells is a bit useless)
+(Note that for this crude selection of genes and cells, the PCA embedding of the cells is a bit useless. In practice, gene selection would at least in part be based QC metrics like high variance *etc.*, which Stator can automatically apply when running in `expression` mode.)
 
 To find exactly which d-tuples make up the Globin positive state, the file `states_output/` lists exactly which cluster each d-tuple ended up in:
 
