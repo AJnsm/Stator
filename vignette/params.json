@@ -1,0 +1,47 @@
+{
+      "dataType"    : "agnostic",
+      "rawDataPath" : "/exports/igmm/eddie/ponting-lab/abel/10X_cells/NF_TL/paperRuns/vignette_test/vignetteAstrocyteData.csv",
+      "doubletFile" : "/exports/igmm/eddie/ponting-lab/abel/10X_cells/NF_TL/paperRuns/vignette_test/vignette_doublets.csv",
+      "userGenes"   : "/exports/igmm/eddie/ponting-lab/abel/10X_cells/NF_TL/paperRuns/vignette_test/userGenes.csv",      
+      "nGenes"      : 25,
+      "nCells"      : 2000,
+      "PCalpha"     : 0.05,
+      "bsResamps"   : 100,
+
+      "nRandomHOIs" : 10,
+      "sigHOIthreshold":0.4,
+      "minStateDeviation": 0,
+      "stateDevAlpha": 0.9,
+
+      "dendCutoff"  : -1,
+      "asympBool"   : 1,
+
+      "executor"    : "sge",
+      "maxQueueSize"  : 25,
+      "cores_makeData": 1,
+      "cores_PC"      : 6,
+      "cores_MCMC"    : 2,
+      "cores_1pt"     : 4,
+      "cores_2pt"     : 12,
+      "cores_HOIs_MB" : 6,
+      "cores_HOIs_6n7" : 6,
+      "cores_HOIs_plots": 6,
+
+      "mem_makeData"  : "32G",
+      "mem_PC"        : "16G",
+      "mem_MCMC"      : "16G",
+      "mem_1pt"       : "32G",
+      "mem_2pt"       : "64G",
+      "mem_HOIs_MB"   : "64G",
+      "mem_HOIs_6n7"   : "16G",
+      "mem_HOIs_plots" : "64G",
+
+      "time_makeData" : "1h",
+      "time_PC"       : "1h",
+      "time_MCMC"     : "1h",
+      "time_1pt"      : "1h",
+      "time_2pt"      : "1h",
+      "time_HOIs_MB"  : "1h",
+      "time_HOIs_6n7"  : "1h",
+      "time_HOIs_plots"  : "1h"
+  }
