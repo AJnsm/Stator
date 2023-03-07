@@ -197,7 +197,7 @@ Most deviating and striking is the Globin-positive state where the genes *Hbb-bt
 
 The d-tuples are combined to form cell states by cutting a hierarchical clustering at the Dice-coefficient that maximised the modularity score, which was 0.83 in this case (as can be seen in the file `states_output/modularity_scores.csv`). A figure showing this cut dendrogram is saved in `states_output/dendrogram_all_dTuples_cut.png`:
 
-![an example dendrogram](vignette/dendrogram_all_dTuples_cut_vignette.png)
+![an example dendrogram](https://github.com/AJnsm/NF_TL_pipeline/blob/develop/vignette/dendrogram_vignette_example.png)
 
 (Note that for this crude selection of genes and cells, the PCA embedding of the cells is a bit useless)
 
@@ -242,7 +242,7 @@ $ cat states_output/top_DTuples_withStatesFromCut.csv | cut -d '[' -f3
 > 'Isg15-', 'Bst2-', 'Hba-a2-', 'Ifitm3-']",4
 > 'Isg15-', 'Hba-a2+', 'Ifitm3+']",5
 ```
-which shows that the *Hb-*genes ended up in cluster 5 with three other d-tuples. However, none of these other d-tuples are actually significant to any reasonable level, so the *Hb-*gene d-tuple seems to form a state by itself. (This is something I have confirmed in a larger data set involving a thousand genes)
+which shows that the *Hb*-genes ended up in cluster 5 with three other d-tuples. However, none of these other d-tuples are actually significant to any reasonable level, so the *Hb*-gene d-tuple seems to form a state by itself. (This is something I have confirmed in a larger data set involving a thousand genes)
 
 As the interaction estimates depend on the Markov blankets, there should sufficient genes present in the analysis to get a good estimate of the causal relationships. I have verified in multiple gene expression data sets that the Markov blankets only stabilise once at least a few hundred of the most highly-variable genes are included in the analysis, so the estimates from this 25-gene data set cannot be taken seriously, but serve only as an illustrative example of the workflow. 
 
