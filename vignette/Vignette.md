@@ -158,7 +158,9 @@ CPU hours   : 5.2
 Succeeded   : 11
 ```
 
-And we should see that the output directories have been generated:
+It shows that in total, 5.2 CPU hours were used, which amounted to about 20 minutes on the Eddie cluster. The parallellisation happens both within in a process--where individual calculations get distributed over cores--and throughout the pipeline, where multiple processes can run in parallel if they don't depend on each other's output. 
+
+After finishing, the following output directories should have been generated:
 
 ```bash
 $ ls -l
@@ -173,7 +175,6 @@ $ ls -l
 > Mar  6 14:14 vignetteDoublets.csv
 > Mar  6 14:37 work/
 ```
-
 
 The file `HOIsummaries/top_DTuples.csv` shows the d-tuples that deviate and passed our significance threshold:
 
@@ -201,7 +202,7 @@ The d-tuples are combined to form cell states by cutting a hierarchical clusteri
 
 (Note that for this crude selection of genes and cells, the PCA embedding of the cells is a bit useless. In practice, gene selection would at least in part be based QC metrics like high variance *etc.*, which Stator can automatically apply when running in `expression` mode.)
 
-To find exactly which d-tuples make up the Globin positive state, the file `states_output/` lists exactly which cluster each d-tuple ended up in:
+To find exactly which d-tuples make up the *Hb+* state, the file `states_output/` lists exactly which cluster each d-tuple ended up in:
 
 ```bash
 $ cat states_output/top_DTuples_withStatesFromCut.csv | cut -d '[' -f3
