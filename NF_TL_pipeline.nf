@@ -116,10 +116,6 @@ process estimateCoups_2pts {
     tuple path(dataSet), path(graph) from data_and_graphs_2pts
     
     output:
-    // path 'interactions_order2_MCMCgraph*CI_F.npy' optional true into interaction_2pts_CI_F_ch
-    // path 'interactions_order2_MCMCgraph*_undef.npy' optional true into interaction_2pts_undef_ch
-    // path 'interactions_order2_MCMCgraph*_inf.npy' optional true into interaction_2pts_inf_ch
-    // path 'interactions_order2_MCMCgraph*_coup.npy' optional true into interaction_2pts_ch
     path 'interactions*.npy'
 
     script:
