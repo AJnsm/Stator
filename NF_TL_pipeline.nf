@@ -87,7 +87,6 @@ process estimateCoups_1pts {
     output:
     path 'interactions*.npy'
     
-    script:
     """
     python ${estimationScript} \
     --dataPath ${dataSet} \
