@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=1
 
-formattednCells = String.format( "%05d", params.nCells )
-formattednGenes = String.format( "%04d", params.nCells )
+formattedNCells = String.format( "%05d", params.nCells )
+formattedNGenes = String.format( "%04d", params.nCells )
 
 process makeData {
 
@@ -14,7 +14,7 @@ process makeData {
     
     output:
     path "*.h5ad" into unbinarizedData
-    path "trainingData_*Genes.csv" into dataSets mode flatten
+    path "trainingData_${formattedNCells}Cells_${formattedNGenes}Genes.csv" into dataSets mode flatten
     path "*.png" optional true into plots
     path "*PCAcoords.csv" optional true into PCAembeddings
     path "*UMAPcoords.csv" optional true into UMAPembeddings
