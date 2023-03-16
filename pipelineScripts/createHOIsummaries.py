@@ -36,10 +36,10 @@ parser.add_argument("--dataPath", type=str, help="Path to training data")
 parser.add_argument("--PCApath", type=str, help="Path to PCA embedding of training data")
 parser.add_argument("--CPDAGgraphPath", type=str, help="Path to CPDAG graph file")
 parser.add_argument("--MCMCgraphPath", type=str, help="Path to MCMC graph file")
+# parser.add_argument("--pathTo2pts_CI_F", type=str, help="Path to calculated 2-point interactions: significance")
+# parser.add_argument("--pathTo2pts_undef", type=str, help="Path to calculated 2-point interactions: number of undef. resamples")
+# parser.add_argument("--pathTo2pts_inf", type=str, help="Path to calculated 2-point interactions: number of inf. resamples")
 parser.add_argument("--pathTo2pts", type=str, help="Path to calculated 2-point interactions")
-parser.add_argument("--pathTo2pts_CI_F", type=str, help="Path to calculated 2-point interactions: significance")
-parser.add_argument("--pathTo2pts_undef", type=str, help="Path to calculated 2-point interactions: number of undef. resamples")
-parser.add_argument("--pathTo2pts_inf", type=str, help="Path to calculated 2-point interactions: number of inf. resamples")
 parser.add_argument("--pathTo3pts", type=str, help="Path to calculated 3-point interactions")
 parser.add_argument("--pathTo4pts", type=str, help="Path to calculated 4-point interactions")
 parser.add_argument("--pathTo5pts", type=str, help="Path to calculated 5-point interactions")
@@ -70,29 +70,29 @@ scObj.obsm['X_pca'] = pcaCoords.values
 
 
 # Load all the 2-point information so that we can select only perfect and signigicant estimations. 
-coups_2pts = np.load(args.pathTo2pts, allow_pickle=True).astype(np.float32)
-coups_2pts_CI_F = np.load(args.pathTo2pts_CI_F, allow_pickle=True).astype(np.float32)
-coups_2pts_undef = np.load(args.pathTo2pts_undef, allow_pickle=True).astype(np.float32)
-coups_2pts_inf = np.load(args.pathTo2pts_inf, allow_pickle=True).astype(np.float32)
+# coups_2pts = np.load(args.pathTo2pts, allow_pickle=True).astype(np.float32)
+# coups_2pts_CI_F = np.load(args.pathTo2pts_CI_F, allow_pickle=True).astype(np.float32)
+# coups_2pts_undef = np.load(args.pathTo2pts_undef, allow_pickle=True).astype(np.float32)
+# coups_2pts_inf = np.load(args.pathTo2pts_inf, allow_pickle=True).astype(np.float32)
 
 # All imperfect estiamtions get set to NaN
-coups_2pts[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
-coups_2pts_CI_F[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
+# coups_2pts[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
+# coups_2pts_CI_F[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
 
 
-# HHOIs stores all the significant (n>1)-point interactions present among interacting triplets, quadruplets, and pentuplets
+# HHOIs stores all the significant n-point interactions present among interacting pairs, triplets, quadruplets, and pentuplets
 HHOIs = {}
 alpha = args.sigHOIthreshold
-for order, intPath in enumerate([args.pathTo3pts, args.pathTo4pts, args.pathTo5pts]):
+for order, intPath in enumerate([args.pathTo2pts, args.pathTo3pts, args.pathTo4pts, args.pathTo5pts]):
 	ints = np.load(intPath, allow_pickle=True)
 	if len(ints)>0:
 		perfectSigEsts = list(map(lambda x: (((x[[4, 5, 6]]==0).all()) & (x[3]<alpha)), ints))
-		HHOIs[f'n{order+3}'] = ints[perfectSigEsts][:, [0, -1]]
-	else: HHOIs[f'n{order+3}'] = []
+		HHOIs[f'n{order+2}'] = ints[perfectSigEsts][:, [0, -1]]
+	else: HHOIs[f'n{order+2}'] = []
 
-pairs = np.array(np.where(coups_2pts_CI_F<alpha)).T
-vals = coups_2pts[coups_2pts_CI_F<alpha]
-HHOIs[f'n2'] = np.array([list(x) for x in list(zip(vals, pairs))])
+# pairs = np.array(np.where(coups_2pts_CI_F<alpha)).T
+# vals = coups_2pts[coups_2pts_CI_F<alpha]
+# HHOIs[f'n2'] = np.array([list(x) for x in list(zip(vals, pairs))])
 
 def findsubsets(s, n):
 	return list(itertools.combinations(s, n))
