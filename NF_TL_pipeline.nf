@@ -1,6 +1,9 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=1
 
+formattednCells = String.format( "%05d", params.nCells )
+formattednGenes = String.format( "%04d", params.nCells )
+
 process makeData {
 
     publishDir "${launchDir}/output", mode: 'copy'
@@ -229,8 +232,8 @@ process createHOIsummaries {
 
     output:
     path '*.png' optional true into HOIsummaries
-    path 'top_DTuples.csv' optional true into topDeviators
-    path 'all_DTuples.csv' optional true into allDeviators_csv
+    path 'top_DTuples.csv' into topDeviators
+    path 'all_DTuples.csv' into allDeviators_csv
     path 'DTuples_binaryReps.csv' optional true into binaryReps_csv
     path dataSet into dataSet_forPlots
     path pcaCoords into PCAembeddings_forPlots
