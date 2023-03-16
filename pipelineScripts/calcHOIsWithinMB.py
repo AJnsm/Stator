@@ -70,6 +70,10 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
     n = len(genes)
 
     # First, generate random 3-, 4-, and 5- tuples
+    print('Generating random pairs...')
+    randPairs = np.array([np.random.choice(np.arange(n), 2, replace=False) for i in range(nRands)]).astype(int)
+    args_randPairs = [(pair, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for pair in randPairs]
+
     print('Generating random triplets...')
     randTrips = np.array([np.random.choice(np.arange(n), 3, replace=False) for i in range(nRands)]).astype(int)
     args_randTrips = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for triplet in randTrips]
@@ -133,13 +137,11 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
     ints_5pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_5pt]
 
     if PrintBool:
-        print(f'Markov-connected trips: {len(ints_3pt)}, Quads: {len(ints_4pt)}, Pents: {len(ints_5pt)}')
+        print(f'Markov-connected pairs: {len(ints_2pt)}, trips: {len(ints_3pt)}, Quads: {len(ints_4pt)}, Pents: {len(ints_5pt)}')
     
 
-    for order, args in [['random_3pts', args_randTrips], ['random_4pts', args_randQuads], ['random_5pts', args_randPents],
-                     ['withinMB_3pts', ints_3pt], ['withinMB_4pts', ints_4pt], ['withinMB_5pts', ints_5pt]]:
-        
-                
+    for order, args in [['random_2pts', args_randPairs], ['random_3pts', args_randTrips], ['random_4pts', args_randQuads], ['random_5pts', args_randPents], ['withinMB_2pts', ints_2pt], ['withinMB_3pts', ints_3pt], ['withinMB_4pts', ints_4pt], ['withinMB_5pts', ints_5pt]]:
+
         
         start = time.perf_counter()
         with concurrent.futures.ProcessPoolExecutor(max_workers=maxWorkers) as executor:
