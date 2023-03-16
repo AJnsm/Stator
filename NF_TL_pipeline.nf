@@ -119,19 +119,24 @@ process estimateCoups_2pts {
     path 'interactions*.npy'
 
     script:
-    """
-    python ${estimationScript} \
-    --dataPath ${dataSet} \
-    --graphPath ${graph} \
-    --intOrder 2 \
-    --nResamps ${params.bsResamps} \
-    --nCores ${params.cores_2pt} \
-    --estimationMethod ${params.estimationMethod} \
-    --genesToOne ${genesToOne} \
-    --dataDups ${params.dataDups} \
-    --boundBool ${params.boundBool} \
-    --asympBool ${params.asympBool}
-    """
+    if( params.calcAll2pts == 1 )
+        """
+        python ${estimationScript} \
+        --dataPath ${dataSet} \
+        --graphPath ${graph} \
+        --intOrder 2 \
+        --nResamps ${params.bsResamps} \
+        --nCores ${params.cores_2pt} \
+        --estimationMethod ${params.estimationMethod} \
+        --genesToOne ${genesToOne} \
+        --dataDups ${params.dataDups} \
+        --boundBool ${params.boundBool} \
+        --asympBool ${params.asympBool}
+        """
+    else
+        """
+        echo skipping calculation of all 2-point interactions
+        """
 }
 
 
