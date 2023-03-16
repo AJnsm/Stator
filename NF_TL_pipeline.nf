@@ -118,7 +118,6 @@ process estimateCoups_2pts {
     output:
     path 'interactions*.npy'
 
-    script:
     if( params.calcAll2pts == 1 )
         """
         python ${estimationScript} \
