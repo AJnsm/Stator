@@ -116,7 +116,7 @@ process estimateCoups_2pts {
     tuple path(dataSet), path(graph) from data_and_graphs_2pts
     
     output:
-    path 'interactions*.npy'
+    path 'interactions*.npy' optional true
 
     script:
     if( params.calcAll2pts == 1 )
