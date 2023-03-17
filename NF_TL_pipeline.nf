@@ -3,7 +3,6 @@ nextflow.enable.dsl=1
 
 formattedNCells = String.format( "%05d", params.nCells )
 formattedNGenes = String.format( "%04d", params.nGenes )
-
 dataSetID = "${formattedNCells}Cells_${formattedNGenes}Genes"
 
 
@@ -16,11 +15,11 @@ process makeData {
     path rawData from params.rawDataPath
     
     output:
-    path "unbinarised_cell_data.h5ad" into unbinarizedData
+    path "unbinarised_cell_data.h5ad"
     path "trainingData_${dataSetID}.csv" into dataSets mode flatten
-    path "*.png" optional true into plots
-    path "*PCAcoords.csv" optional true into PCAembeddings
-    path "*UMAPcoords.csv" optional true into UMAPembeddings
+    path "*.png" optional true
+    path "*PCAcoords.csv" into PCAembeddings
+    path "*UMAPcoords.csv" into UMAPembeddings
     
 
     script:
@@ -48,8 +47,8 @@ process estimatePCgraph {
     path dataSet from dataSets
 
     output:
-    tuple path(dataSet), path('PCgraph*.csv') into PCgraphs_forMCMC_ch mode flatten
-    tuple path(dataSet), path('CTRLgraph*.csv') into CTRLgraphs_ch mode flatten
+    tuple path(dataSet), path("PCgraph_${dataSetID}.csv") into PCgraphs_forMCMC_ch mode flatten
+    tuple path(dataSet), path("CTRLgraph_${dataSetID}.csv") into CTRLgraphs_ch mode flatten
 
     """
     Rscript ${PCgraphEstScript} ${dataSet} ${params.cores_PC} ${params.PCalpha}
@@ -66,8 +65,8 @@ process iterMCMCscheme {
     tuple path(dataSet), path(PCgraph) from PCgraphs_forMCMC_ch
 
     output:
-    path 'CPDAGgraph*.csv' into CPDAGgraphs_ch
-    tuple path(dataSet), path('MCMCgraph*.csv') into MCMCgraphs_ch mode flatten
+    path "CPDAGgraph_${dataSetID}.csv" into CPDAGgraphs_ch
+    tuple path(dataSet), path('MCMCgraph_${dataSetID}.csv') into MCMCgraphs_ch mode flatten
 
     """
     Rscript ${MCMCscript} ${PCgraph} ${dataSet} ${params.nGenes} 
@@ -159,10 +158,15 @@ process estimateCoups_2345pts_WithinMB {
     tuple path(dataSet), path(graph) from MCMCgraphs_ch2
     
     output:
-    path 'interactions_withinMB_2pts*.npy' into interaction_withinMB_2pts
-    path 'interactions_withinMB_3pts*.npy' into interaction_withinMB_3pts
-    path 'interactions_withinMB_4pts*.npy' into interaction_withinMB_4pts
-    path 'interactions_withinMB_5pts*.npy' into interaction_withinMB_5pts
+    path "interactions_withinMB_2pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_2pts
+    path "interactions_withinMB_3pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_3pts
+    path "interactions_withinMB_4pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_4pts
+    path "interactions_withinMB_5pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_5pts
+
+    path "interactions_random_2pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_2pts
+    path "interactions_random_3pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_3pts
+    path "interactions_random_4pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_4pts
+    path "interactions_random_5pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_5pts
 
     """
     python ${estimationScript} \
@@ -194,7 +198,7 @@ process estimateCoups_6n7pts {
     tuple path(dataSet), path(graph) from MCMCgraphs_ch3
         
     output:
-    path 'interactions*.npy' optional true into interaction_6n7pts
+    path 'interactions*.npy' optional true
 
     """
     python ${estimationScript} \
@@ -223,10 +227,7 @@ process createHOIsummaries {
     path utilities from "${projectDir}/pipelineScripts/utilities.py" 
     tuple path(dataSet), path(MCMCgraph) from MCMCgraphs_ch4
     path CPDAGgraph from CPDAGgraphs_ch
-    // path path2pts from interaction_2pts_ch
-    // path path2pts_CI_F from interaction_2pts_CI_F_ch
-    // path path2pts_undef from interaction_2pts_undef_ch
-    // path path2pts_inf from interaction_2pts_inf_ch
+
     path path2pts from interaction_withinMB_2pts
     path path3pts from interaction_withinMB_3pts
     path path4pts from interaction_withinMB_4pts
@@ -234,10 +235,10 @@ process createHOIsummaries {
     path pcaCoords from PCAembeddings
 
     output:
-    path '*.png' optional true into HOIsummaries
+    path '*.png' optional true
     path 'top_DTuples.csv' into topDeviators
     path 'all_DTuples.csv' into allDeviators_csv
-    path 'DTuples_binaryReps.csv' optional true into binaryReps_csv
+    path 'DTuples_binaryReps.csv' optional true
     path dataSet into dataSet_forPlots
     path pcaCoords into PCAembeddings_forPlots
 
