@@ -145,7 +145,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
         
         start = time.perf_counter()
         with concurrent.futures.ProcessPoolExecutor(max_workers=maxWorkers) as executor:
-            results = executor.map(calcInteraction_withCI_parallel  , args)  
+            results = executor.map(calcInteraction_withCI_parallel, args)  
         finish = time.perf_counter()
         if PrintBool: print(f'Time elapsed: {round(finish-start, 2)} secs')
         if PrintBool: print('calculation done, storing results...')

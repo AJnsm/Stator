@@ -66,7 +66,7 @@ process iterMCMCscheme {
 
     output:
     path "CPDAGgraph_${dataSetID}.csv" into CPDAGgraphs_ch
-    tuple path(dataSet), path('MCMCgraph_${dataSetID}.csv') into MCMCgraphs_ch mode flatten
+    tuple path(dataSet), path("MCMCgraph_${dataSetID}.csv") into MCMCgraphs_ch mode flatten
 
     """
     Rscript ${MCMCscript} ${PCgraph} ${dataSet} ${params.nGenes} 
