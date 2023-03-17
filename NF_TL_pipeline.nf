@@ -178,7 +178,8 @@ process estimateCoups_2345pts_WithinMB {
     --genesToOne ${genesToOne} \
     --dataDups ${params.dataDups} \
     --boundBool ${params.boundBool} \
-    --asympBool ${params.asympBool}
+    --asympBool ${params.asympBool} \
+    --estimationMode ${params.estimationMode}
     """
 
 }
