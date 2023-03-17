@@ -170,7 +170,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
         resultArr = np.array(list(results), dtype=object)
         if PrintBool: print('writing files...')
         
-        np.save(f'interactions_{order}_{estimationMode}_{ID}', resultArr, allow_pickle=True)
+        np.save(f'interactions_{order}_{mode}_{ID}', resultArr, allow_pickle=True)
 
         if PrintBool: print(f'********** DONE with {order} {ID} **********\n')
 
