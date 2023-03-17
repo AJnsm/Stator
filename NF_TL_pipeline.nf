@@ -163,10 +163,10 @@ process estimateCoups_2345pts_WithinMB {
     path "interactions_withinMB_4pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_4pts
     path "interactions_withinMB_5pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_5pts
 
-    path "interactions_random_2pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_2pts
-    path "interactions_random_3pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_3pts
-    path "interactions_random_4pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_4pts
-    path "interactions_random_5pts_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_5pts
+    path "interactions_random_2pts_MCMCgraph_${dataSetID}.npy" into interaction_random_2pts
+    path "interactions_random_3pts_MCMCgraph_${dataSetID}.npy" into interaction_random_3pts
+    path "interactions_random_4pts_MCMCgraph_${dataSetID}.npy" into interaction_random_4pts
+    path "interactions_random_5pts_MCMCgraph_${dataSetID}.npy" into interaction_random_5pts
 
     """
     python ${estimationScript} \
