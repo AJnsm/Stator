@@ -173,7 +173,7 @@ def main():
     print(f'Parallelised over {nCores} cores. ')
     print(f'Asymptotic variance estimation: {bool(asympBool)}')
 
-    calcInteractionsAndWriteNPYs(DSname + '_' + estimationMethod+notes, graph, trainDat, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
+    calcInteractionsAndWriteNPYs(DSname + '_' + notes, graph, trainDat, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
     
     
     print('***********DONE***********')
