@@ -170,7 +170,7 @@ def main():
     print(f'Asymptotic variance estimation: {bool(asympBool)}')
 
 
-    calcInteractionsAndWriteNPYs(ID = DSname + '_' + estimationMethod+notes, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
+    calcInteractionsAndWriteNPYs(ID = DSname + '_' + notes, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
 
     
     print('***********DONE***********')
