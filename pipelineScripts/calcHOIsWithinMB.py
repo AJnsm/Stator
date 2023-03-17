@@ -87,35 +87,35 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
     args_randPents = [(pent, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for pent in randPents]
 
 
-    ints_2pt = []
-    ints_3pt = []
-    ints_4pt = []
-    ints_5pt = []
+    connected_2pts = []
+    connected_3pts = []
+    connected_4pts = []
+    connected_5pts = []
     
     # Then iterate over Markov blankets and take intersections to have fully Markov-connected tuples
     print('Generating connected tuples...')
     for g1 in range(n):
         MB1 = findMarkovBlanket(g1, graph)
 
-        ints_2pt.append([(g1, x) for x in MB1])
+        connected_2pts.append([(g1, x) for x in MB1])
 
         for g2 in MB1:
             MB2 = findMarkovBlanket(g2, graph)
             MB1_MB2 = set(MB1).intersection(set(MB2))
 
-            ints_3pt.append([(g1, g2, x) for x in MB1_MB2])
+            connected_3pts.append([(g1, g2, x) for x in MB1_MB2])
 
             for g3 in MB1_MB2:
                 MB3 = findMarkovBlanket(g3, graph)
                 MB1_MB2_MB3 = set(MB3).intersection(MB1_MB2)
 
-                ints_4pt.append([(g1, g2, g3, x) for x in MB1_MB2_MB3])
+                connected_4pts.append([(g1, g2, g3, x) for x in MB1_MB2_MB3])
 
                 for g4 in MB1_MB2_MB3:
                     MB4 = findMarkovBlanket(g4, graph)
                     MB1_MB2_MB3_MB4 = set(MB4).intersection(MB1_MB2_MB3)
 
-                    ints_5pt.append([(g1, g2, g3, g4, x) for x in MB1_MB2_MB3_MB4])
+                    connected_5pts.append([(g1, g2, g3, g4, x) for x in MB1_MB2_MB3_MB4])
 
     print('Generated all connected 3-, 4-, 5-tuples')
 
@@ -126,21 +126,21 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
         ar = np.array([sorted(genes, key=lambda x: len(findMarkovBlanket(x, graph))) for genes in ar])
         return ar
 
-    ints_2pt = onlySmallestMB(ints_2pt)
-    ints_3pt = onlySmallestMB(ints_3pt)
-    ints_4pt = onlySmallestMB(ints_4pt)
-    ints_5pt = onlySmallestMB(ints_5pt)
+    connected_2pts = onlySmallestMB(connected_2pts)
+    connected_3pts = onlySmallestMB(connected_3pts)
+    connected_4pts = onlySmallestMB(connected_4pts)
+    connected_5pts = onlySmallestMB(connected_5pts)
 
-    ints_2pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_2pt]
-    ints_3pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_3pt]
-    ints_4pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_4pt]
-    ints_5pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_5pt]
+    args_connected_2pts = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in connected_2pts]
+    args_connected_3pts = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in connected_3pts]
+    args_connected_4pts = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in connected_4pts]
+    args_connected_5pts = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in connected_5pts]
 
     if PrintBool:
-        print(f'Markov-connected pairs: {len(ints_2pt)}, trips: {len(ints_3pt)}, Quads: {len(ints_4pt)}, Pents: {len(ints_5pt)}')
+        print(f'Markov-connected pairs: {len(connected_2pts)}, trips: {len(connected_3pts)}, Quads: {len(connected_4pts)}, Pents: {len(connected_5pts)}')
     
 
-    for order, args in [['random_2pts', args_randPairs], ['random_3pts', args_randTrips], ['random_4pts', args_randQuads], ['random_5pts', args_randPents], ['withinMB_2pts', ints_2pt], ['withinMB_3pts', ints_3pt], ['withinMB_4pts', ints_4pt], ['withinMB_5pts', ints_5pt]]:
+    for order, args in [['random_2pts', args_randPairs], ['random_3pts', args_randTrips], ['random_4pts', args_randQuads], ['random_5pts', args_randPents], ['withinMB_2pts', args_connected_2pts], ['withinMB_3pts', args_connected_3pts], ['withinMB_4pts', args_connected_4pts], ['withinMB_5pts', args_connected_5pts]]:
 
         
         start = time.perf_counter()
