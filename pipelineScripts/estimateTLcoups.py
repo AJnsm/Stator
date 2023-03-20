@@ -148,20 +148,6 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, order, estimat
         TLcoups_undef = resultArr[:, 4].reshape([n for i in range(order)])
         TLcoups_inf = resultArr[:, 5].reshape([n for i in range(order)])
         boundArr = resultArr[:, 6].reshape([n for i in range(order)])
-
-
-    # elif (order==3):
-    # DEPRECATED FUNCTIONALITY
-    #     TLcoups, TLcoups_LB, TLcoups_UB, TLcoups_nonZero, TLcoups_undef, TLcoups_inf, boundArr = np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n)), np.empty((n, n, n))
-    #     TLcoups[:], TLcoups_LB[:], TLcoups_UB[:], TLcoups_nonZero[:], TLcoups_undef[:], TLcoups_inf[:], boundArr[:] = np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
-    #     for r in resultArr:
-    #         TLcoups[tuple(r[-1])] = r[0]
-    #         TLcoups_LB[tuple(r[-1])] = r[1]
-    #         TLcoups_UB[tuple(r[-1])] = r[2]
-    #         TLcoups_nonZero[tuple(r[-1])] = r[3]
-    #         TLcoups_undef[tuple(r[-1])] = r[4]
-    #         TLcoups_inf[tuple(r[-1])] = r[5]
-    #         boundArr[tuple(r[-1])] = r[6]
             
     np.save(f'interactions_order{order}_{ID}_coup', TLcoups)
     np.save(f'interactions_order{order}_{ID}_CI_LB', TLcoups_LB)
