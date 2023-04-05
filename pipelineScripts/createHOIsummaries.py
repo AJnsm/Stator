@@ -302,7 +302,7 @@ for order in ordersToPlot:
 			unConditionedGenes = trainDat.iloc[:, geneTuple]
 
 
-			if args.estimationMethod=='MFI':
+			if args.estimationMode=='MFI':
 				conditionedGenes = conditionOnMB(geneTuple, MCMCgraph, trainDat, mode='Min')
 				fig = plt.figure(figsize=[10, 10])
 				buf = io.BytesIO()
