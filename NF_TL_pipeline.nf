@@ -249,6 +249,7 @@ process createHOIsummaries {
     --PCApath ${pcaCoords} \
     --CPDAGgraphPath ${CPDAGgraph} \
     --MCMCgraphPath ${MCMCgraph} \
+    --estimationMode ${params.estimationMode} \
     --pathTo2pts ${path2pts} \
     --pathTo3pts ${path3pts} \
     --pathTo4pts ${path4pts} \

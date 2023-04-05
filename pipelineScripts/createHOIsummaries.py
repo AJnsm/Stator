@@ -39,6 +39,8 @@ parser.add_argument("--MCMCgraphPath", type=str, help="Path to MCMC graph file")
 # parser.add_argument("--pathTo2pts_CI_F", type=str, help="Path to calculated 2-point interactions: significance")
 # parser.add_argument("--pathTo2pts_undef", type=str, help="Path to calculated 2-point interactions: number of undef. resamples")
 # parser.add_argument("--pathTo2pts_inf", type=str, help="Path to calculated 2-point interactions: number of inf. resamples")
+parser.add_argument("--estimationMethod", type=str, help="Estimation method used for MFI estimation")
+
 parser.add_argument("--pathTo2pts", type=str, help="Path to calculated 2-point interactions")
 parser.add_argument("--pathTo3pts", type=str, help="Path to calculated 3-point interactions")
 parser.add_argument("--pathTo4pts", type=str, help="Path to calculated 4-point interactions")
@@ -300,16 +302,29 @@ for order in ordersToPlot:
 			plt.close() 
 
 			#  ************************ Upset plots ************************ 
-
+			
 			unConditionedGenes = trainDat.iloc[:, geneTuple]
-			conditionedGenes = conditionOnMB(geneTuple, MCMCgraph, trainDat, mode='Min')
 
-			fig = plt.figure(figsize=[10, 10])
-			buf = io.BytesIO()
-			plotUpsetPlot(d = conditionedGenes,fig=fig, legend=False, title = 'Conditioned on MB', filename=buf, save=True)
-			buf.seek(0)
-			plotUpset_cond[ID] = fromImToArr(Image.open(buf))
-			plt.close()
+
+			if args.estimationMethod=='MFI':
+				conditionedGenes = conditionOnMB(geneTuple, MCMCgraph, trainDat, mode='Min')
+				fig = plt.figure(figsize=[10, 10])
+				buf = io.BytesIO()
+				plotUpsetPlot(d = conditionedGenes,fig=fig, legend=False, title = 'Conditioned on MB', filename=buf, save=True)
+				buf.seek(0)
+				plotUpset_cond[ID] = fromImToArr(Image.open(buf))
+				plt.close()
+			
+			else:
+				# create empty plot for conditioned genes when not using MFI estimation, since MFI is likely not estimable.
+				conditionedGenes = unConditionedGenes
+				fig = plt.figure(figsize=[10, 10])
+				buf = io.BytesIO()
+				plt.savefig(buf)
+				buf.seek(0)
+				plotUpset_cond[ID] = fromImToArr(Image.open(buf))
+				plt.close()
+				
 
 			fig = plt.figure(figsize=[10, 10])
 			buf = io.BytesIO()
