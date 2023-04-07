@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 import igraph as ig
+import matplotlib
+# No interactive backend necessary
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import argparse
@@ -28,7 +31,28 @@ from upsetplot import from_indicators
 import io
 from PIL import Image
 
+
+
+# DEBUGGING
+
+import os
+def printRAM():
+    # Getting all memory using os.popen()
+    total_memory, used_memory, free_memory = map(
+        int, os.popen('free -t -m').readlines()[-1].split()[1:])
+    # Memory usage
+    print("RAM memory % used:", round((used_memory/total_memory) * 100, 2))
+
+
+
+
+
+
 print('Modules imported \n')
+
+# DEBUGGING
+print('Before loading data:')
+printRAM()
 
 parser = argparse.ArgumentParser(description='Args for coupling estimation')
 
@@ -91,6 +115,10 @@ for order, intPath in enumerate([args.pathTo2pts, args.pathTo3pts, args.pathTo4p
 # pairs = np.array(np.where(coups_2pts_CI_F<alpha)).T
 # vals = coups_2pts[coups_2pts_CI_F<alpha]
 # HHOIs[f'n2'] = np.array([list(x) for x in list(zip(vals, pairs))])
+
+# DEBUGGING
+print('After loading data:')
+printRAM()
 
 def findsubsets(s, n):
 	return list(itertools.combinations(s, n))
@@ -234,6 +262,9 @@ for order in ordersToPlot:
 							break
 
 			#  ************************ Interaction Hypergraph  ************************ 
+			# DEBUGGING
+			print('Hypergraph:')
+			printRAM()
 			
 			H = hnx.Hypergraph(edges)
 			cList = ['red' if w<0 else 'green' for w in weights]
@@ -264,9 +295,15 @@ for order in ordersToPlot:
 			plt.savefig(buf)
 			buf.seek(0)
 			plotHypergraph[ID] = fromImToArr(Image.open(buf))
+			buf.seek(0)
+			buf.truncate(0)
+			plt.clf()
 			plt.close()
 
 			#  ************************ CPDAG ************************ 
+			# DEBUGGING
+			print('CPDAG:')
+			printRAM()
 
 			fig, ax = plt.subplots(figsize=[6, 6])
 			ig.plot(g, layout=layout_c, edge_arrow_size=20, edge_arrow_width=10,
@@ -282,9 +319,17 @@ for order in ordersToPlot:
 			plt.savefig(buf)
 			buf.seek(0)
 			plotCPDAG[ID] = fromImToArr(Image.open(buf))
+			buf.seek(0)
+			buf.truncate(0)
+			plt.clf()
 			plt.close()
 
 			#  ************************ PCA embeddings ************************ 
+
+			# DEBUGGING
+			print('PCA:')
+			printRAM()
+
 			fig, ax = plt.subplots(1, len(geneTuple), figsize=[20, 4])
 			for i, g in enumerate(genes[geneTuple]):
 				sc.pl.embedding(scObj,'pca', color=g, 
@@ -295,9 +340,16 @@ for order in ordersToPlot:
 			plt.savefig(buf)
 			buf.seek(0)
 			plotPCA[ID] = fromImToArr(Image.open(buf))
+			buf.seek(0)
+			buf.truncate(0)
+			plt.clf()
 			plt.close() 
 
 			#  ************************ Upset plots ************************ 
+			
+			# DEBUGGING
+			print('Upset:')
+			printRAM()
 			
 			unConditionedGenes = trainDat.iloc[:, geneTuple]
 
@@ -309,6 +361,9 @@ for order in ordersToPlot:
 				plotUpsetPlot(d = conditionedGenes,fig=fig, legend=False, title = 'Conditioned on MB', filename=buf, save=True)
 				buf.seek(0)
 				plotUpset_cond[ID] = fromImToArr(Image.open(buf))
+				buf.seek(0)
+				buf.truncate(0)
+				plt.clf()
 				plt.close()
 			
 			else:
@@ -319,6 +374,9 @@ for order in ordersToPlot:
 				plt.savefig(buf)
 				buf.seek(0)
 				plotUpset_cond[ID] = fromImToArr(Image.open(buf))
+				buf.seek(0)
+				buf.truncate(0)
+				plt.clf()
 				plt.close()
 				
 
@@ -327,6 +385,9 @@ for order in ordersToPlot:
 			plotUpsetPlot(d = unConditionedGenes,fig=fig, legend=False, title = 'Unconditioned', filename=buf, save=True)
 			buf.seek(0)
 			plotUpset_uncond[ID] = fromImToArr(Image.open(buf))
+			buf.seek(0)
+			buf.truncate(0)
+			plt.clf()
 			plt.close()
 			
 
@@ -352,6 +413,11 @@ for order in ordersToPlot:
 	else: enrichments[f'n{order}'] = []
 		
 #  ************************ PCA embedding on max deviating state ************************ 
+
+# DEBUGGING
+print('Before embedding:')
+printRAM()
+
 for order in ordersToPlot:
 	for devs, pvals, interactors in enrichments[f'n{order}']:
 		ID = '_'.join(genes[interactors])
@@ -374,16 +440,26 @@ for order in ordersToPlot:
 		plt.savefig(buf)
 		buf.seek(0)
 		plotMaxDev[ID] = fromImToArr(Image.open(buf))
+		buf.seek(0)
+		buf.truncate(0)
+		plt.clf()
 		plt.close()
 		# plt.savefig(f'{ID}_Expression_maxDevState.png')
 		plt.close('all') 
 
 
 #  ************************ Plot summary figures ************************ 
+# DEBUGGING
+print('Before summary figs:')
+printRAM()
 
 sns.set_style("white")
 
 for order in ordersToPlot:
+	# DEBUGGING
+	print(f'Order: {order}')
+	printRAM()
+
 	if len(HHOIs[f'n{order}'])>0:
 		for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
 			ID = '_'.join(genes[geneTuple])	  
@@ -415,6 +491,9 @@ for order in ordersToPlot:
 			plt.savefig(f'{ID}_summary.png')
 			plt.close(fig) 
 
+# DEBUGGING
+print('After summary figs:')
+printRAM()
 
 # Construct a dataframe with the deviations of each positively enriched state:
 devDict = []
@@ -427,6 +506,10 @@ for order in [3, 4, 5]:
 			maxDevState = format(devStateInd, f"0{order}b")
 			devDict.append([ID, maxDevState, devs[devStateInd], pvals[devStateInd]])
 
+# DEBUGGING
+print('After dev dicts:')
+
+printRAM()
 if len(devDict)>0:
 	deviators = pd.DataFrame(devDict, columns=['genes', 'state', 'enrichment', 'pval'])
 	deviators = deviators.sort_values(by='pval', ascending=True)
