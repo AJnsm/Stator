@@ -1,4 +1,5 @@
 # Stator
+Preprint now available at https://www.biorxiv.org/content/10.1101/2023.12.18.572232v1
 
 ## Introduction
 The Stator pipeline takes in single cell RNA-seq count matrices, and estimates gene-gene interactions at up to seventh order. The 3-, 4-, and 5-point interactions among Markov-connected genes are used to find characteristic, multi-type states present in the cell population. 
