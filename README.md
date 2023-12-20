@@ -8,7 +8,7 @@ The pipeline can be run directly from the command line. It pulls all code from G
 
 ## Design/DAG
 
-![Pipeline flow](nextflowDAG.pdf)
+![Pipeline flow](nextflowDAG.png)
 
 ## Requirements
 
