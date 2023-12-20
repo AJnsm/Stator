@@ -514,7 +514,7 @@ def calcInteraction_withCI_andBounds(genes, graph, dataSet, estimator, genesToOn
     else:
         MBmode = 'All' # Use MB of all genes -- safer, so used as else statement. 
 
-    conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode)
+    conditionedGenes = conditionOnMB(genes, graph, dataSet, mode=MBmode, genesToOne=genesToOne)
     
     # Check if data needs to be duplicated
     dupFactor=1

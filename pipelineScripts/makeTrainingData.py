@@ -166,7 +166,11 @@ elif args.dataType=='expression':
     sc.pp.filter_cells(scObj, min_genes=args.minGenes)
     sc.pp.filter_genes(scObj, min_cells=args.minCells)
 
-    mito_genes = scObj.var_names.str.startswith('mt-')
+    mito_genes_upper = scObj.var_names.str.startswith('MT-')
+    mito_genes_lower = scObj.var_names.str.startswith('mt-')
+    mito_genes = mito_genes_lower | mito_genes_upper
+
+
     scObj.obs['percent_mito'] = np.sum(
         scObj[:, mito_genes].X, axis=1) / np.sum(scObj.X, axis=1)
 

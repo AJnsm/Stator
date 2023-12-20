@@ -32,10 +32,11 @@ parser.add_argument("--genesToOne", type=str, help="Path to list of genes that s
 parser.add_argument("--dataDups", type=int, help="Number of data duplications. 0 is no duplication, and another value is the min binsize allowed (recommended to be 15). ")
 parser.add_argument("--boundBool", type=int, help="Boolean that decided whether bounds should also be considered.")
 parser.add_argument("--asympBool", type=int, help="Boolean to decide whether to use Bootstrap resampling (0) or asymptotic uncertainty estimation (1).")
+parser.add_argument("--estimationMode", type=str, help="Can be set to MFI to condition on Markov blankets, or to LOR to ignore the Markov blanket and calculate log-odds ratios.")
 
 
 args = parser.parse_args()
-    
+
 dataPath = args.dataPath
 graphPath = args.graphPath
 nResamps = args.nResamps
@@ -45,6 +46,7 @@ genesToOnePath = args.genesToOne
 dataDups = args.dataDups
 boundBool = args.boundBool
 asympBool = args.asympBool
+estimationMode = args.estimationMode
 
 trainDat = pd.read_csv(dataPath)
 
@@ -63,87 +65,104 @@ except:
 
 if PrintBool: print('data import and graph construction done')
 
-def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nResamps=1000):
+def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nResamps=1000, mode='MFI'):
     
     if PrintBool: print(f'Starting with {ID}...')
+
+    if mode=='MFI':
+        if PrintBool: print(f'Calculating MFIs, so conditioning on Markov blankets')
+        estimationGraph = ig.Graph.Adjacency(adjMat.values.tolist())
+    elif mode=='LOR':
+        if PrintBool: print(f'Calculating LORs, so NOT conditioning on Markov blankets')
+        estimationGraph = ig.Graph.Adjacency(np.zeros_like(adjMat).tolist())
+    else:
+        if PrintBool: print('Invalid mode, so switching to MFI mode')
+        if PrintBool: print(f'Calculating MFIs, so conditioning on Markov blankets')
+        estimationGraph = ig.Graph.Adjacency(adjMat.values.tolist())
+
+        
+
     genes = trainDat.columns
     n = len(genes)
 
-    # First, generate random 3-, 4-, and 5- tuples
+    # First, generate random tuples
+    print('Generating random pairs...')
+    randPairs = np.array([np.random.choice(np.arange(n), 2, replace=False) for i in range(nRands)]).astype(int)
+    args_randPairs = [(pair, estimationGraph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for pair in randPairs]
+
     print('Generating random triplets...')
     randTrips = np.array([np.random.choice(np.arange(n), 3, replace=False) for i in range(nRands)]).astype(int)
-    args_randTrips = [(triplet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for triplet in randTrips]
+    args_randTrips = [(triplet, estimationGraph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for triplet in randTrips]
 
     print('Generating random quads...')
     randQuads = np.array([np.random.choice(np.arange(n), 4, replace=False) for i in range(nRands)]).astype(int)
-    args_randQuads = [(quad, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for quad in randQuads]
+    args_randQuads = [(quad, estimationGraph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for quad in randQuads]
 
     print('Generating random pents...')
     randPents = np.array([np.random.choice(np.arange(n), 5, replace=False) for i in range(nRands)]).astype(int)
-    args_randPents = [(pent, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for pent in randPents]
+    args_randPents = [(pent, estimationGraph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for pent in randPents]
 
-
-    ints_2pt = []
-    ints_3pt = []
-    ints_4pt = []
-    ints_5pt = []
+    # Then, generate the Markov-connected tuples
+    connected_2pts = []
+    connected_3pts = []
+    connected_4pts = []
+    connected_5pts = []
     
-    # Then iterate over Markov blankets and take intersections to have fully Markov-connected tuples
+    # Iterate over Markov blankets and take intersections to have fully Markov-connected tuples
     print('Generating connected tuples...')
     for g1 in range(n):
         MB1 = findMarkovBlanket(g1, graph)
 
-        ints_2pt.append([(g1, x) for x in MB1])
+        connected_2pts.append([(g1, x) for x in MB1])
 
         for g2 in MB1:
             MB2 = findMarkovBlanket(g2, graph)
             MB1_MB2 = set(MB1).intersection(set(MB2))
 
-            ints_3pt.append([(g1, g2, x) for x in MB1_MB2])
+            connected_3pts.append([(g1, g2, x) for x in MB1_MB2])
 
             for g3 in MB1_MB2:
                 MB3 = findMarkovBlanket(g3, graph)
                 MB1_MB2_MB3 = set(MB3).intersection(MB1_MB2)
 
-                ints_4pt.append([(g1, g2, g3, x) for x in MB1_MB2_MB3])
+                connected_4pts.append([(g1, g2, g3, x) for x in MB1_MB2_MB3])
 
                 for g4 in MB1_MB2_MB3:
                     MB4 = findMarkovBlanket(g4, graph)
                     MB1_MB2_MB3_MB4 = set(MB4).intersection(MB1_MB2_MB3)
 
-                    ints_5pt.append([(g1, g2, g3, g4, x) for x in MB1_MB2_MB3_MB4])
+                    connected_5pts.append([(g1, g2, g3, g4, x) for x in MB1_MB2_MB3_MB4])
 
     print('Generated all connected 3-, 4-, 5-tuples')
 
-    # To aid estimation, order the variables by the size of their Markov blanket so that the estiamtion uses the smallest one. 
-    def onlySmallestMB(ar):
-        ar = [tuple(sorted(genes)) for intList in ar for genes in intList]
+    # To aid estimation, order the variables by the size of their Markov blanket so that the estimation uses the smallest one. 
+    def onlySmallestMB(ar_):
+        # ar_ is of depth 3, so flatten first two levels, and order so that uniques can be kept:
+        ar = [tuple(sorted(genes)) for intList in ar_ for genes in intList]
         ar = np.unique(ar, axis=0)
         ar = np.array([sorted(genes, key=lambda x: len(findMarkovBlanket(x, graph))) for genes in ar])
         return ar
 
-    ints_2pt = onlySmallestMB(ints_2pt)
-    ints_3pt = onlySmallestMB(ints_3pt)
-    ints_4pt = onlySmallestMB(ints_4pt)
-    ints_5pt = onlySmallestMB(ints_5pt)
+    connected_2pts = onlySmallestMB(connected_2pts)
+    connected_3pts = onlySmallestMB(connected_3pts)
+    connected_4pts = onlySmallestMB(connected_4pts)
+    connected_5pts = onlySmallestMB(connected_5pts)
 
-    ints_2pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_2pt]
-    ints_3pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_3pt]
-    ints_4pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_4pt]
-    ints_5pt = [(intSet, graph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in ints_5pt]
+    args_connected_2pts = [(intSet, estimationGraph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in connected_2pts]
+    args_connected_3pts = [(intSet, estimationGraph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in connected_3pts]
+    args_connected_4pts = [(intSet, estimationGraph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in connected_4pts]
+    args_connected_5pts = [(intSet, estimationGraph, trainDat, estimator, nResamps, genesToOneIndices, dataDups, boundBool, asympBool) for intSet in connected_5pts]
 
     if PrintBool:
-        print(f'Markov-connected trips: {len(ints_3pt)}, Quads: {len(ints_4pt)}, Pents: {len(ints_5pt)}')
+        print(f'Markov-connected pairs: {len(connected_2pts)}, trips: {len(connected_3pts)}, Quads: {len(connected_4pts)}, Pents: {len(connected_5pts)}')
     
 
-    for order, args in [['random_3pts', args_randTrips], ['random_4pts', args_randQuads], ['random_5pts', args_randPents],
-                     ['withinMB_3pts', ints_3pt], ['withinMB_4pts', ints_4pt], ['withinMB_5pts', ints_5pt]]:
-        
-                
+    for order, args in [['random_2pts', args_randPairs], ['random_3pts', args_randTrips], ['random_4pts', args_randQuads], ['random_5pts', args_randPents], ['withinMB_2pts', args_connected_2pts], ['withinMB_3pts', args_connected_3pts], ['withinMB_4pts', args_connected_4pts], ['withinMB_5pts', args_connected_5pts]]:
+
         
         start = time.perf_counter()
         with concurrent.futures.ProcessPoolExecutor(max_workers=maxWorkers) as executor:
-            results = executor.map(calcInteraction_withCI_parallel  , args)  
+            results = executor.map(calcInteraction_withCI_parallel, args)  
         finish = time.perf_counter()
         if PrintBool: print(f'Time elapsed: {round(finish-start, 2)} secs')
         if PrintBool: print('calculation done, storing results...')
@@ -151,7 +170,7 @@ def calcInteractionsAndWriteNPYs(ID, graph, trainDat, maxWorkers, estimator, nRe
         resultArr = np.array(list(results), dtype=object)
         if PrintBool: print('writing files...')
         
-        np.save(f'interactions_{order}_{ID}', resultArr, allow_pickle=True)
+        np.save(f'interactions_{order}_{mode}_{ID}', resultArr, allow_pickle=True)
 
         if PrintBool: print(f'********** DONE with {order} {ID} **********\n')
 
@@ -166,12 +185,16 @@ def main():
     
     
     print('Starting calculation on ' )
-    print('Using estimation method:  ', estimationMethod)
-    print(f'With {nResamps} bootstrap resamples')
+    print(f'Calculating {estimationMode}s')
+    print('Using estimation method:', estimationMethod)
+    if asympBool:
+        print(f'Using asymptotic variance estimation')
+    else:
+        print(f'With {nResamps} bootstrap resamples')
     print(f'Parallelised over {nCores} cores. ')
-    print(f'Asymptotic variance estimation: {bool(asympBool)}')
 
-    calcInteractionsAndWriteNPYs(DSname + '_' + estimationMethod+notes, graph, trainDat, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
+
+    calcInteractionsAndWriteNPYs(DSname + notes, graph, trainDat, maxWorkers=nCores, estimator = estimator, nResamps=nResamps, mode=estimationMode)
     
     
     print('***********DONE***********')

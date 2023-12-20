@@ -135,7 +135,7 @@ def calcInteractionsAndWriteNPYs(ID, maxWorkers, estimator, nResamps=1000):
         print(f'Connected sextuplets: {len(ints_6pt)}, Septuplets: {len(ints_7pt)}')
         
     for order, args in [['random_6pts', args_randSexs], ['random_7pts', args_randSepts],
-                         ['MB_6pts', ints_6pt], ['MB_7pts', ints_7pt]]:
+                         ['withinMBAndInteracting_6pts', ints_6pt], ['withinMBAndInteracting_7pts', ints_7pt]]:
         
                 
         
@@ -149,7 +149,7 @@ def calcInteractionsAndWriteNPYs(ID, maxWorkers, estimator, nResamps=1000):
         resultArr = np.array(list(results), dtype=object)
         if PrintBool: print('writing files...')
         
-        np.save(f'interactions_withinMB_{order}_{ID}', resultArr, allow_pickle=True)
+        np.save(f'interactions_{order}_{ID}', resultArr, allow_pickle=True)
         
         if PrintBool: print(f'********** DONE with {ID} **********\n')
 
@@ -170,7 +170,7 @@ def main():
     print(f'Asymptotic variance estimation: {bool(asympBool)}')
 
 
-    calcInteractionsAndWriteNPYs(ID = DSname + '_' + estimationMethod+notes, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
+    calcInteractionsAndWriteNPYs(ID = DSname + notes, maxWorkers=nCores, estimator = estimator, nResamps=nResamps)
 
     
     print('***********DONE***********')

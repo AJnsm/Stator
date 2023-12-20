@@ -18,15 +18,15 @@ Nextflow needs to be installed on the machine you want to run the pipeline on, w
 curl -s https://get.nextflow.io | bash
 ```
 
-You must have access to either Docker or Singularity. Most clusters (like Eddie) use Singularity for security reasons, but both will automatically pull the right container from DockerHub. (Conda environments are supported, but not recommended or guaranteed to work.)
+You must have access to either Docker or Singularity. Most HPC clusters use Singularity for security reasons, but both will automatically pull the right container from DockerHub. (Conda environments will be supported, but are yet not recommended or guaranteed to work.)
 
 ## Input files
 
-* rawDataPath: A count matrix in csv format, where the rows are cells, and the columns genes. The first row should contain the gene names (does not matter in which format). 
-* clusterFile (optional): A list of integer cluster annotations per cell in csv format: This should be in the same order as the cells in the count matrix. 
-* userGenes (optional): A list of genes that should be included in the final analysis, irrespective of their variability.  
-* genesToOne (optional): A list of genes that should be conditioned to a 1 instead of a 0.  
-* doubletFile (optional): A list of booleans that indicate whether a cell should be included (e.g. on the basis of being a suspected doublet), in the same order as the cells in the count matrix. 
+* `rawDataPath`: A count matrix in csv format, where the rows are cells, and the columns genes. The first row should contain the gene names (does not matter in which format). 
+* `clusterFile` (optional): A list of integer cluster annotations per cell in csv format: This should be in the same order as the cells in the count matrix. 
+* `userGenes` (optional): A list of genes that should be included in the final analysis, irrespective of their variability.  
+* `genesToOne` (optional): A list of genes that should be conditioned to a 1 instead of a 0.  
+* `doubletFile` (optional): A list of booleans that indicate whether a cell should be included (e.g. on the basis of being a suspected doublet), in the same order as the cells in the count matrix. 
 
 
 ## Output files
@@ -71,8 +71,6 @@ These affect the calculation and the results:
 | rawDataPath | ' ' | absolute path to count matrix (`.csv`) | Yes |
 | nGenes | ' ' | Number of genes to keep | Yes |
 | nCells | ' ' | Number of cells to keep | Yes |
-| clusterFile | ' ' | absolute path to cluster annotation (`.csv`) | No |
-| clusterArray | [1] | List of which clusters to keep | No |
 | doubletFile | ' ' | absolute path to doublet annotation (`.csv`) | No |
 | userGenes | ' ' | absolute path to list of required genes (`.csv`) | No |
 | fracMito | 1 | cells with more than `fracMito` mitochondrial reads get dismissed | Only when `dataType=='expression'` |
@@ -82,6 +80,8 @@ These affect the calculation and the results:
 | asympBool | 0 | Boolean that determines if the variance is estimated from bootstrap resamples (0) or an asymptotic approximation (1) | Yes |
 | boundBool | 0 |  Boolean that determines if inestimable interactions be bounded | Yes |
 | bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Only when `asympBool==0` |
+| calcAll2pts | 0 |  Boolean that determines if all 2-points should be calculated (1) or only the Markov-connected ones (0, default) | Yes |
+| estimationMode | 'MFI' | Setting this to `MFI` (default) yields estimates of model-free interactions by conditioning on the Markov-blanket, setting it to `LOR` yields unconditioned log-odds ratios. | Yes |
 | nRandomHOIs | 1000 | How many random 6 & 7-point interactions to calculate | Yes |
 | plotPairwiseUpsets | 0 | Boolean to determine if pairwise upset plots should be generated | Yes |
 | sigHOIthreshold | 0.05 | Significance threshold on F-value to decide which HOIs get summarised and used for states | Yes |

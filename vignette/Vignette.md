@@ -1,5 +1,7 @@
 # Minimal working example
 
+NOTE: this is slightly outdated since the latest version only calculates Markov-connected 2-point interactions by default, and has some file name changes. 
+
 We will run Stator on some gene expression data from astrocytes, publicly available from 10X. This directory contains the necessary files:
 * `vignetteAstrocyteData.csv`: the raw count matrix (23900 rows × 35 columns) where each row is a cell, and each column a gene, with a header of gene names.
 * `vignetteDoublets.csv`: a doublet annotation for each cell, in the same order as the cells in `vignetteAstrocyteData.csv`. In this case, it is just a list of zeros, which indicates none of the listed cells are annotated as doublets, so it might as well be excluded.

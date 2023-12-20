@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 import igraph as ig
+import matplotlib
+# No interactive backend necessary
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import argparse
@@ -28,7 +31,14 @@ from upsetplot import from_indicators
 import io
 from PIL import Image
 
+
+
+
 print('Modules imported \n')
+
+# DEBUGGING
+print('Before loading data:')
+
 
 parser = argparse.ArgumentParser(description='Args for coupling estimation')
 
@@ -36,10 +46,8 @@ parser.add_argument("--dataPath", type=str, help="Path to training data")
 parser.add_argument("--PCApath", type=str, help="Path to PCA embedding of training data")
 parser.add_argument("--CPDAGgraphPath", type=str, help="Path to CPDAG graph file")
 parser.add_argument("--MCMCgraphPath", type=str, help="Path to MCMC graph file")
+parser.add_argument("--estimationMode", type=str, help="Estimation mode used for interaction estimation (LOR or MFI)")
 parser.add_argument("--pathTo2pts", type=str, help="Path to calculated 2-point interactions")
-parser.add_argument("--pathTo2pts_CI_F", type=str, help="Path to calculated 2-point interactions: significance")
-parser.add_argument("--pathTo2pts_undef", type=str, help="Path to calculated 2-point interactions: number of undef. resamples")
-parser.add_argument("--pathTo2pts_inf", type=str, help="Path to calculated 2-point interactions: number of inf. resamples")
 parser.add_argument("--pathTo3pts", type=str, help="Path to calculated 3-point interactions")
 parser.add_argument("--pathTo4pts", type=str, help="Path to calculated 4-point interactions")
 parser.add_argument("--pathTo5pts", type=str, help="Path to calculated 5-point interactions")
@@ -70,29 +78,33 @@ scObj.obsm['X_pca'] = pcaCoords.values
 
 
 # Load all the 2-point information so that we can select only perfect and signigicant estimations. 
-coups_2pts = np.load(args.pathTo2pts, allow_pickle=True).astype(np.float32)
-coups_2pts_CI_F = np.load(args.pathTo2pts_CI_F, allow_pickle=True).astype(np.float32)
-coups_2pts_undef = np.load(args.pathTo2pts_undef, allow_pickle=True).astype(np.float32)
-coups_2pts_inf = np.load(args.pathTo2pts_inf, allow_pickle=True).astype(np.float32)
+# coups_2pts = np.load(args.pathTo2pts, allow_pickle=True).astype(np.float32)
+# coups_2pts_CI_F = np.load(args.pathTo2pts_CI_F, allow_pickle=True).astype(np.float32)
+# coups_2pts_undef = np.load(args.pathTo2pts_undef, allow_pickle=True).astype(np.float32)
+# coups_2pts_inf = np.load(args.pathTo2pts_inf, allow_pickle=True).astype(np.float32)
 
 # All imperfect estiamtions get set to NaN
-coups_2pts[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
-coups_2pts_CI_F[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
+# coups_2pts[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
+# coups_2pts_CI_F[(coups_2pts_undef>0) | (coups_2pts_inf>0)] = np.nan 
 
 
-# HHOIs stores all the significant (n>1)-point interactions present among interacting triplets, quadruplets, and pentuplets
+# HHOIs stores all the significant n-point interactions present among interacting pairs, triplets, quadruplets, and pentuplets
 HHOIs = {}
 alpha = args.sigHOIthreshold
-for order, intPath in enumerate([args.pathTo3pts, args.pathTo4pts, args.pathTo5pts]):
+for order, intPath in enumerate([args.pathTo2pts, args.pathTo3pts, args.pathTo4pts, args.pathTo5pts]):
 	ints = np.load(intPath, allow_pickle=True)
 	if len(ints)>0:
 		perfectSigEsts = list(map(lambda x: (((x[[4, 5, 6]]==0).all()) & (x[3]<alpha)), ints))
-		HHOIs[f'n{order+3}'] = ints[perfectSigEsts][:, [0, -1]]
-	else: HHOIs[f'n{order+3}'] = []
+		HHOIs[f'n{order+2}'] = ints[perfectSigEsts][:, [0, -1]]
+	else: HHOIs[f'n{order+2}'] = []
 
-pairs = np.array(np.where(coups_2pts_CI_F<alpha)).T
-vals = coups_2pts[coups_2pts_CI_F<alpha]
-HHOIs[f'n2'] = np.array([list(x) for x in list(zip(vals, pairs))])
+# pairs = np.array(np.where(coups_2pts_CI_F<alpha)).T
+# vals = coups_2pts[coups_2pts_CI_F<alpha]
+# HHOIs[f'n2'] = np.array([list(x) for x in list(zip(vals, pairs))])
+
+# DEBUGGING
+print('After loading data:')
+
 
 def findsubsets(s, n):
 	return list(itertools.combinations(s, n))
@@ -236,6 +248,9 @@ for order in ordersToPlot:
 							break
 
 			#  ************************ Interaction Hypergraph  ************************ 
+			# DEBUGGING
+			print('Hypergraph:')
+			
 			
 			H = hnx.Hypergraph(edges)
 			cList = ['red' if w<0 else 'green' for w in weights]
@@ -266,9 +281,15 @@ for order in ordersToPlot:
 			plt.savefig(buf)
 			buf.seek(0)
 			plotHypergraph[ID] = fromImToArr(Image.open(buf))
+			buf.seek(0)
+			buf.truncate(0)
+			plt.clf()
 			plt.close()
 
 			#  ************************ CPDAG ************************ 
+			# DEBUGGING
+			print('CPDAG:')
+			
 
 			fig, ax = plt.subplots(figsize=[6, 6])
 			ig.plot(g, layout=layout_c, edge_arrow_size=20, edge_arrow_width=10,
@@ -284,9 +305,17 @@ for order in ordersToPlot:
 			plt.savefig(buf)
 			buf.seek(0)
 			plotCPDAG[ID] = fromImToArr(Image.open(buf))
+			buf.seek(0)
+			buf.truncate(0)
+			plt.clf()
 			plt.close()
 
 			#  ************************ PCA embeddings ************************ 
+
+			# DEBUGGING
+			print('PCA:')
+			
+
 			fig, ax = plt.subplots(1, len(geneTuple), figsize=[20, 4])
 			for i, g in enumerate(genes[geneTuple]):
 				sc.pl.embedding(scObj,'pca', color=g, 
@@ -297,25 +326,54 @@ for order in ordersToPlot:
 			plt.savefig(buf)
 			buf.seek(0)
 			plotPCA[ID] = fromImToArr(Image.open(buf))
+			buf.seek(0)
+			buf.truncate(0)
+			plt.clf()
 			plt.close() 
 
 			#  ************************ Upset plots ************************ 
-
+			
+			# DEBUGGING
+			print('Upset:')
+			
+			
 			unConditionedGenes = trainDat.iloc[:, geneTuple]
-			conditionedGenes = conditionOnMB(geneTuple, MCMCgraph, trainDat, mode='Min')
 
-			fig = plt.figure(figsize=[10, 10])
-			buf = io.BytesIO()
-			plotUpsetPlot(d = conditionedGenes,fig=fig, legend=False, title = 'Conditioned on MB', filename=buf, save=True)
-			buf.seek(0)
-			plotUpset_cond[ID] = fromImToArr(Image.open(buf))
-			plt.close()
+
+			if args.estimationMode=='MFI':
+				conditionedGenes = conditionOnMB(geneTuple, MCMCgraph, trainDat, mode='Min')
+				fig = plt.figure(figsize=[10, 10])
+				buf = io.BytesIO()
+				plotUpsetPlot(d = conditionedGenes,fig=fig, legend=False, title = 'Conditioned on MB', filename=buf, save=True)
+				buf.seek(0)
+				plotUpset_cond[ID] = fromImToArr(Image.open(buf))
+				buf.seek(0)
+				buf.truncate(0)
+				plt.clf()
+				plt.close()
+			
+			else:
+				# create empty plot for conditioned genes when not using MFI estimation, since MFI is likely not estimable.
+				conditionedGenes = unConditionedGenes
+				fig = plt.figure(figsize=[10, 10])
+				buf = io.BytesIO()
+				plt.savefig(buf)
+				buf.seek(0)
+				plotUpset_cond[ID] = fromImToArr(Image.open(buf))
+				buf.seek(0)
+				buf.truncate(0)
+				plt.clf()
+				plt.close()
+				
 
 			fig = plt.figure(figsize=[10, 10])
 			buf = io.BytesIO()
 			plotUpsetPlot(d = unConditionedGenes,fig=fig, legend=False, title = 'Unconditioned', filename=buf, save=True)
 			buf.seek(0)
 			plotUpset_uncond[ID] = fromImToArr(Image.open(buf))
+			buf.seek(0)
+			buf.truncate(0)
+			plt.clf()
 			plt.close()
 			
 
@@ -341,6 +399,11 @@ for order in ordersToPlot:
 	else: enrichments[f'n{order}'] = []
 		
 #  ************************ PCA embedding on max deviating state ************************ 
+
+# DEBUGGING
+print('Before embedding:')
+
+
 for order in ordersToPlot:
 	for devs, pvals, interactors in enrichments[f'n{order}']:
 		ID = '_'.join(genes[interactors])
@@ -363,16 +426,26 @@ for order in ordersToPlot:
 		plt.savefig(buf)
 		buf.seek(0)
 		plotMaxDev[ID] = fromImToArr(Image.open(buf))
+		buf.seek(0)
+		buf.truncate(0)
+		plt.clf()
 		plt.close()
 		# plt.savefig(f'{ID}_Expression_maxDevState.png')
 		plt.close('all') 
 
 
 #  ************************ Plot summary figures ************************ 
+# DEBUGGING
+print('Before summary figs:')
+
 
 sns.set_style("white")
 
 for order in ordersToPlot:
+	# DEBUGGING
+	print(f'Order: {order}')
+	
+
 	if len(HHOIs[f'n{order}'])>0:
 		for w, geneTuple in HHOIs[f'n{order}'][:, [0, -1]]:
 			ID = '_'.join(genes[geneTuple])	  
@@ -404,6 +477,9 @@ for order in ordersToPlot:
 			plt.savefig(f'{ID}_summary.png')
 			plt.close(fig) 
 
+# DEBUGGING
+print('After summary figs:')
+
 
 # Construct a dataframe with the deviations of each positively enriched state:
 devDict = []
@@ -415,6 +491,10 @@ for order in [3, 4, 5]:
 			# Format the binary state
 			maxDevState = format(devStateInd, f"0{order}b")
 			devDict.append([ID, maxDevState, devs[devStateInd], pvals[devStateInd]])
+
+# DEBUGGING
+print('After dev dicts:')
+
 
 if len(devDict)>0:
 	deviators = pd.DataFrame(devDict, columns=['genes', 'state', 'enrichment', 'pval'])
