@@ -1,17 +1,7 @@
 __pycache__/
-output/*
-cellData/1M*
-cellData/ZeiselCells/*
-Luke*
 *.pages
 work
 
-graphs/*
-plots/*
-embeddings/*
-coupling_output/*
-reports/*
-doubTest.py
 .nextflow*
 *.ipynb*
 *.npz

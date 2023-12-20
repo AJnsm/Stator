@@ -116,7 +116,7 @@ First, you need to pull the latest version of the pipeline from Github. This is 
 
 
 ```bash
-nextflow pull AJnsm/NF_TL_pipeline -r branch
+nextflow pull AJnsm/Stator -r branch
 ```
 where branch is set to either `main` (most stable) or `develop`. On a cluster, you need to load Singularity. On Eddie this is done with 
 
@@ -128,7 +128,7 @@ module load singularity
  Then, from the directory where you want the output directories to be generated, the pipeline can be run with the command:
 
 ```bash
-nextflow run AJnsm/NF_TL_pipeline -r main -profile eddie_singularity -params-file params.json
+nextflow run AJnsm/Stator -r main -profile eddie_singularity -params-file params.json
 ```
 
 Where ```-r main ``` specifies the branch/revision, ```-profile eddie_singularity``` selects the right profile for the Eddie environment, and ```-params-file params.json``` specifies a JSON file with the necessary parameters. An example JSON file is provided in this repository.

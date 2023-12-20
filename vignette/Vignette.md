@@ -111,18 +111,18 @@ We are now ready to run the pipeline. Make sure you are on a node of the schedul
 Then pull the latest version of the pipeline:
 
 ```bash
-$ nextflow pull AJnsm/NF_TL_pipeline -r develop
-> Checking AJnsm/NF_TL_pipeline ...
+$ nextflow pull AJnsm/Stator -r develop
+> Checking AJnsm/Stator ...
 >  Already-up-to-date - revision: 520967e399 [develop]
 ```
 
 And run the pipeline:
 
 ```bash
-$ nextflow run AJnsm/NF_TL_pipeline -r develop -profile eddie_singularity -params-file params.json -resume
+$ nextflow run AJnsm/Stator -r develop -profile eddie_singularity -params-file params.json -resume
 
 > N E X T F L O W  ~  version 22.04.3
-> Launching `https://github.com/AJnsm/NF_TL_pipeline` [elegant_rosalind] DSL1 - revision: 520967e399 [develop]
+> Launching `https://github.com/AJnsm/Stator` [elegant_rosalind] DSL1 - revision: 520967e399 [develop]
 executor >  sge (1)
 [0e/6c9394] process > makeData (1)                  [0%] 0 of 1
 [-        ] process > estimatePCgraph               -
@@ -143,7 +143,7 @@ Once the pipeline has finished, the output should look something like this:
 
 ```bash
 > N E X T F L O W  ~  version 22.04.3
-> Launching `https://github.com/AJnsm/NF_TL_pipeline` [jolly_turing] DSL1 - revision: 4902322ba5 [develop]
+> Launching `https://github.com/AJnsm/Stator` [jolly_turing] DSL1 - revision: 4902322ba5 [develop]
 executor >  sge (11)
 [99/96d88e] process > makeData                          [100%] 1 of 1 ✔
 [cd/06c207] process > estimatePCgraph (1)               [100%] 1 of 1 ✔
@@ -200,7 +200,7 @@ Most deviating and striking is the Globin-positive state where the genes *Hbb-bt
 
 The d-tuples are combined to form cell states by cutting a hierarchical clustering at the Dice-coefficient that maximised the modularity score, which was 0.83 in this case (as can be seen in the file `states_output/modularity_scores.csv`). A figure showing this cut dendrogram is saved in `states_output/dendrogram_all_dTuples_cut.png`:
 
-![an example dendrogram](https://github.com/AJnsm/NF_TL_pipeline/blob/develop/vignette/dendrogram_vignette_example.png)
+![an example dendrogram](https://github.com/AJnsm/Stator/blob/develop/vignette/dendrogram_vignette_example.png)
 
 (Note that for this crude selection of genes and cells, the PCA embedding of the cells is a bit useless. In practice, gene selection would at least in part be based QC metrics like high variance *etc.*, which Stator can automatically apply when running in `expression` mode.)
 
