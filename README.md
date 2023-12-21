@@ -17,14 +17,17 @@ The pipeline can be run directly from the command line. It pulls all code from G
 Subsequent analysis can be done with our bespoke R Shiny app, available from https://shiny.igc.ed.ac.uk/MFIs/
 
 ## Docs
-Docs are available [here](/docs)
+Documentation on installation and usage are available [here](/docs)
 
 ## To do
+- [ ] Remove unnecessary dendrogram outputs and bootstrapping
+- [ ] remove boundval from output
+- [ ] output order 1 interactions in same format as the rest.
 - [ ] remove references to eddie and change to generic "SGE"
 - [ ] remove unnecessary configs
 - [ ] make sure running locally is working, has a good profile, and is explained
 - [ ] add and check conda environment yamls
-- [ ] add option to just calculate log-odds ratios
+- [X] add option to just calculate log-odds ratios
 - [ ] create better documentation
 - [ ] show a full run on some example data. 
 - [ ] create better tests

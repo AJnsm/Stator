@@ -16,18 +16,21 @@
 
 ## Requirements
 
-Nextflow needs to be installed on the machine you want to run the pipeline on, which is as simple as running:
+Nextflow needs to be installed on the machine you want to run the pipeline on, which can be as simple as running:
 
 ```bash
 curl -s https://get.nextflow.io | bash
 ```
+For more information on setting up Nextflow, see [their official guide](https://www.nextflow.io/docs/latest/getstarted.html).
 
-You must have access to either Docker or Singularity. Most HPC clusters use Singularity for security reasons, but both will automatically pull the right container from DockerHub. (Conda environments will be supported, but are yet not recommended or guaranteed to work.)
+You must have access to either Docker or Singularity. Most HPC clusters use Singularity for security reasons, but both will automatically pull the right container from DockerHub. 
+To schedule job submission, this repo comes with a profile for Sun Grid Engine (SGE) compatible platforms, which is used on the Edinburgh compute cluster Eddie. This can be used as a template for other cluster schedulers, but is not guaranteed to work, so contact your local nextflow users for help. 
+
+(Conda environments for local runs will be supported, but are yet not recommended or properly tested.)
 
 ## Input files
 
 * `rawDataPath`: A count matrix in csv format, where the rows are cells, and the columns genes. The first row should contain the gene names (does not matter in which format). 
-* `clusterFile` (optional): A list of integer cluster annotations per cell in csv format: This should be in the same order as the cells in the count matrix. 
 * `userGenes` (optional): A list of genes that should be included in the final analysis, irrespective of their variability.  
 * `genesToOne` (optional): A list of genes that should be conditioned to a 1 instead of a 0.  
 * `doubletFile` (optional): A list of booleans that indicate whether a cell should be included (e.g. on the basis of being a suspected doublet), in the same order as the cells in the count matrix. 
@@ -35,34 +38,37 @@ You must have access to either Docker or Singularity. Most HPC clusters use Sing
 
 ## Output files
 * `output/`
-    * `trainingData_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv`: The nCells x nGenes count matrices after filtering.
+    * `trainingData_{$nCells}Cells_{$nGenes}Genes.csv`: The nCells x nGenes count matrices after filtering.
     * `unbinarised_cell_data.h5ad`: The unbinarised expression of all genes in the selected cells. 
-    * `{$graphType}graph_CL{$cluster}_{$nCells}Cells_{$nGenes}Genes.csv`: The nGenes x nGenes adjacency matrices for the graphs used in the estimation steps.
-    * `trainingData_CL01_02000Cells_0020Genes_{$embedding}coords.csv`: Embedding coordinates of the selected cells. 
-    * `.png`: Figures with basic QC metrics.
+    * `{$graphType}graph_{$nCells}Cells_{$nGenes}Genes.csv`: The nGenes x nGenes adjacency matrices for the graphs used in the estimation steps.
+    * `trainingData_{$nCells}Cells_{$nGenes}Genes_{$embedding}coords.csv`: Embedding coordinates of the selected cells. 
+    * `.png`: Figures with basic QC metrics (only if running in `expression` mode).
 * `coupling_output/`
-    * `interactions_order{$order}[...]_coup.npy`: The interaction point estimates at order 1 & 2.
-    * `interactions_order{$order}[...]_CI_U(L)B.npy`: The upper (lower) bound of the 95% confidence interval.
-    * `interactions_order{$order}[...]_CI_F.npy`: The fraction of resamples with a different sign than the point estimate (F-value).
-    * `interactions_order{$order}[...]_inf(undef).npy`: The fraction of resamples that were infinite (undefined).
-    * `interactions_withinMB_{$order}pts[...].npy`: The interaction estimates and statistics at order 3-7 (within Markov blanket and `nRandomHOIs` random ones).
+    * `interactions_withinMB_{$order}pts_[...].npy`: 
+    The interaction estimates and statistics at order 2-7. Each interaction is a tuple of length 8. The values are, in order.
+    1. The point estimate
+    2. Lower bound of 95% CI
+    3. Upper bound of 95% CI
+    4. F value
+    5. Proportion of undefined bootstrap resamples, 
+    6. Proportion of divergent bootstrap resamples
+    7. Bound indicator (0 by default)
+    8. Tuple of gene indices
+    * `interactions_withinMB_{$order}pts_[...].npy`: The same as above, but for `nRandomHOIs` random interactions.
 * `HOIsummaries/`
-    * `{$genes}_summary.png`: Figures that summarise the significant 3-, 4-, and 5-point interactions. 
+    * `{$genes}_summary.png`: Figures that summarise the significant 2-, 3-, 4-, and 5-point interactions. 
     * `all_DTuples.csv`: A list of the positively enriched d-tuples. 
     * `top_DTuples.csv`: A list of the positively and significantly enriched d-tuples. 
     * `DTuples_binaryReps.csv`: Binary representations of all positively enriched d-tuples.
-    * `distinctDeviatingStates_dendrogram.png`: The characteristic states embedded in PCA coordinates, in a dendrogram. 
 * `states_output/`
     * `modularity_scores.csv`: Cutoffs and modularity scores of the hierarchical clustering of the binary representation.
-    * `top_DTuples_withStatesFromCut.csv`: A list of the positively and significantly enriched d-tuples, with the associated cluster resulting from the cut.
+    * `top_DTuples_withStatesFromCut.csv`: A list of the positively and significantly enriched d-tuples, with the associated cluster resulting from the cut that maximised the modularity score.
     * `bootstrapStats.csv`: The bootstrap statistics of the dendrogram branches.
-    * `statesWithBootstrapStats.csv`: The cell states with their associated bootstrap statistics. 
     * `dendrogram_all_dTuples.png`: A figure of the full dendrogram of all d-tuples.
-    * `dendrogram_all_dTuples_cut.png`: A figure of the dendrogram after the cut.
 * `reports/`
     * Some reports from Nextflow on resource usage etc.
 * `work/`
-    * The working directory of Nextflow, useful for debugging. 
+    * The working directory of Nextflow, useful for debugging, and resuming previous runs. 
 
 
 ## Parameters
@@ -82,18 +88,18 @@ These affect the calculation and the results:
 | minCells | 0 | genes expressed in fewer than `minCells` get dismissed | Only when `dataType=='expression'` |
 | PCalpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
 | asympBool | 0 | Boolean that determines if the variance is estimated from bootstrap resamples (0) or an asymptotic approximation (1) | Yes |
-| boundBool | 0 |  Boolean that determines if inestimable interactions be bounded | Yes |
+| boundBool | 0 |  Boolean that determines if inestimable interactions be bounded. **(will soon be deprecated)** | Yes |
 | bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Only when `asympBool==0` |
 | calcAll2pts | 0 |  Boolean that determines if all 2-points should be calculated (1) or only the Markov-connected ones (0, default) | Yes |
 | estimationMode | 'MFI' | Setting this to `MFI` (default) yields estimates of model-free interactions by conditioning on the Markov-blanket, setting it to `LOR` yields unconditioned log-odds ratios. | Yes |
 | nRandomHOIs | 1000 | How many random 6 & 7-point interactions to calculate | Yes |
 | plotPairwiseUpsets | 0 | Boolean to determine if pairwise upset plots should be generated | Yes |
-| sigHOIthreshold | 0.05 | Significance threshold on F-value to decide which HOIs get summarised and used for states | Yes |
-| minStateDeviation | 5 | Min. enrichment factor for characteristic states | Yes |
+| sigHOIthreshold | 0.05 | Significance threshold on F-value to decide which HOIs get summarised and used for states **(will soon be replaced by CI)** | Yes |
+| minStateDeviation | 3 | Min. enrichment factor for characteristic states | Yes |
 | stateDevAlpha | 0.05 | Min. enrichment significance for characteristic states | Yes |
-| dendCutoff | 0.88 | Dice distance at which the dendrogram gets cut | Yes |
-| bsResamps_HC | 100 | Number of bootstrap resampled state dendrograms to generate | Yes |
-| auThreshold | 0.95 | AU threshold that determines if a dendrogram branch is significant | Yes |
+| dendCutoff | -1 | Dice distance at which the dendrogram gets cut. Number between 0 and 1, or -1 for maximum modularity | Yes |
+| bsResamps_HC | 100 | Number of bootstrap resampled state dendrograms to generate **(will soon be deprecated)**| Yes |
+| auThreshold | 0.95 | AU threshold that determines if a dendrogram branch is significant **(will soon be deprecated)**| Yes |
 
 
 
@@ -121,20 +127,17 @@ First, you need to pull the latest version of the pipeline from Github. This is 
 ```bash
 nextflow pull AJnsm/Stator -r branch
 ```
-where branch is set to either `main` (most stable) or `develop`. On a cluster, you need to load Singularity. On Eddie this is done with 
-
-
+where branch is set to either `main` (most stable) or `develop`. On a cluster, you need to load Singularity. On the Edinburgh University compute cluster this is done with 
 ```bash
 module load singularity
 ```
-
- Then, from the directory where you want the output directories to be generated, the pipeline can be run with the command:
+Then, from the directory where you want the output directories to be generated, the pipeline can be run with the command:
 
 ```bash
 nextflow run AJnsm/Stator -r main -profile eddie_singularity -params-file params.json
 ```
 
-Where ```-r main ``` specifies the branch/revision, ```-profile eddie_singularity``` selects the right profile for the Eddie environment, and ```-params-file params.json``` specifies a JSON file with the necessary parameters. An example JSON file is provided in this repository.
+Where `-r main ` specifies the branch/revision, `profile eddie_singularity` selects the right profile for the Eddie environment, and `params-file params.json` specifies a JSON file with the necessary parameters. An example JSON file is provided in this repository.
 
 
 **NOTE: On a cluster, you need to make sure you are on a node that allows automated job submission. On Eddie these are known as the wild-west nodes.**
@@ -154,9 +157,9 @@ The `integration tests` directory contains a bash script `runTests.py` that gene
 sh runTests.py
 pytest -rP integration_tests.py
 ```
-verifies that the inferred interactions are approximately correct. This done once using the full pipeline---PC algorithm, MCMC optimisation, and MFI estimation---and once using the true underlying conditional dependency graph---the nearest-neighbour strucure. 
+verifies that the inferred interactions are (approximately) correct. This done once using the full pipeline---PC algorithm, MCMC optimisation, and MFI estimation---and once using the true underlying conditional dependency graph---the nearest-neighbour strucure. 
 
 **Results:**
 - Using the MCMC graph, the 67% of the estimable 1-point interactions were significant at alpha=0.1 (in theory all should be significant), and the 2-point interactions identified the nearest-neighbour structure with an F1-score of  0.53, vs. 0.37 for randomly shuffled 2-point interactions. 
-- Using the known nearest-neighbour structure as the causal graph, the 100% of the estimable 1-point interactions were significant at alpha=0.1, and the 2-point interactions identified the nearest-neighbour structure with an F1-score of 0.92, vs. 0.54 for randomly shuffled 2-point interactions. 
+- Using the known nearest-neighbour structure as the causal graph, 100% of the estimable 1-point interactions were significant at alpha=0.1, and the 2-point interactions identified the nearest-neighbour structure with an F1-score of 0.92, vs. 0.54 for randomly shuffled 2-point interactions. 
 
