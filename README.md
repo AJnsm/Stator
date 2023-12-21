@@ -16,6 +16,9 @@ The pipeline can be run directly from the command line. It pulls all code from G
 
 Subsequent analysis can be done with our bespoke R Shiny app, available from https://shiny.igc.ed.ac.uk/MFIs/
 
+## Docs
+Docs are available [here](/docs)
+
 ## To do
 - [ ] remove references to eddie and change to generic "SGE"
 - [ ] remove unnecessary configs
