@@ -12,25 +12,25 @@ NOTE: this repo will soon move to the account of the [Edinburgh Biomedical AI La
 ## Introduction
 The Stator pipeline takes in single cell RNA-seq count matrices, and estimates gene-gene interactions at up to seventh order. The 3-, 4-, and 5-point interactions among Markov-connected genes are used to find characteristic, multi-type states present in the cell population. 
 
-The pipeline can be run directly from the command line. It pulls all code from Github, and the required containers from Dockerhub. It can run on your local machine (though I have not tested this thoroughly), or on a cluster with the Sun Grid Engine scheduling system (like Eddie). 
+The pipeline can be run directly from the command line. It pulls all code from Github, and the required containers from Dockerhub. It can run on your local machine (though this is not tested thoroughly or recommended), or on a Sun Grid Engine (SGE) compatible platform, like the Edinburgh University compute cluster Eddie.
 
-Subsequent analysis can be done with our bespoke R Shiny app, available from https://shiny.igc.ed.ac.uk/MFIs/
+Subsequent analysis can be done with our bespoke Stator Shiny app, available from https://shiny.igc.ed.ac.uk/MFIs/
 
 ## Docs
 Documentation on installation and usage are available [here](/docs)
 
 ## To do
-- [ ] Remove unnecessary dendrogram outputs and bootstrapping
+- [ ] remove unnecessary dendrogram outputs and bootstrapping
 - [ ] remove boundval from output
 - [ ] output order 1 interactions in same format as the rest.
-- [ ] remove references to eddie and change to generic "SGE"
+- [ ] remove references to Eddie and change to generic "SGE"
 - [ ] remove unnecessary configs
 - [ ] make sure running locally is working, has a good profile, and is explained
 - [ ] add and check conda environment yamls
 - [X] add option to just calculate log-odds ratios
-- [ ] create better documentation
+- [ ] improve documentation and tutorial
 - [ ] show a full run on some example data. 
-- [ ] create better tests
+- [ ] Create more unit tests for state inference
 
 
 
