@@ -25,6 +25,7 @@ Documentation on installation and usage are available [here](/docs)
 - [X] change `pipelineScripts` to `scripts`
 - [X] put all configs in a single directory
 - [X] put all environment data in a single directory
+- [ ] update vignette
 - [ ] remove unnecessary dendrogram outputs and bootstrapping
 - [ ] remove boundval from output
 - [ ] output order 1 interactions in same format as the rest.
@@ -34,7 +35,7 @@ Documentation on installation and usage are available [here](/docs)
 - [ ] add and check conda environment yamls
 - [X] add option to just calculate log-odds ratios
 - [ ] improve documentation and tutorial
-- [ ] show a full run on some example data. 
+- [ ] Update vignette
 - [ ] Create more unit tests for state inference
 - [ ] add option to also use 2-points for state inference
 
