@@ -160,6 +160,7 @@ verifies that the inferred interactions are approximately correct. This done onc
 
 
 ## To do
+- [ ] remove references to eddie and change to generic "SGE"
 - [ ] remove unnecessary configs
 - [ ] make sure running locally is working, has a good profile, and is explained
 - [ ] add and check conda environment yamls
