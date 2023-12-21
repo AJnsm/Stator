@@ -20,6 +20,9 @@ Subsequent analysis can be done with our bespoke Stator Shiny app, available fro
 Documentation on installation and usage are available [here](/docs)
 
 ## To do
+- [ ] change `pipelinescripts` to `scripts`
+- [ ] put all configs in a single directory
+- [ ] put all environment data in a single directory
 - [ ] remove unnecessary dendrogram outputs and bootstrapping
 - [ ] remove boundval from output
 - [ ] output order 1 interactions in same format as the rest.
