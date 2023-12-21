@@ -24,7 +24,7 @@ curl -s https://get.nextflow.io | bash
 For more information on setting up Nextflow, see [their official guide](https://www.nextflow.io/docs/latest/getstarted.html).
 
 You must have access to either Docker or Singularity. Most HPC clusters use Singularity for security reasons, but both will automatically pull the right container from DockerHub. 
-To schedule job submission, this repo comes with a profile for Sun Grid Engine (SGE) compatible platforms, which is used on the Edinburgh compute cluster Eddie. This can be used as a template for other cluster schedulers, but is not guaranteed to work, so contact your local nextflow users for help. 
+To schedule job submission, this repo comes with a profile for Sun Grid Engine (SGE) compatible platforms, which is used on the Edinburgh University compute cluster Eddie. This can be used as a template for other cluster schedulers, but is not guaranteed to work, so contact your local nextflow users for help. 
 
 (Conda environments for local runs will be supported, but are yet not recommended or properly tested.)
 
@@ -54,7 +54,7 @@ To schedule job submission, this repo comes with a profile for Sun Grid Engine (
     6. Proportion of divergent bootstrap resamples
     7. Bound indicator (0 by default)
     8. Tuple of gene indices
-    * `interactions_withinMB_{$order}pts_[...].npy`: The same as above, but for `nRandomHOIs` random interactions.
+    * `interactions_random_{$order}pts_[...].npy`: The same as above, but for `nRandomHOIs` random interactions.
 * `HOIsummaries/`
     * `{$genes}_summary.png`: Figures that summarise the significant 2-, 3-, 4-, and 5-point interactions. 
     * `all_DTuples.csv`: A list of the positively enriched d-tuples. 
