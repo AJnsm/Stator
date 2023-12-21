@@ -1,7 +1,7 @@
 __pycache__/
 *.pages
 work
-Tutorial
+
 
 .nextflow*
 *.ipynb*
