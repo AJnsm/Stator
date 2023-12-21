@@ -12,7 +12,7 @@
 
 ## Pipeline design
 
-![Pipeline flow](nextflowDAG.png)
+![Pipeline flow](/docs/nextflowDAG.png)
 
 ## Requirements
 
