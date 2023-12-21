@@ -20,6 +20,7 @@ Subsequent analysis can be done with our bespoke Stator Shiny app, available fro
 Documentation on installation and usage are available [here](/docs)
 
 ## To do
+- [ ] switch to DSL2
 - [ ] change `pipelinescripts` to `scripts`
 - [ ] put all configs in a single directory
 - [ ] put all environment data in a single directory
