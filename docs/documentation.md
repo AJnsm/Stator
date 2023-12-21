@@ -143,7 +143,7 @@ Where `-r main ` specifies the branch/revision, `profile eddie_singularity` sele
 **NOTE: On a cluster, you need to make sure you are on a node that allows automated job submission. On Eddie these are known as the wild-west nodes.**
 
 ## Unit tests
-The `pipelineScripts` directory contains a file `pipelineScripts/unit_tests.py`. This is a collection of `pytest` unit tests to assert that various parts of the estimation procedure function properly. As it is not necessary to run the pipeline, `pytest` is not part of the containerised `Python` environment. To run the unit test, install `pytest` using e.g. `pip` or `conda`, and run the following command from the `pipelineScripts` directory:
+The `scripts` directory contains a file `scripts/unit_tests.py`. This is a collection of `pytest` unit tests to assert that various parts of the estimation procedure function properly. As it is not necessary to run the pipeline, `pytest` is not part of the containerised `Python` environment. To run the unit test, install `pytest` using e.g. `pip` or `conda`, and run the following command from the `scripts` directory:
 ```bash
 pytest unit_tests.py
 ```

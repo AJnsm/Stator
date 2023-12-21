@@ -6,22 +6,22 @@
 source /Users/s1855283/anaconda3/bin/activate NF_TL_env
 python reshapeMagneto.py
 
-python ../pipelineScripts/makeTrainingData.py \
+python ../scripts/makeTrainingData.py \
     --dataType agnostic \
     --rawData isingTestData.csv \
     --nGenes 9 \
     --nCells 100000 \
 
 source /Users/s1855283/anaconda3/bin/activate rEnv
-Rscript ../pipelineScripts/parallelPCscript.R trainingData_CL01_100000Cells_0009Genes.csv 4 0.1
+Rscript ../scripts/parallelPCscript.R trainingData_CL01_100000Cells_0009Genes.csv 4 0.1
 
 
 source /Users/s1855283/anaconda3/bin/deactivate
-Rscript ../pipelineScripts/iterMCMCscript.R PCgraph_CL01_100000Cells_0009Genes.csv trainingData_CL01_100000Cells_0009Genes.csv 9
+Rscript ../scripts/iterMCMCscript.R PCgraph_CL01_100000Cells_0009Genes.csv trainingData_CL01_100000Cells_0009Genes.csv 9
 
 
 source /Users/s1855283/anaconda3/bin/activate NF_TL_env
-python ../pipelineScripts/estimateTLcoups.py \
+python ../scripts/estimateTLcoups.py \
     --dataPath trainingData_CL01_100000Cells_0009Genes.csv \
     --graphPath MCMCgraph_CL01_100000Cells_0009Genes.csv \
     --intOrder 1 \
@@ -30,7 +30,7 @@ python ../pipelineScripts/estimateTLcoups.py \
     --estimationMethod expectations \
     --dataDups 0 --boundBool 0
 
-python ../pipelineScripts/estimateTLcoups.py \
+python ../scripts/estimateTLcoups.py \
     --dataPath trainingData_CL01_100000Cells_0009Genes.csv \
     --graphPath MCMCgraph_CL01_100000Cells_0009Genes.csv \
     --intOrder 2 \
@@ -39,7 +39,7 @@ python ../pipelineScripts/estimateTLcoups.py \
     --estimationMethod expectations \
     --dataDups 0 --boundBool 0
 
-python ../pipelineScripts/estimateTLcoups.py \
+python ../scripts/estimateTLcoups.py \
     --dataPath trainingData_CL01_100000Cells_0009Genes.csv \
     --graphPath isingTestData_trueAdjMat.csv \
     --intOrder 1 \
@@ -48,7 +48,7 @@ python ../pipelineScripts/estimateTLcoups.py \
     --estimationMethod expectations \
     --dataDups 0 --boundBool 0
 
-python ../pipelineScripts/estimateTLcoups.py \
+python ../scripts/estimateTLcoups.py \
     --dataPath trainingData_CL01_100000Cells_0009Genes.csv \
     --graphPath isingTestData_trueAdjMat.csv \
     --intOrder 2 \

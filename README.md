@@ -21,9 +21,10 @@ Documentation on installation and usage are available [here](/docs)
 
 ## To do
 - [ ] switch to DSL2
-- [ ] change `pipelinescripts` to `scripts`
-- [ ] put all configs in a single directory
-- [ ] put all environment data in a single directory
+- [X] update example params file
+- [X] change `pipelineScripts` to `scripts`
+- [X] put all configs in a single directory
+- [X] put all environment data in a single directory
 - [ ] remove unnecessary dendrogram outputs and bootstrapping
 - [ ] remove boundval from output
 - [ ] output order 1 interactions in same format as the rest.
@@ -35,6 +36,7 @@ Documentation on installation and usage are available [here](/docs)
 - [ ] improve documentation and tutorial
 - [ ] show a full run on some example data. 
 - [ ] Create more unit tests for state inference
+- [ ] add option to also use 2-points for state inference
 
 
 

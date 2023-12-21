@@ -11,7 +11,7 @@ process makeData {
     publishDir "${launchDir}/output", mode: 'copy'
 
     input:
-    path dataScript from "${projectDir}/pipelineScripts/makeTrainingData.py" 
+    path dataScript from "${projectDir}/scripts/makeTrainingData.py" 
     path rawData from params.rawDataPath
     
     output:
@@ -43,7 +43,7 @@ process estimatePCgraph {
     publishDir "${launchDir}/output", mode: 'copy'
 
     input:
-    path PCgraphEstScript from "${projectDir}/pipelineScripts/parallelPCscript.R" 
+    path PCgraphEstScript from "${projectDir}/scripts/parallelPCscript.R" 
     path dataSet from dataSets
 
     output:
@@ -61,7 +61,7 @@ process iterMCMCscheme {
     publishDir "${launchDir}/output", mode: 'copy'
     
     input:
-    path MCMCscript from "${projectDir}/pipelineScripts/iterMCMCscript.R" 
+    path MCMCscript from "${projectDir}/scripts/iterMCMCscript.R" 
     tuple path(dataSet), path(PCgraph) from PCgraphs_forMCMC_ch
 
     output:
@@ -84,8 +84,8 @@ process estimateCoups_1pts {
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
-    path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
-    path utilities from "${projectDir}/pipelineScripts/utilities.py" 
+    path estimationScript from "${projectDir}/scripts/estimateTLcoups.py" 
+    path utilities from "${projectDir}/scripts/utilities.py" 
     path genesToOne from params.genesToOne
     tuple path(dataSet), path(graph) from data_and_graphs_1pts
     
@@ -115,8 +115,8 @@ process estimateCoups_2pts {
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
-    path estimationScript from "${projectDir}/pipelineScripts/estimateTLcoups.py" 
-    path utilities from "${projectDir}/pipelineScripts/utilities.py" 
+    path estimationScript from "${projectDir}/scripts/estimateTLcoups.py" 
+    path utilities from "${projectDir}/scripts/utilities.py" 
     path genesToOne from params.genesToOne
     tuple path(dataSet), path(graph) from data_and_graphs_2pts
     
@@ -152,9 +152,9 @@ process estimateCoups_2345pts_WithinMB {
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
-    path estimationScript from "${projectDir}/pipelineScripts/calcHOIsWithinMB.py" 
+    path estimationScript from "${projectDir}/scripts/calcHOIsWithinMB.py" 
     path genesToOne from params.genesToOne
-    path utilities from "${projectDir}/pipelineScripts/utilities.py" 
+    path utilities from "${projectDir}/scripts/utilities.py" 
     tuple path(dataSet), path(graph) from MCMCgraphs_ch2
     
     output:
@@ -192,10 +192,10 @@ process estimateCoups_6n7pts {
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
-    path estimationScript from "${projectDir}/pipelineScripts/calcHOIs_6n7pts.py" 
+    path estimationScript from "${projectDir}/scripts/calcHOIs_6n7pts.py" 
     path genesToOne from params.genesToOne
     path withinMB_5pts from interaction_withinMB_5pts_ch1
-    path utilities from "${projectDir}/pipelineScripts/utilities.py" 
+    path utilities from "${projectDir}/scripts/utilities.py" 
     tuple path(dataSet), path(graph) from MCMCgraphs_ch3
         
     output:
@@ -224,8 +224,8 @@ process createHOIsummaries {
     publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*_summary.png'
 
     input:
-    path estimationScript from "${projectDir}/pipelineScripts/createHOIsummaries.py" 
-    path utilities from "${projectDir}/pipelineScripts/utilities.py" 
+    path estimationScript from "${projectDir}/scripts/createHOIsummaries.py" 
+    path utilities from "${projectDir}/scripts/utilities.py" 
     tuple path(dataSet), path(MCMCgraph) from MCMCgraphs_ch4
     path CPDAGgraph from CPDAGgraphs_ch
 
@@ -268,7 +268,7 @@ process identifyStates {
     publishDir "${launchDir}/states_output", mode: 'copy'
 
     input:
-    path estimationScript from "${projectDir}/pipelineScripts/identifyStates.py" 
+    path estimationScript from "${projectDir}/scripts/identifyStates.py" 
     path devStates from topDeviators
     path dataSet from dataSet_forPlots
     path pcaCoords from PCAembeddings_forPlots
