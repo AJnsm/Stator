@@ -72,7 +72,7 @@ To schedule job submission, this repo comes with a profile for Sun Grid Engine (
 
 
 ## Parameters
-The pipeline takes in a number of parameters, which can be set by the user in the params.json file. 
+The pipeline takes in a number of parameters, which can be set by the user in the params.json file. An example file called `params_example.json` is included in this directory. 
 
 These affect the calculation and the results:
 | Parameter | Default | Description | Required? | 
