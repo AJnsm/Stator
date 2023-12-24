@@ -247,7 +247,7 @@ workflow {
                         estimateCoups_2345pts_WithinMB.out.interactions_withinMB_3pts,
                         estimateCoups_2345pts_WithinMB.out.interactions_withinMB_4pts,
                         estimateCoups_2345pts_WithinMB.out.interactions_withinMB_5pts,
-                        estimateCoups_2345pts_WithinMB.out.PCAembeddings)
+                        makeData.out.PCAembeddings)
 
     identifyStates(script_identifyStates,  
                         createHOIsummaries.out.topDeviators,
