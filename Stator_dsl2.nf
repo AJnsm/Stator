@@ -131,7 +131,7 @@ process estimateCoups_6n7pts {
     """
     python ${estimationScript} \
     --dataPath ${dataSet} \
-    --graphPath ${graph} \
+    --graphPath ${MCMCgraph} \
     --pathTo5pts ${withinMB_5pts} \
     --nResamps ${params.bsResamps} \
     --nCores ${params.cores_HOIs_6n7} \
