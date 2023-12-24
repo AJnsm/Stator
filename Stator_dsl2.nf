@@ -191,7 +191,7 @@ process identifyStates {
     publishDir "${launchDir}/states_output", mode: 'copy'
 
     input:
-    path estimationScript from "${projectDir}/scripts/identifyStates.py" 
+    path estimationScript
     path devStates
     path pcaCoords
 
