@@ -20,13 +20,15 @@ Subsequent analysis can be done with our bespoke Stator Shiny app, available fro
 Documentation on installation and usage are available [here](/docs)
 
 ## To do
-- [ ] switch to DSL2
+- [ ] switch to DSL2 for V1.1
 - [X] update example params file
 - [X] change `pipelineScripts` to `scripts`
 - [X] put all configs in a single directory
 - [X] put all environment data in a single directory
 - [ ] update vignette
 - [ ] remove unnecessary dendrogram outputs and bootstrapping
+- [ ] remove CPDAG and CTRL graph calculations (ctrl graph is available through LOR mode)
+- [ ] remove calcAll2-pts functionality
 - [ ] remove boundval from output
 - [ ] output order 1 interactions in same format as the rest.
 - [ ] remove references to Eddie and change to generic "SGE"

@@ -1,5 +1,5 @@
 # could first create and activate env, but does not seem necessary, can also just install in base env.
-# See also cat /Users/s1855283/anaconda3/envs/NF_TL_env/conda-meta/history|grep 'cmd'
+# See also cat /Users/s1855283/anaconda3/envs/Stator_py_env/conda-meta/history|grep 'cmd'
 
 
 conda install python=3.6

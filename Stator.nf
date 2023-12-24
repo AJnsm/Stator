@@ -43,7 +43,7 @@ process estimatePCgraph {
     publishDir "${launchDir}/output", mode: 'copy'
 
     input:
-    path PCgraphEstScript from "${projectDir}/scripts/parallelPCscript.R" 
+    path PCgraphEstScript from "${projectDir}/scripts/parallelPC.R" 
     path dataSet from dataSets
 
     output:
@@ -61,7 +61,7 @@ process iterMCMCscheme {
     publishDir "${launchDir}/output", mode: 'copy'
     
     input:
-    path MCMCscript from "${projectDir}/scripts/iterMCMCscript.R" 
+    path MCMCscript from "${projectDir}/scripts/iterMCMC.R" 
     tuple path(dataSet), path(PCgraph) from PCgraphs_forMCMC_ch
 
     output:

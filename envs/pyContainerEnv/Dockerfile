@@ -6,5 +6,5 @@ ENV PATH /opt/conda/bin:$PATH
 USER root
 RUN apk add bash
 
-COPY scriptToInstallNFpythonLibs.sh .
-RUN bash scriptToInstallNFpythonLibs.sh
+COPY scriptToInstallNFpythonLibs_PIP.sh .
+RUN bash scriptToInstallNFpythonLibs_PIP.sh

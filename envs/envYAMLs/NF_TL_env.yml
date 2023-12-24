@@ -1,4 +1,4 @@
-name: NF_TL_env
+name: Stator_py_env
 channels:
   - anaconda
   - conda-forge
@@ -224,4 +224,4 @@ dependencies:
   - zipp=3.4.0
   - zlib=1.2.11
   - zstd=1.4.5
-prefix: /Users/s1855283/anaconda3/envs/NF_TL_env
+prefix: /Users/s1855283/anaconda3/envs/Stator_py_env
