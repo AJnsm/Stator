@@ -216,7 +216,7 @@ workflow {
     script_createHOIsummaries = "${projectDir}/scripts/createHOIsummaries.py" 
     script_identifyStates = "${projectDir}/scripts/identifyStates.py"
     script_iterMCMC = "${projectDir}/scripts/iterMCMC.R"
-    script_parallelPC = "${projectDir}/scripts/parallelPC.py"
+    script_parallelPC = "${projectDir}/scripts/parallelPC.R"
     script_identifyStates = "${projectDir}/scripts/identifyStates.py"
     script_calcHOIs_6n7pts = "${projectDir}/scripts/calcHOIs_6n7pts.py"
     utils = "${projectDir}/scripts/utilities.py"
