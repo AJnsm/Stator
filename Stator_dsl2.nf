@@ -195,6 +195,7 @@ process identifyStates {
     path estimationScript
     path devStates
     path pcaCoords
+    path dataSet
 
     output:
     path '*.png' optional true
@@ -251,6 +252,7 @@ workflow {
 
     identifyStates(script_identifyStates,  
                         createHOIsummaries.out.topDeviators,
+                        makeData.out.PCAembeddings,
                         makeData.out.trainingData)
 }
 
