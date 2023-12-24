@@ -235,8 +235,8 @@ workflow {
                         params.genesToOne,
                         estimateCoups_2345pts_WithinMB.out.interactions_withinMB_5pts,
                         utils,
-                        iterMCMCscheme.out.MCMCgraph,
-                        makeData.out.trainingData)
+                        makeData.out.trainingData,
+                        iterMCMCscheme.out.MCMCgraph)
 
     createHOIsummaries(script_createHOIsummaries,
                         utils,
