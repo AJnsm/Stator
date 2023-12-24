@@ -62,6 +62,7 @@ process iterMCMCscheme {
     input:
     path MCMCscript
     path PCgraph
+    path dataSet
 
     output:
     path "MCMCgraph_${dataSetID}.csv", emit: MCMCgraph
@@ -223,12 +224,13 @@ workflow {
 
     makeData(script_makeTrainingData, params.rawDataPath)
     estimatePCgraph(script_parallelPC, makeData.out.trainingData)
-    iterMCMCscheme(script_iterMCMC, estimatePCgraph.out.PCgraph)
+    iterMCMCscheme(script_iterMCMC, estimatePCgraph.out.PCgraph, 
+                        makeData.out.trainingData)
     estimateCoups_2345pts_WithinMB(script_calcHOIsWithinMB, 
-                                    params.genesToOne,
-                                    utils,
-                                    iterMCMCscheme.out.MCMCgraph,
-                                    makeData.out.trainingData)
+                        params.genesToOne,
+                        utils,
+                        iterMCMCscheme.out.MCMCgraph,
+                        makeData.out.trainingData)
     estimateCoups_6n7pts(script_calcHOIs_6n7pts,
                         params.genesToOne,
                         estimateCoups_2345pts_WithinMB.out.interactions_withinMB_5pts,
@@ -248,7 +250,7 @@ workflow {
                         estimateCoups_2345pts_WithinMB.out.PCAembeddings)
 
     identifyStates(script_identifyStates,  
-                    createHOIsummaries.out.topDeviators,
-                    makeData.out.trainingData)
+                        createHOIsummaries.out.topDeviators,
+                        makeData.out.trainingData)
 }
 
