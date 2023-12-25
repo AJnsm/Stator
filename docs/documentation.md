@@ -79,7 +79,7 @@ The pipeline takes in a number of parameters, which can be set by the user in th
 These affect the calculation and the results:
 | Parameter | Default | Description | Required? | 
 | :----- | :----- | :----- | :-- |
-| dataType | 'agnostic' | type of input data: determines preprocessing | Yes |
+| dataType | 'agnostic' | Determines preprocessing of input data; either `agnostic` or `expression` | Yes |
 | rawDataPath | ' ' | absolute path to count matrix (`.csv`) | Yes |
 | nGenes | ' ' | Number of genes to keep | Yes |
 | nCells | ' ' | Number of cells to keep | Yes |
@@ -91,7 +91,6 @@ These affect the calculation and the results:
 | PCalpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
 | asympBool | 0 | Boolean that determines if the variance is estimated from bootstrap resamples (0) or an asymptotic approximation (1) | Yes |
 | bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Only when `asympBool==0` |
-| calcAll2pts | 0 |  Boolean that determines if all 2-points should be calculated (1) or only the Markov-connected ones (0, default) | Yes |
 | estimationMode | 'MFI' | Setting this to `MFI` (default) yields estimates of model-free interactions by conditioning on the Markov-blanket, setting it to `LOR` yields unconditioned log-odds ratios. | Yes |
 | nRandomHOIs | 1000 | How many random 6 & 7-point interactions to calculate | Yes |
 | plotPairwiseUpsets | 0 | Boolean to determine if pairwise upset plots should be generated | Yes |
@@ -128,20 +127,27 @@ First, you need to pull the latest version of the pipeline from Github. This is 
 ```bash
 nextflow pull AJnsm/Stator -r branch
 ```
-where branch is set to either `main` (most stable) or `develop`. On a cluster, you need to load Singularity. On the Edinburgh University compute cluster this is done with 
+where branch is set to either `main` (most stable) or `develop`. 
+
+To run `Stator` locally, you need to have Docker installed. Then, from the directory where you want the output directories to be generated, the pipeline can be run with the command:
+
+```bash
+nextflow run AJnsm/Stator -r main -profile docker -params-file params.json
+```
+where `-r main ` specifies the branch/revision, `-profile docker` selects the Docker profile that links to Dockerhub, and `-params-file params.json` specifies the JSON file with the necessary parameters. An example JSON file is provided in this repository. 
+
+On a cluster, you need to load either Docker or Singularity. On the Edinburgh University compute cluster (Eddie) this is done with 
 ```bash
 module load singularity
 ```
 Then, from the directory where you want the output directories to be generated, the pipeline can be run with the command:
-
 ```bash
 nextflow run AJnsm/Stator -r main -profile eddie_singularity -params-file params.json
 ```
-
-Where `-r main ` specifies the branch/revision, `profile eddie_singularity` selects the right profile for the Eddie environment, and `params-file params.json` specifies a JSON file with the necessary parameters. An example JSON file is provided in this repository.
-
+Clusters can have different scheduling software, so you might need to create a custom profile. The one included here--[eddie_singularity.config](../configs/eddie_singularity.config)--is for the Sun Grid Engine (SGE) scheduler installed on the Edinburgh compute cluster. It's probably easiest to contact your local Nextflow users for help if you need to create a custom profile.
 
 **NOTE: On a cluster, you need to make sure you are on a node that allows automated job submission. On Eddie these are known as the wild-west nodes.**
+
 
 ## Unit tests
 The `scripts` directory contains a file `scripts/unit_tests.py`. This is a collection of `pytest` unit tests to assert that various parts of the estimation procedure function properly. As it is not necessary to run the pipeline, `pytest` is not part of the containerised `Python` environment. To run the unit test, install `pytest` using e.g. `pip` or `conda`, and run the following command from the `scripts` directory:
@@ -151,7 +157,7 @@ pytest unit_tests.py
 This should run over 20 unit tests. Compiling the `numba` estimation function can take a few minutes. Running all tests takes around 5 minutes on a 2018 Macbook Pro (2.9 GHz 6-Core Intel Core i9, 16GB memory). 
 
 ## Integration tests
-**These are tests I used in the development, but require some dependencies.**
+**These are tests I use during development, but require some dependencies.**
 The `integration tests` directory contains a bash script `runTests.py` that generates 100k states from a nearest neighbour Ising model, using the `magneto` simulation software, and estimates the 1st and 2nd order interactions. This is already done, and all generated files are located in the same directory. Running 
 
 ```bash
