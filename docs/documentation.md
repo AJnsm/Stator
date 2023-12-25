@@ -88,7 +88,6 @@ These affect the calculation and the results:
 | minCells | 0 | genes expressed in fewer than `minCells` get dismissed | Only when `dataType=='expression'` |
 | PCalpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
 | asympBool | 0 | Boolean that determines if the variance is estimated from bootstrap resamples (0) or an asymptotic approximation (1) | Yes |
-| boundBool | 0 |  Boolean that determines if inestimable interactions be bounded. **(will soon be deprecated)** | Yes |
 | bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Only when `asympBool==0` |
 | calcAll2pts | 0 |  Boolean that determines if all 2-points should be calculated (1) or only the Markov-connected ones (0, default) | Yes |
 | estimationMode | 'MFI' | Setting this to `MFI` (default) yields estimates of model-free interactions by conditioning on the Markov-blanket, setting it to `LOR` yields unconditioned log-odds ratios. | Yes |

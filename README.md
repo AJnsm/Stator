@@ -19,27 +19,35 @@ Subsequent analysis can be done with our bespoke Stator Shiny app, available fro
 ## Docs
 Documentation on installation and usage are available [here](/docs)
 
+## Changes in this version (V1.1)
+- [X] Switched to Nextflow DSL2 and the latest Nextflow version
+- [X] Renamed multiple scripts, files, and directories
+- [X] Updated Docker profile for local runs
+- [X] Removed 1-point calculation
+- [X] Simplified Nextflow config files
+- [X] Removed conda yamls
+
 ## To do
-- [ ] switch to DSL2 for V1.1
+- [X] switch to DSL2 for V1.1
 - [X] update example params file
 - [X] change `pipelineScripts` to `scripts`
 - [X] put all configs in a single directory
 - [X] put all environment data in a single directory
+- [X] remove info on boundbool: should just default to zero
+- [X] remove CTRL graph calculations (ctrl graph is available through LOR mode)
+- [ ] switch to using CIs for significance estimation, abandon F-value. 
+- [X] refactor: HOIsummaries to dtuples
 - [ ] update vignette
 - [ ] remove unnecessary dendrogram outputs and bootstrapping
-- [ ] remove CPDAG and CTRL graph calculations (ctrl graph is available through LOR mode)
-- [ ] remove calcAll2-pts functionality
 - [ ] remove boundval from output
-- [ ] output order 1 interactions in same format as the rest.
+- [ ] output order 1 interactions in same format as the rest
 - [ ] remove references to Eddie and change to generic "SGE"
 - [ ] remove unnecessary configs
 - [ ] make sure running locally is working, has a good profile, and is explained
-- [ ] add and check conda environment yamls
-- [X] add option to just calculate log-odds ratios
 - [ ] improve documentation and tutorial
 - [ ] Update vignette
 - [ ] Create more unit tests for state inference
-- [ ] add option to also use 2-points for state inference
+- [ ] add option to also use pairwise interactions for state inference
 
 
 

@@ -131,7 +131,7 @@ executor >  sge (1)
 [-        ] process > estimateCoups_2pts            -
 [-        ] process > estimateCoups_345pts_WithinMB -
 [-        ] process > estimateCoups_6n7pts          -
-[-        ] process > createHOIsummaries            -
+[-        ] process > identifyDTuples            -
 [-        ] process > identifyStates                -
 > Pulling Singularity image docker://ajnsm/py_nf_container_new
 ```
@@ -152,7 +152,7 @@ executor >  sge (11)
 [2b/d30c10] process > estimateCoups_2pts (2)            [100%] 2 of 2 ✔
 [98/c3dc1b] process > estimateCoups_345pts_WithinMB (1) [100%] 1 of 1 ✔
 [be/871de0] process > estimateCoups_6n7pts (1)          [100%] 1 of 1 ✔
-[a2/2cde80] process > createHOIsummaries (1)            [100%] 1 of 1 ✔
+[a2/2cde80] process > identifyDTuples (1)            [100%] 1 of 1 ✔
 [ee/51b66d] process > identifyStates (1)                [100%] 1 of 1 ✔
 Completed at: 06-Mar-2023 14:39:32
 Duration    : 20m 37s

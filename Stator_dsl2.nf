@@ -144,7 +144,7 @@ process estimateCoups_6n7pts {
 
 }
 
-process createHOIsummaries {
+process identifyDTuples {
     label 'python'
     publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*.csv'
     publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*_summary.png'
@@ -215,7 +215,7 @@ process identifyStates {
 workflow {
     script_makeTrainingData = "${projectDir}/scripts/makeTrainingData.py" 
     script_calcHOIsWithinMB = "${projectDir}/scripts/calcHOIsWithinMB.py"
-    script_createHOIsummaries = "${projectDir}/scripts/createHOIsummaries.py" 
+    script_identifyDTuples = "${projectDir}/scripts/identifyDTuples.py" 
     script_identifyStates = "${projectDir}/scripts/identifyStates.py"
     script_iterMCMC = "${projectDir}/scripts/iterMCMC.R"
     script_parallelPC = "${projectDir}/scripts/parallelPC.R"
@@ -239,7 +239,7 @@ workflow {
                         makeData.out.trainingData,
                         iterMCMCscheme.out.MCMCgraph)
 
-    createHOIsummaries(script_createHOIsummaries,
+    identifyDTuples(script_identifyDTuples,
                         utils,
                         makeData.out.trainingData,
                         iterMCMCscheme.out.MCMCgraph,
@@ -251,7 +251,7 @@ workflow {
                         makeData.out.PCAembeddings)
 
     identifyStates(script_identifyStates,  
-                        createHOIsummaries.out.topDeviators,
+                        identifyDTuples.out.topDeviators,
                         makeData.out.PCAembeddings,
                         makeData.out.trainingData)
 }
