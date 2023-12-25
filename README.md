@@ -26,6 +26,7 @@ Documentation on installation and usage are available [here](/docs)
 - [X] Removed 1-point calculation
 - [X] Simplified Nextflow config files
 - [X] Removed conda yamls
+- [X] Switched back to numpy (was numba in V1.0) for interaction estimation
 
 ## To do
 - [X] switch to DSL2 for V1.1
@@ -35,8 +36,8 @@ Documentation on installation and usage are available [here](/docs)
 - [X] put all environment data in a single directory
 - [X] remove info on boundbool: should just default to zero
 - [X] remove CTRL graph calculations (ctrl graph is available through LOR mode)
-- [ ] switch to using CIs for significance estimation, abandon F-value. 
 - [X] refactor: HOIsummaries to dtuples
+- [ ] switch to using CIs for significance estimation, abandon F-value. 
 - [ ] update vignette
 - [ ] remove unnecessary dendrogram outputs and bootstrapping
 - [ ] remove boundval from output

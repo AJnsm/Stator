@@ -46,8 +46,7 @@ process estimatePCgraph {
 
     output:
     path("PCgraph_${dataSetID}.csv"), emit: PCgraph
-    path("CTRLgraph_${dataSetID}.csv"), emit: CTRLgraph
-
+    
     """
     Rscript ${PCgraphEstScript} ${dataSet} ${params.cores_PC} ${params.PCalpha}
     """
