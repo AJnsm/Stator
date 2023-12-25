@@ -145,8 +145,8 @@ process estimateCoups_6n7pts {
 
 process identifyDTuples {
     label 'python'
-    publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*.csv'
-    publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*_summary.png'
+    publishDir "${launchDir}/dtuples_output", mode: 'copy', pattern: '*.csv'
+    publishDir "${launchDir}/dtuples_output", mode: 'copy', pattern: '*_summary.png'
 
     input:
     path estimationScript

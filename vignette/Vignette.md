@@ -166,7 +166,7 @@ After finishing, the following output directories should have been generated:
 
 ```bash
 $ ls -l
-> Mar  6 14:37 HOIsummaries/
+> Mar  6 14:37 dtuples_output/
 > Mar  6 14:39 coupling_output/
 > Mar  6 14:23 output/
 > Mar  6 14:13 params.json
@@ -178,10 +178,10 @@ $ ls -l
 > Mar  6 14:37 work/
 ```
 
-The file `HOIsummaries/top_DTuples.csv` shows the d-tuples that deviate and passed our significance threshold:
+The file `dtuples_output/top_DTuples.csv` shows the d-tuples that deviate and passed our significance threshold:
 
 ```bash
-$ head -n 10 HOIsummaries/top_DTuples.csv | cut -d ',' -f1-6
+$ head -n 10 dtuples_output/top_DTuples.csv | cut -d ',' -f1-6
 > ,genes,state,enrichment,pval,pval_corrected
 > 41,Hba-a1_Hbb-bt_Hba-a2,111,3.2907442436316536,5.042731009532022e-34,1.> 5021325049175918e-31
 > 37,Neurog2_Ifitm3_Eomes,101,2.156699225328587,1.1010156294693394e-17,1.> 6398568179841119e-15
