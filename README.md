@@ -21,6 +21,7 @@ Subsequent analysis can be done with our bespoke Stator Shiny app, available at 
 
 ## Docs
 Documentation on installation and usage are available [here](/docs).
+
 A small tutorial is available [here](/vignette/Vignette.md).
 
 ## Changes in this version (V1.1)
