@@ -181,7 +181,7 @@ def main():
     notes = ''
     
     estimationMethod = 'expectations'
-    estimator = calcInteraction_expectations_numba
+    estimator = calcInteraction_expectations_np
     
     
     print('Starting calculation on ' )

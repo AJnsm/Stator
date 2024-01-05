@@ -392,9 +392,9 @@ graphMat <-  as(pcPar@graph, 'matrix')
 graphMat <- (graphMat>0)*1                   
 write.csv(graphMat, paste('PCgraph_', DSname, '.csv', sep=""))   
 
-# Delete all edges, and write out empty control graph
-graphMat[,] <- 0
-write.csv(graphMat, paste('CTRLgraph_', DSname, '.csv', sep=""))
+# # Delete all edges, and write out empty control graph
+# graphMat[,] <- 0
+# write.csv(graphMat, paste('CTRLgraph_', DSname, '.csv', sep=""))
                    
 cat('*****DONE*****')
 

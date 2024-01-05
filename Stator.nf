@@ -1,25 +1,24 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=1
+nextflow.enable.dsl=2
 
 formattedNCells = String.format( "%05d", params.nCells )
 formattedNGenes = String.format( "%04d", params.nGenes )
 dataSetID = "${formattedNCells}Cells_${formattedNGenes}Genes"
 
-
 process makeData {
-
+    label 'python'
     publishDir "${launchDir}/output", mode: 'copy'
 
     input:
-    path dataScript from "${projectDir}/scripts/makeTrainingData.py" 
-    path rawData from params.rawDataPath
+    path dataScript 
+    path rawData
     
     output:
     path "unbinarised_cell_data.h5ad"
-    path "trainingData_${dataSetID}.csv" into dataSets mode flatten
+    path "trainingData_${dataSetID}.csv", emit: trainingData
     path "*.png" optional true
-    path "*PCAcoords.csv" into PCAembeddings
-    path "*UMAPcoords.csv" into UMAPembeddings
+    path "*PCAcoords.csv", emit: PCAembeddings
+    path "*UMAPcoords.csv", emit: UMAPembeddings
     
 
     script:
@@ -38,140 +37,68 @@ process makeData {
 }
 
 process estimatePCgraph {
-
-    
+    label 'R'
     publishDir "${launchDir}/output", mode: 'copy'
 
     input:
-    path PCgraphEstScript from "${projectDir}/scripts/parallelPCscript.R" 
-    path dataSet from dataSets
+    path PCgraphEstScript
+    path dataSet
 
     output:
-    tuple path(dataSet), path("PCgraph_${dataSetID}.csv") into PCgraphs_forMCMC_ch mode flatten
-    tuple path(dataSet), path("CTRLgraph_${dataSetID}.csv") into CTRLgraphs_ch mode flatten
-
+    path("PCgraph_${dataSetID}.csv"), emit: PCgraph
+    
     """
     Rscript ${PCgraphEstScript} ${dataSet} ${params.cores_PC} ${params.PCalpha}
     """
  }
 
-process iterMCMCscheme {
 
+process iterMCMCscheme {
+    label 'R'
     
     publishDir "${launchDir}/output", mode: 'copy'
     
     input:
-    path MCMCscript from "${projectDir}/scripts/iterMCMCscript.R" 
-    tuple path(dataSet), path(PCgraph) from PCgraphs_forMCMC_ch
+    path MCMCscript
+    path PCgraph
+    path dataSet
 
     output:
-    path "CPDAGgraph_${dataSetID}.csv" into CPDAGgraphs_ch
-    tuple path(dataSet), path("MCMCgraph_${dataSetID}.csv") into MCMCgraphs_ch mode flatten
+    path "MCMCgraph_${dataSetID}.csv", emit: MCMCgraph
+    path "CPDAGgraph_${dataSetID}.csv", emit: CPDAGgraph
 
     """
     Rscript ${MCMCscript} ${PCgraph} ${dataSet} ${params.nGenes} 
     """
 }
 
-MCMCgraphs_ch.into {MCMCgraphs_ch1; MCMCgraphs_ch2; MCMCgraphs_ch3; MCMCgraphs_ch4}
-data_and_graphs_ch = CTRLgraphs_ch.mix(MCMCgraphs_ch1)
-data_and_graphs_ch.into {data_and_graphs_1pts; data_and_graphs_2pts}
-
-
-process estimateCoups_1pts {
-    label 'interactionEstimation'    
-    
-    publishDir "${launchDir}/coupling_output", mode: 'copy'
-
-    input:
-    path estimationScript from "${projectDir}/scripts/estimateTLcoups.py" 
-    path utilities from "${projectDir}/scripts/utilities.py" 
-    path genesToOne from params.genesToOne
-    tuple path(dataSet), path(graph) from data_and_graphs_1pts
-    
-    output:
-    path 'interactions*.npy'
-    
-    """
-    python ${estimationScript} \
-    --dataPath ${dataSet} \
-    --graphPath ${graph} \
-    --intOrder 1 \
-    --nResamps ${params.bsResamps} \
-    --nCores ${params.cores_1pt} \
-    --estimationMethod ${params.estimationMethod} \
-    --genesToOne ${genesToOne} \
-    --dataDups ${params.dataDups} \
-    --boundBool ${params.boundBool} \
-    --asympBool ${params.asympBool}
-    """
-
-}
-
-
-process estimateCoups_2pts {
-    label 'interactionEstimation'
-    
-    publishDir "${launchDir}/coupling_output", mode: 'copy'
-
-    input:
-    path estimationScript from "${projectDir}/scripts/estimateTLcoups.py" 
-    path utilities from "${projectDir}/scripts/utilities.py" 
-    path genesToOne from params.genesToOne
-    tuple path(dataSet), path(graph) from data_and_graphs_2pts
-    
-    output:
-    path 'interactions*.npy' optional true
-
-    script:
-    if( params.calcAll2pts == 1 )
-        """
-        python ${estimationScript} \
-        --dataPath ${dataSet} \
-        --graphPath ${graph} \
-        --intOrder 2 \
-        --nResamps ${params.bsResamps} \
-        --nCores ${params.cores_2pt} \
-        --estimationMethod ${params.estimationMethod} \
-        --genesToOne ${genesToOne} \
-        --dataDups ${params.dataDups} \
-        --boundBool ${params.boundBool} \
-        --asympBool ${params.asympBool}
-        """
-    else
-        """
-        echo skipping calculation of all 2-point interactions
-        """
-}
-
-
-
 process estimateCoups_2345pts_WithinMB {
-    label 'interactionEstimation'
+    label 'python'
     
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
-    path estimationScript from "${projectDir}/scripts/calcHOIsWithinMB.py" 
-    path genesToOne from params.genesToOne
-    path utilities from "${projectDir}/scripts/utilities.py" 
-    tuple path(dataSet), path(graph) from MCMCgraphs_ch2
+    path estimationScript
+    path genesToOne
+    path utilities
+    path MCMCgraph
+    path dataSet
     
     output:
-    path "interactions_withinMB_2pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_2pts
-    path "interactions_withinMB_3pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_3pts
-    path "interactions_withinMB_4pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_4pts
-    path "interactions_withinMB_5pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy" into interaction_withinMB_5pts
+    path "interactions_withinMB_2pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy", emit: interactions_withinMB_2pts
+    path "interactions_withinMB_3pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy", emit: interactions_withinMB_3pts
+    path "interactions_withinMB_4pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy", emit: interactions_withinMB_4pts
+    path "interactions_withinMB_5pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy", emit: interactions_withinMB_5pts
 
-    path "interactions_random_2pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy" into interaction_random_2pts
-    path "interactions_random_3pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy" into interaction_random_3pts
-    path "interactions_random_4pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy" into interaction_random_4pts
-    path "interactions_random_5pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy" into interaction_random_5pts
+    path "interactions_random_2pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy", emit: interactions_random_2pts
+    path "interactions_random_3pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy", emit: interactions_random_3pts
+    path "interactions_random_4pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy", emit: interactions_random_4pts
+    path "interactions_random_5pts_${params.estimationMode}_MCMCgraph_${dataSetID}.npy", emit: interactions_random_5pts
 
     """
     python ${estimationScript} \
     --dataPath ${dataSet} \
-    --graphPath ${graph} \
+    --graphPath ${MCMCgraph} \
     --nResamps ${params.bsResamps} \
     --nCores ${params.cores_HOIs_MB} \
     --nRandoms ${params.nRandomHOIs} \
@@ -184,19 +111,18 @@ process estimateCoups_2345pts_WithinMB {
 
 }
 
-interaction_withinMB_5pts.into {interaction_withinMB_5pts_ch1; interaction_withinMB_5pts_ch2}
-
 process estimateCoups_6n7pts {
-    label 'interactionEstimation'
+    label 'python'
     
     publishDir "${launchDir}/coupling_output", mode: 'copy'
 
     input:
-    path estimationScript from "${projectDir}/scripts/calcHOIs_6n7pts.py" 
-    path genesToOne from params.genesToOne
-    path withinMB_5pts from interaction_withinMB_5pts_ch1
-    path utilities from "${projectDir}/scripts/utilities.py" 
-    tuple path(dataSet), path(graph) from MCMCgraphs_ch3
+    path estimationScript
+    path genesToOne
+    path withinMB_5pts
+    path utilities
+    path dataSet
+    path MCMCgraph
         
     output:
     path 'interactions*.npy' optional true
@@ -204,7 +130,7 @@ process estimateCoups_6n7pts {
     """
     python ${estimationScript} \
     --dataPath ${dataSet} \
-    --graphPath ${graph} \
+    --graphPath ${MCMCgraph} \
     --pathTo5pts ${withinMB_5pts} \
     --nResamps ${params.bsResamps} \
     --nCores ${params.cores_HOIs_6n7} \
@@ -217,31 +143,29 @@ process estimateCoups_6n7pts {
 
 }
 
-
-process createHOIsummaries {
-    
-    publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*.csv'
-    publishDir "${launchDir}/HOIsummaries", mode: 'copy', pattern: '*_summary.png'
+process identifyDTuples {
+    label 'python'
+    publishDir "${launchDir}/dtuples_output", mode: 'copy', pattern: '*.csv'
+    publishDir "${launchDir}/dtuples_output", mode: 'copy', pattern: '*_summary.png'
 
     input:
-    path estimationScript from "${projectDir}/scripts/createHOIsummaries.py" 
-    path utilities from "${projectDir}/scripts/utilities.py" 
-    tuple path(dataSet), path(MCMCgraph) from MCMCgraphs_ch4
-    path CPDAGgraph from CPDAGgraphs_ch
+    path estimationScript
+    path utilities
+    path dataSet
+    path MCMCgraph
+    path CPDAGgraph
 
-    path path2pts from interaction_withinMB_2pts
-    path path3pts from interaction_withinMB_3pts
-    path path4pts from interaction_withinMB_4pts
-    path path5pts from interaction_withinMB_5pts_ch2
-    path pcaCoords from PCAembeddings
+    path path2pts 
+    path path3pts 
+    path path4pts 
+    path path5pts 
+    path pcaCoords
 
     output:
     path '*.png' optional true
-    path 'top_DTuples.csv' into topDeviators
-    path 'all_DTuples.csv' into allDeviators_csv
+    path 'top_DTuples.csv', emit: topDeviators
+    path 'all_DTuples.csv', emit: allDeviators
     path 'DTuples_binaryReps.csv' optional true
-    path dataSet into dataSet_forPlots
-    path pcaCoords into PCAembeddings_forPlots
 
     """
     python ${estimationScript} \
@@ -262,20 +186,19 @@ process createHOIsummaries {
 
 }
 
-
 process identifyStates {
-    
+    label 'python'
     publishDir "${launchDir}/states_output", mode: 'copy'
 
     input:
-    path estimationScript from "${projectDir}/scripts/identifyStates.py" 
-    path devStates from topDeviators
-    path dataSet from dataSet_forPlots
-    path pcaCoords from PCAembeddings_forPlots
+    path estimationScript
+    path devStates
+    path pcaCoords
+    path dataSet
 
     output:
-    path '*.png' optional true into stateID_dendograms
-    path '*.csv' optional true into stateID_outputs
+    path '*.png' optional true
+    path '*.csv' optional true
     """
     python ${estimationScript} \
     --dataPath ${dataSet} \
@@ -288,19 +211,47 @@ process identifyStates {
 
 } 
 
+workflow {
+    script_makeTrainingData = "${projectDir}/scripts/makeTrainingData.py" 
+    script_calcHOIsWithinMB = "${projectDir}/scripts/calcHOIsWithinMB.py"
+    script_identifyDTuples = "${projectDir}/scripts/identifyDTuples.py" 
+    script_identifyStates = "${projectDir}/scripts/identifyStates.py"
+    script_iterMCMC = "${projectDir}/scripts/iterMCMC.R"
+    script_parallelPC = "${projectDir}/scripts/parallelPC.R"
+    script_identifyStates = "${projectDir}/scripts/identifyStates.py"
+    script_calcHOIs_6n7pts = "${projectDir}/scripts/calcHOIs_6n7pts.py"
+    utils = "${projectDir}/scripts/utilities.py"
 
+    makeData(script_makeTrainingData, params.rawDataPath)
+    estimatePCgraph(script_parallelPC, makeData.out.trainingData)
+    iterMCMCscheme(script_iterMCMC, estimatePCgraph.out.PCgraph, 
+                        makeData.out.trainingData)
+    estimateCoups_2345pts_WithinMB(script_calcHOIsWithinMB, 
+                        params.genesToOne,
+                        utils,
+                        iterMCMCscheme.out.MCMCgraph,
+                        makeData.out.trainingData)
+    estimateCoups_6n7pts(script_calcHOIs_6n7pts,
+                        params.genesToOne,
+                        estimateCoups_2345pts_WithinMB.out.interactions_withinMB_5pts,
+                        utils,
+                        makeData.out.trainingData,
+                        iterMCMCscheme.out.MCMCgraph)
 
+    identifyDTuples(script_identifyDTuples,
+                        utils,
+                        makeData.out.trainingData,
+                        iterMCMCscheme.out.MCMCgraph,
+                        iterMCMCscheme.out.CPDAGgraph,
+                        estimateCoups_2345pts_WithinMB.out.interactions_withinMB_2pts,
+                        estimateCoups_2345pts_WithinMB.out.interactions_withinMB_3pts,
+                        estimateCoups_2345pts_WithinMB.out.interactions_withinMB_4pts,
+                        estimateCoups_2345pts_WithinMB.out.interactions_withinMB_5pts,
+                        makeData.out.PCAembeddings)
 
-
-
-
-
-
-
-
-
-
-
-
-
+    identifyStates(script_identifyStates,  
+                        identifyDTuples.out.topDeviators,
+                        makeData.out.PCAembeddings,
+                        makeData.out.trainingData)
+}
 
