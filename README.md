@@ -4,8 +4,6 @@ Preprint now available at https://www.biorxiv.org/content/10.1101/2023.12.18.572
 NOTE: this repo will soon move to the account of the [Edinburgh Biomedical AI Lab](https://edbiomed.ai)
 
 
-NOTE: this is the main branch, but the most recent version is in the `develop` branch, which is much more streamlined and up-to-date. As soon as the develop branch is thoroughly tested, it will be merged into main.
-
 ## Table of contents
 * [Introduction](#introduction)
 * [Docs](#docs)
