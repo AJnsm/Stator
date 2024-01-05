@@ -28,7 +28,7 @@ Documentation on installation and usage are available [here](/docs).
 A small tutorial is available [here](/vignette/Vignette.md).
 
 ## Changes in this version (V1.1)
-- [X] Switched to Nextflow DSL2 and the latest Nextflow version (23.10)
+- [X] Switched to Nextflow DSL2 and the latest compatible Nextflow version (23.04)
 - [X] Renamed multiple scripts, files, and directories
 - [X] Updated and tested Docker profile for local runs
 - [X] Removed 1-point calculation
