@@ -27,6 +27,7 @@ A small tutorial is available [here](/vignette/Vignette.md).
 
 ## Changes in this version (V1.1)
 - [X] Switched to Nextflow DSL2 and the latest compatible Nextflow version (23.04)
+- [X] Changed file handling inside Stator.nf to fix read permission bug on some clusters
 - [X] Renamed multiple scripts, files, and directories
 - [X] Updated and tested Docker profile for local runs
 - [X] Removed 1-point calculation
