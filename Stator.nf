@@ -12,6 +12,8 @@ process makeData {
     input:
     path dataScript 
     path rawData
+    path userGenes
+    path doubletFile
     
     output:
     path "unbinarised_cell_data.h5ad"
@@ -28,8 +30,8 @@ process makeData {
     --rawData ${rawData} \
     --nGenes ${params.nGenes} \
     --nCells ${params.nCells} \
-    --bcDoublets ${params.doubletFile} \
-    --userGenes ${params.userGenes} \
+    --bcDoublets ${doubletFile} \
+    --userGenes ${userGenes} \
     --fracMito ${params.fracMito} \
     --minGenes ${params.minGenes} \
     --minCells ${params.minCells}
@@ -222,8 +224,10 @@ workflow {
     script_calcHOIs_6n7pts = "${projectDir}/scripts/calcHOIs_6n7pts.py"
     utils = "${projectDir}/scripts/utilities.py"
 
-    makeData(script_makeTrainingData, params.rawDataPath)
+    makeData(script_makeTrainingData, params.rawDataPath, params.userGenes, params.doubletFile)
+
     estimatePCgraph(script_parallelPC, makeData.out.trainingData)
+
     iterMCMCscheme(script_iterMCMC, estimatePCgraph.out.PCgraph, 
                         makeData.out.trainingData)
     estimateCoups_2345pts_WithinMB(script_calcHOIsWithinMB, 
@@ -231,6 +235,7 @@ workflow {
                         utils,
                         iterMCMCscheme.out.MCMCgraph,
                         makeData.out.trainingData)
+
     estimateCoups_6n7pts(script_calcHOIs_6n7pts,
                         params.genesToOne,
                         estimateCoups_2345pts_WithinMB.out.interactions_withinMB_5pts,
