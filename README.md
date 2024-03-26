@@ -41,4 +41,5 @@ A small tutorial is available [here](/vignette/Vignette.md).
 - [ ] improve documentation and tutorial
 - [ ] Create more unit tests for state inference
 - [ ] add option to also use pairwise interactions for state inference
+- [ ] if pairwise not used, *optionally* skip their computation. 
 
