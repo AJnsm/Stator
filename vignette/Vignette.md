@@ -1,28 +1,25 @@
-# Minimal working example
+# Minimal working example: Finding Blood contamination among astrocytes
 
-NOTE: this is slightly outdated since the latest version only calculates Markov-connected 2-point interactions by default, and has some file name changes. 
-
-We will run Stator on some gene expression data from astrocytes, publicly available from 10X. This directory contains the necessary files:
-* `vignetteAstrocyteData.csv`: the raw count matrix (23900 rows × 35 columns) where each row is a cell, and each column a gene, with a header of gene names.
-* `vignetteDoublets.csv`: a doublet annotation for each cell, in the same order as the cells in `vignetteAstrocyteData.csv`. In this case, it is just a list of zeros, which indicates none of the listed cells are annotated as doublets, so it might as well be excluded.
+We will run Stator on some gene expression data from the mouse brain, publicly available from 10X. This directory contains the necessary files:
+* `astrocytesVignette.csv.csv`: the raw count matrix (5000 rows × 100 columns) where each row is a cell, and each column a gene, with a header of gene names. Previous analysis has identified these cells as astrocyte-like. 
 * `userGenes.csv`: A list of genes that should be included in the analysis. 
 
-Let's have a look at the first 10 rows and columns of `vignetteAstrocyteData.csv`:
+Let's have a look at the first 10 rows and columns of `astrocytesVignette.csv`:
 ```bash
-$ head -n 10 vignetteAstrocyteData.csv | cut -d ',' -f1-10
-> Serpine2,Ptgds,Cldn11,Neurog2,Isg15,Hbb-bt,Hbb-y,Crym,Ifitm3,Bst2
-> 0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
-> 0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
-> 0.0,0.0,0.0,0.0,0.0,2.0,0.0,0.0,0.0,0.0
-> 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
-> 4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
-> 0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
-> 0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
-> 6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
-> 0.0,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
+$ head -n 10 astrocytesVignette.csv | cut -d ',' -f1-10
+> ,Sox17,Gm37323,Mrpl15,Lypla1,Gm37988,Tcea1,Rgs20,Gm16041,Atp6v1h
+> 0,0,0,2,0,0,1,1,0,0
+> 1,0,0,1,0,0,0,0,0,1
+> 2,0,0,0,0,0,0,1,0,0
+> 3,0,0,1,0,0,2,2,0,2
+> 4,0,0,1,0,0,2,0,0,0
+> 5,0,0,0,0,0,0,1,0,0
+> 6,0,0,1,0,0,1,0,0,1
+> 7,0,0,1,0,0,2,0,0,0
+> 8,0,0,0,1,0,1,1,0,0
 ```
 
-For illustrative purposes, the file `userGenes.csv` contains the names of 19 genes--taken from the columns of `vignetteAstrocyteData.csv`--that should be included in the analysis, irrespective of any QC procedures that might follow:
+For illustrative purposes, the file `userGenes.csv` contains the names of 19 genes--arbitrarily chosen from the columns of `astrocytesVignette.csv`--that should be included in the analysis, irrespective of any QC procedures that might follow:
 
 ```bash
 $ cat userGenes.csv
@@ -33,69 +30,73 @@ Next, we can set the pipeline parameters in a JSON file. There is an example fil
 
 ```bash
 $ cat params.json.json
-> {
->    "dataType"    : "agnostic",
->    "rawDataPath" : "/exports/igmm/eddie/ponting-lab/abel/10X_cells/NF_TL/paperRuns/vignette_test/vignetteAstrocyteData.csv",
->    "doubletFile" : "/exports/igmm/eddie/ponting-lab/abel/10X_cells/NF_TL/paperRuns/vignette_test/vignette_doublets.csv",
->    "userGenes"   : "/exports/igmm/eddie/ponting-lab/abel/10X_cells/NF_TL/paperRuns/vignette_test/userGenes.csv",
->    "nGenes"      : 19,
->    "nCells"      : 2000,
->    "PCalpha"     : 0.05,
+>{
+>      "dataType"    : "expression",
+>      "rawDataPath" : "/exports/igmm/eddie/ponting-lab/abel/STATOR_vignette_run/astrocytesVignette.csv",
+>      "userGenes"   : "/exports/igmm/eddie/ponting-lab/abel/STATOR_vignette_run/userGenes.csv",
+>      "nGenes"      : 50,
+>      "fracMito"    : 0.1,
+>      "minGenes"    : 1,
+>      "minCells"    : 1,
+>      "nCells"      : 4000,
+>      "PCalpha"     : 0.1,
+>      "bsResamps"   : 1000,
 >
->    "nRandomHOIs" : 10,
->    "sigHOIthreshold":0.4,
->    "minStateDeviation": 0,
->    "stateDevAlpha": 0.9,
+>      "nRandomHOIs" : 10,
+>      "sigHOIthreshold":0.1,
+>      "minStateDeviation": 0,
+>      "stateDevAlpha": 0.1,
 >
->    "dendCutoff"  : -1,
->    "asympBool"   : 1,
+>      "dendCutoff"  : -1,
+>      "asympBool"   : 0,
+>      "calcAll2pts" : 0,
+>      "estimationMode" : "MFI",
 >
->    "executor"    : "sge",
->    "maxQueueSize"  : 25,
->    "cores_makeData": 1,
->    "cores_PC"      : 6,
->    "cores_MCMC"    : 2,
->    "cores_1pt"     : 4,
->    "cores_2pt"     : 12,
->    "cores_HOIs_MB" : 6,
->    "cores_HOIs_6n7" : 6,
->    "cores_HOIs_plots": 6,
+>      "executor"    : "sge",
+>      "maxQueueSize"  : 25,
+>      "cores_makeData": 1,
+>      "cores_PC"      : 6,
+>      "cores_MCMC"    : 2,
+>      "cores_1pt"     : 4,
+>      "cores_2pt"     : 6,
+>      "cores_HOIs_MB" : 6,
+>      "cores_HOIs_6n7" : 6,
+>      "cores_HOIs_plots": 6,
 >
->    "mem_makeData"  : "32G",
->    "mem_PC"        : "16G",
->    "mem_MCMC"      : "16G",
->    "mem_1pt"       : "32G",
->    "mem_2pt"       : "64G",
->    "mem_HOIs_MB"   : "64G",
->    "mem_HOIs_6n7"   : "16G",
->    "mem_HOIs_plots" : "64G",
+>      "mem_makeData"  : "16G",
+>      "mem_PC"        : "32G",
+>      "mem_MCMC"      : "16G",
+>      "mem_1pt"       : "16G",
+>      "mem_2pt"       : "16G",
+>      "mem_HOIs_MB"   : "16G",
+>      "mem_HOIs_6n7"   : "16G",
+>      "mem_HOIs_plots" : "16G",
 >
->    "time_makeData" : "1h",
->    "time_PC"       : "1h",
->    "time_MCMC"     : "1h",
->    "time_1pt"      : "1h",
->    "time_2pt"      : "1h",
->    "time_HOIs_MB"  : "1h",
->    "time_HOIs_6n7"  : "1h",
->    "time_HOIs_plots"  : "1h"
+>      "time_makeData" : "1h",
+>      "time_PC"       : "1h",
+>      "time_MCMC"     : "1h",
+>      "time_1pt"      : "1h",
+>      "time_2pt"      : "1h",
+>      "time_HOIs_MB"  : "1h",
+>      "time_HOIs_6n7"  : "1h",
+>      "time_HOIs_plots"  : "1h"
 >  }
 ```
 Some explanation:
-* `"dataType" : "agnostic"` indicates that the pipeline should be agnostic with respect to the data type, and not perform any scRNA-seq specific QC. If the data set was larger than this simple test set, this could be set to `expression`, and additional QC parameters could be set to e.g. filter out low-read cells. More info on this in the documentation. 
-* `nGenes : 25` indicates that 25 genes should be included, which in this case includes the 19 genes specified in `userGenes.csv`.
-* `nCells : 2000`: The total number of cells used in the estimation. In reality, you would probably be interested in more cells and genes, but to keep things light, I've put in some very small numbers here.
-* `"PCalpha" : 0.05`: When running the PC-algorithm, this is used as the significance threshold to conclude a conditional dependency. Setting this to a higher value makes it easier to reject the null hypothesis of no dependence, which leaves more causal edges present, which is more conservative.
+* `"dataType" : "expression"` indicates that the pipeline should assume that the data is expression data, and perform some scRNA-seq specific QC, like filtering out low-read cells. More info on this is available from the documentation. 
+* `nGenes : 50` indicates that a total of 50 genes should be included, which includes the 19 genes specified in `userGenes.csv`.
+* `nCells : 4000`: The total number of cells used in the estimation. In practice, you would probably be interested in more cells and genes, but to keep things light, I've put in some very small numbers here.
+* `"PCalpha" : 0.1`: When running the PC-algorithm, this is used as the significance threshold to conclude a conditional dependency. Setting this to a higher value makes it easier to reject the null hypothesis of no dependence, which leaves more causal edges present, which is more conservative.
 * `"nRandomHOIs" : 10`: Beyond the Markov-connected tuples, Stator calculates this many interactions among random tuples at orders 3-7.
-* `"sigHOIthreshold" : 0.4`: The significance threshold at which a higher-order interaction (HOI) is deemed significant. In real data sets, this should be set to a lower value like 0.05. 
+* `"sigHOIthreshold" : 0.1`: The significance threshold at which a higher-order interaction (HOI) is deemed significant. In practice, you might want to set this to 0.05 to be more conservative.
 * `"minStateDeviation" : 0`: The minimum log-2 fold deviation from the expected number of occurrences of a particular gene state (d-tuple). Setting this to 0, as is done here, merely requires the deviation to be positive. 
-* `"stateDevAlpha" : 0.9`: The significance threshold (after Benjamini-Yekutieli correction) to determine that the occurrence of a particular d-tuple deviates significantly. Should be set to a lower value like 0.05 in practice. 
+* `"stateDevAlpha" : 0.1`: The significance threshold (after Benjamini-Yekutieli correction) to determine that the occurrence of a particular d-tuple deviates significantly. In practice, you might want to set this to 0.05 to be more conservative. 
 * `"dendCutoff"  : -1`: The value of -1 tells Stator to cut the dendrogram of d-tuples at whichever height maximises the modularity score. Setting this to a value between 0 and 1 cuts at that particular Dice-coefficient. 
-* `"asympBool" : 1`: This boolean 1 indicates that the confidence intervals and the uncertainty in the interaction estimation should be calculated using an asymptotic estimation. The alternative (`"asympBool" : 0`) would estimate these statistics using bootstrap resampling.
-
+* `"asympBool" : 0`: This boolean 0 indicates that the confidence intervals and the uncertainty in the interaction estimation should be calculated using bootstrap resampling, not using an asymptotic estimation (`"asympBool" : 1`). 
 * `"executor" : "sge"`: Run Stator on a cluster with the Sun Grid Engine scheduler.
 * `"maxQueueSize"  : 25`: We don't want to be impolite and submit more than 25 jobs at the same time. 
 * `"cores_*` specifies the number of cores/cpus each of the processes should request. The data preparation process can not parallelised, so 1 core is fine, but the others will be significantly faster on more cores. I've used up to 32 on Eddie.
-* The `mem_*` and `time_*` specify how much memory and time each process gets. If these are too low, the whole pipeline terminates when the scheduler starts to complain. What I do: set them relatively high the first time, and then look at the reports from Nextflow to see the peak usage of each of the resources. 
+* The `mem_*` and `time_*` specify how much memory and time each process gets. If these are too low, the whole pipeline terminates when the scheduler starts to complain. In practice, it can be useful to set these parameters relatively high the first time, and then look at the reports from Nextflow to see the peak usage of each of the resources. 
 
 
 We are now ready to run the pipeline. Make sure you are on a node of the scheduler that allows for automated job submission (e.g. the wild-west nodes on Eddie), and that you are in the right directory:
@@ -104,39 +105,37 @@ We are now ready to run the pipeline. Make sure you are on a node of the schedul
 [you@wild-west-node]$ pwd
 > /absolute/path/to/this/vignette/
 [you@wild-west-node]$ ls
-> params.json  userGenes.csv  vignetteAstrocyteData.csv  vignetteDoublets.csv Vignette.md
+> params.json  userGenes.csv  astrocytesVignette.csv  Vignette.md
 
 ```
 
 Then pull the latest version of the pipeline:
 
 ```bash
-$ nextflow pull AJnsm/Stator -r develop
+$ nextflow pull AJnsm/Stator -r main
 > Checking AJnsm/Stator ...
->  Already-up-to-date - revision: 520967e399 [develop]
+> Already-up-to-date - revision: 3ecffdbbdd [main]
 ```
 
 And run the pipeline:
 
 ```bash
-$ nextflow run AJnsm/Stator -r develop -profile eddie_singularity -params-file params.json -resume
+$ NXF_VER=23.04.4 nextflow run AJnsm/Stator -r main -profile eddie_singularity -params-file params.json
 
-> N E X T F L O W  ~  version 22.04.3
-> Launching `https://github.com/AJnsm/Stator` [elegant_rosalind] DSL1 - revision: 520967e399 [develop]
+> N E X T F L O W  ~  version 23.04.4
+> Launching `https://github.com/AJnsm/Stator` [modest_mccarthy] DSL2 - revision: 3ecffdbbdd [main]
 executor >  sge (1)
-[0e/6c9394] process > makeData (1)                  [0%] 0 of 1
-[-        ] process > estimatePCgraph               -
-[-        ] process > iterMCMCscheme                -
-[-        ] process > estimateCoups_1pts            -
-[-        ] process > estimateCoups_2pts            -
-[-        ] process > estimateCoups_345pts_WithinMB -
-[-        ] process > estimateCoups_6n7pts          -
-[-        ] process > identifyDTuples            -
-[-        ] process > identifyStates                -
+[28/5d1f37] process > makeData                       [  0%] 0 of 1
+[-        ] process > estimatePCgraph                -
+[-        ] process > iterMCMCscheme                 -
+[-        ] process > estimateCoups_2345pts_WithinMB -
+[-        ] process > estimateCoups_6n7pts           -
+[-        ] process > identifyDTuples                -
+[-        ] process > identifyStates                 -
 > Pulling Singularity image docker://ajnsm/py_nf_container_new
 ```
 
-It should automatically start pulling the singularity image from docker. This could take a few minutes the first time. Once that is done, Nextflow should automatically start submitting jobs to the scheduler. 
+It should automatically start pulling the singularity image from docker. This could take a few minutes the first time. Once that is done, Nextflow will automatically start submitting jobs to the scheduler. 
 
 Once the pipeline has finished, the output should look something like this: 
 
@@ -145,108 +144,88 @@ Once the pipeline has finished, the output should look something like this:
 > N E X T F L O W  ~  version 22.04.3
 > Launching `https://github.com/AJnsm/Stator` [jolly_turing] DSL1 - revision: 4902322ba5 [develop]
 executor >  sge (11)
-[99/96d88e] process > makeData                          [100%] 1 of 1 ✔
-[cd/06c207] process > estimatePCgraph (1)               [100%] 1 of 1 ✔
-[de/86eeb2] process > iterMCMCscheme (1)                [100%] 1 of 1 ✔
-[cf/47e197] process > estimateCoups_1pts (2)            [100%] 2 of 2 ✔
-[2b/d30c10] process > estimateCoups_2pts (2)            [100%] 2 of 2 ✔
-[98/c3dc1b] process > estimateCoups_345pts_WithinMB (1) [100%] 1 of 1 ✔
-[be/871de0] process > estimateCoups_6n7pts (1)          [100%] 1 of 1 ✔
-[a2/2cde80] process > identifyDTuples (1)            [100%] 1 of 1 ✔
-[ee/51b66d] process > identifyStates (1)                [100%] 1 of 1 ✔
-Completed at: 06-Mar-2023 14:39:32
-Duration    : 20m 37s
-CPU hours   : 5.2
-Succeeded   : 11
+[28/5d1f37] process > makeData                       [100%] 1 of 1 ✔
+[4c/882e6e] process > estimatePCgraph                [100%] 1 of 1 ✔
+[73/532a35] process > iterMCMCscheme                 [100%] 1 of 1 ✔
+[1b/e9e1e9] process > estimateCoups_2345pts_WithinMB [100%] 1 of 1 ✔
+[96/b78172] process > estimateCoups_6n7pts           [100%] 1 of 1 ✔
+[eb/b71633] process > identifyDTuples                [100%] 1 of 1 ✔
+[fd/85ec7a] process > identifyStates                 [100%] 1 of 1 ✔
+Completed at: 10-Jun-2024 11:32:49
+Duration    : 4m 7s
+CPU hours   : 0.1
+Succeeded   : 7
 ```
 
-It shows that in total, 5.2 CPU hours were used, which amounted to about 20 minutes on the Eddie cluster. The parallellisation happens both within in a process--where individual calculations get distributed over cores--and throughout the pipeline, where multiple processes can run in parallel if they don't depend on each other's output. 
+It shows that in total, 0.1 CPU hours were used, which amounted to about 4 minutes on the Eddie cluster. Parallellisation happens both within in a process--where individual calculations get distributed over cores--and throughout the pipeline, where multiple processes can run in parallel if they don't depend on each other's output. 
 
 After finishing, the following output directories should have been generated:
 
 ```bash
 $ ls -l
-> Mar  6 14:37 dtuples_output/
-> Mar  6 14:39 coupling_output/
-> Mar  6 14:23 output/
-> Mar  6 14:13 params.json
-> Mar  6 14:39 reports/
-> Mar  6 14:38 states_output/
-> Mar  6 13:20 userGenes.csv
-> Mar  6 13:50 vignetteAstrocyteData.csv
-> Mar  6 14:14 vignetteDoublets.csv
-> Mar  6 14:37 work/
+> 10 jun 11:15 astrocytesVignette.csv
+> 10 jun 12:00 coupling_output
+> 10 jun 11:16 createVignetteData.ipynb
+> 10 jun 12:00 dtuples_output
+> 10 jun 11:58 output
+> 10 jun 11:28 params.json
+> 10 jun 12:00 reports
+> 10 jun 12:00 states_output
+> 10 jun 10:29 userGenes.csv
+> 10 jun 12:00 work
 ```
-
 The file `dtuples_output/top_DTuples.csv` shows the d-tuples that deviate and passed our significance threshold:
 
 ```bash
-$ head -n 10 dtuples_output/top_DTuples.csv | cut -d ',' -f1-6
+$ cat dtuples_output/top_DTuples.csv | cut -d ',' -f1-6 
 > ,genes,state,enrichment,pval,pval_corrected
-> 41,Hba-a1_Hbb-bt_Hba-a2,111,3.2907442436316536,5.042731009532022e-34,1.> 5021325049175918e-31
-> 37,Neurog2_Ifitm3_Eomes,101,2.156699225328587,1.1010156294693394e-17,1.> 6398568179841119e-15
-> 32,Neurog2_Crym_Ifitm3,011,1.879413199401285,1.870648016253587e-07,1.> 8574334589482004e-05
-> 39,Hba-a1_Hbb-bt_Hba-a2,000,0.10297011997190542,8.219424660847979e-06,0.> 0006121020996084621
-> 23,Hspa1a_Crym_Ifitm3,011,1.4106091093783257,3.5257908890442744e-05,0.> 0019585150895565476
-> 28,Lypla1_Crym_Ifitm3,011,1.5227306274895436,3.944897567589089e-05,0.> 0019585150895565476
-> 5,Bst2_Crym_Ifitm3,011,1.63104410329908,5.8684719756655876e-05,0.0024972926354453187
-> 18,Isg15_Bst2_Ifitm3,011,1.3791641581601983,0.0013545459037925451,0.050436644043764516
-> 54,Isg15_Bst2_Hba-a2_Ifitm3,0101,1.3237674496085021,0.001924503628319066,0.06369695421137356
-
+> 7,Hbb-bt_Hba-a1_Hba-a2,111,3.165433984247194,8.85974904654049e-45,1.926362578404946e-43
+> 4,Adhfe1_Crym_Ifitm3,111,3.9210589776345297,1.7501130095553385e-16,1.902622857530875e-15
+> 5,Hbb-bt_Hba-a1_Hba-a2,000,0.0746580402787477,2.0103515310271956e-06,1.4570262048682817e-05
+> 2,Adhfe1_Crym_Ifitm3,101,0.5718584068512097,0.001955427518307478,0.01062914529594279
+> 0,Adhfe1_Crym_Ifitm3,000,0.04538528788780138,0.0029326464768470203,0.012752822679317613
+> 6,Hbb-bt_Hba-a1_Hba-a2,011,0.31033257847745366,0.017996142320096557,0.06521459193139752
+> 3,Adhfe1_Crym_Ifitm3,110,0.8788154265835793,0.023879948910279794,0.0741740453907058
 ```
-where I've cut off the final column, which contains the cell IDs of the cells that are in that d-tuple state. Looking at the rightmost value--the BY-corrected p-value--I would argue that the first 7 d-tuples here are actually significant in our data.
+where the final column, that contains the cell IDs of the cells that are in that d-tuple state, is not shown. Looking at the rightmost value--the BY-corrected p-value--it seems that only the first 3 d-tuples here are actually significant in our data.
 
-Most deviating and striking is the Globin-positive state where the genes *Hbb-bt*, *Hba-a1*, and *Hba-a2* are all expressed. This state is almost 10 times enriched in the data set (2^3.3), which is very significant even after the BY-correction. In fact, the 3-point interaction among these genes led to a second significantly enriched d-tuple where all three genes are not expressed, though this state is only around 7% enriched in the data (2^0.1).
+Most deviating and striking is the Globin-positive state where the genes *Hbb-bt*, *Hba-a1*, and *Hba-a2* are all expressed. This state is over 9 times enriched in the data set (2^3.17), which is very significant even after the BY-correction. In fact, the 3-point interaction among these genes led to a second significantly enriched d-tuple where all three genes are not expressed, though this state is only around 5% enriched in the data (2^0.07).
 
-The d-tuples are combined to form cell states by cutting a hierarchical clustering at the Dice-coefficient that maximised the modularity score, which was 0.83 in this case (as can be seen in the file `states_output/modularity_scores.csv`). A figure showing this cut dendrogram is saved in `states_output/dendrogram_all_dTuples_cut.png`:
+The d-tuples are combined to form cell states by cutting a hierarchical clustering at the Dice-coefficient that maximised the modularity score, which was 0.29 in this case (as can be seen in the file `states_output/modularity_scores.csv`). A figure showing this cut dendrogram is saved in `states_output/dendrogram_all_dTuples_cut.png`:
 
 ![an example dendrogram](https://github.com/AJnsm/Stator/blob/develop/vignette/dendrogram_vignette_example.png)
 
-(Note that for this crude selection of genes and cells, the PCA embedding of the cells is a bit useless. In practice, gene selection would at least in part be based QC metrics like high variance *etc.*, which Stator can automatically apply when running in `expression` mode.)
+(Note that for this low number of genes and cells, the PCA embedding of the cells is a bit useless.)
 
 To find exactly which d-tuples make up the *Hb+* state, the file `states_output/` lists exactly which cluster each d-tuple ended up in:
 
 ```bash
-$ cat states_output/top_DTuples_withStatesFromCut.csv | cut -d '[' -f3
+$ cat states_output/top_DTuples_withStatesFromCut.csv | awk -F',' '{print $2","$3","$NF}'
 > ,genes,state,enrichment,pval,pval_corrected,CellIDs,geneState,cluster
-> 'Hba-a1+', 'Hbb-bt+', 'Hba-a2+']",5
-> 'Neurog2+', 'Ifitm3-', 'Eomes+']",3
-> 'Neurog2-', 'Crym+', 'Ifitm3+']",6
-> 'Hba-a1-', 'Hbb-bt-', 'Hba-a2-']",4
-> 'Hspa1a-', 'Crym+', 'Ifitm3+']",6
-> 'Lypla1-', 'Crym+', 'Ifitm3+']",6
-> 'Bst2-', 'Crym+', 'Ifitm3+']",6
-> 'Isg15-', 'Bst2+', 'Ifitm3+']",9
-> 'Isg15-', 'Bst2+', 'Hba-a2-', 'Ifitm3+']",9
-> 'Neurog2+', 'Ifitm3+', 'Eomes+']",1
-> 'Lypla1+', 'Crym+', 'Ifitm3+']",6
-> 'Bst2+', 'Hba-a2-', 'Ifitm3+']",9
-> 'Isg15+', 'Bst2+', 'Hba-a2+', 'Ifitm3+']",10
-> 'Isg15+', 'Hba-a2-', 'Ifitm3+']",8
-> 'Isg15+', 'Bst2-', 'Ifitm3+']",8
-> 'Bst2+', 'Crym-', 'Ifitm3+']",9
-> 'Atp6v1h+', 'Hba-a2-', 'Eomes+']",3
-> 'Isg15+', 'Bst2+', 'Hba-a2+']",10
-> 'Hspa1a+', 'Crym+', 'Ifitm3-']",2
-> 'Lypla1+', 'Crym-', 'Ifitm3+']",5
-> 'Isg15+', 'Bst2-', 'Hba-a2-', 'Ifitm3+']",8
-> 'Isg15+', 'Bst2+', 'Ifitm3+']",10
-> 'Neurog2-', 'Ifitm3-', 'Eomes-']",4
-> 'Hspa1a+', 'Crym+', 'Ifitm3+']",7
-> 'Isg15+', 'Bst2+', 'Hba-a2-', 'Ifitm3+']",10
-> 'Atp6v1h-', 'Hba-a2+', 'Eomes-']",5
-> 'Atp6v1h+', 'Hba-a2+', 'Eomes+']",1
-> 'Hspa1a-', 'Crym-', 'Ifitm3-']",4
-> 'Isg15+', 'Bst2+', 'Hba-a2+', 'Ifitm3-']",11
-> 'Hspa1a+', 'Neurog2-', 'Ifitm3+']",7
-> 'Bst2+', 'Hba-a2+', 'Ifitm3+']",10
-> 'Lypla1-', 'Crym-', 'Ifitm3-']",4
-> 'Bst2-', 'Crym-', 'Ifitm3-']",4
-> 'Isg15-', 'Bst2-', 'Hba-a2-', 'Ifitm3-']",4
-> 'Isg15-', 'Hba-a2+', 'Ifitm3+']",5
+> 7,Hbb-bt_Hba-a1_Hba-a2,111,3.165433984247194,8.85974904654049e-45,1.926362578404946e-43,4
+> 4,Adhfe1_Crym_Ifitm3,111,3.9210589776345297,1.7501130095553385e-16,1.902622857530875e-15,6
+> 5,Hbb-bt_Hba-a1_Hba-a2,000,0.0746580402787477,2.0103515310271956e-06,1.4570262048682817e-05,1
+> 2,Adhfe1_Crym_Ifitm3,101,0.5718584068512097,0.001955427518307478,0.01062914529594279,2
+> 0,Adhfe1_Crym_Ifitm3,000,0.04538528788780138,0.0029326464768470203,0.012752822679317613,1
+> 6,Hbb-bt_Hba-a1_Hba-a2,011,0.31033257847745366,0.017996142320096557,0.06521459193139752,3
+> 3,Adhfe1_Crym_Ifitm3,110,0.8788154265835793,0.023879948910279794,0.0741740453907058,5
 ```
-which shows that the *Hb*-genes ended up in cluster 5 with three other d-tuples. However, none of these other d-tuples are actually significant to any reasonable level, so the *Hb*-gene d-tuple seems to form a state by itself. (This is something I have confirmed in a larger data set involving a thousand genes)
+which shows that the *Hb*+ d-tuple forms a state by itself (namely, the one indicated as cluster 4). That this population of astrocyte-like cells contain blood contamination has been confirmed in a larger data set involving a thousand genes in our study [here](https://www.biorxiv.org/content/10.1101/2023.12.18.572232v1).
 
-As the interaction estimates depend on the Markov blankets, there should sufficient genes present in the analysis to get a good estimate of the causal relationships. I have verified in multiple gene expression data sets that the Markov blankets only stabilise once at least a few hundred of the most highly-variable genes are included in the analysis, so the estimates from this 25-gene data set cannot be taken seriously, but serve only as an illustrative example of the workflow. 
+As the interaction estimates depend on the Markov blankets, there should sufficient genes present in the analysis to get a good estimate of the causal relationships. We have verified in multiple gene expression data sets that the Markov blankets only stabilise once at least a few hundred of the most highly-variable genes are included in the analysis, so the estimates from this 50-gene data set cannot be taken seriously, but serve only as an illustrative example of the workflow. 
 
-For more information, see my thesis [link]. 
+
+The output of Stator can be further analysed with the provided Shiny App, available at https://shiny.igc.ed.ac.uk/MFIs/. An interactive overview of the significant d-tuples and states at different Dice similarities can is provided when the appropriate files are uploaded:
+
+
+![shiny app overview](https://github.com/AJnsm/Stator/blob/develop/vignette/shiny_app_table.png)
+
+For illustrative purposes, we have created two artificial external cell type annotations that are just copies of the two most significant Stator states: the Globin expressing 'blood' state, and the *Adhfe1*+ *Crym*+ *Ifitm3*+ state. This annotation is provided in a csv file `annotation_vignette.csv`. With this file uploaded to the Shiny app, an overview of the enrichment of different Stator states in the external annotation is shown:
+
+![shiny app overview](https://github.com/AJnsm/Stator/blob/develop/vignette/shiny_app_heatmap.png)
+
+It can be seen that the app correctly identifies that the first two states 2 and 4 are significantly enriched in the external annotations for blood and *Adhfe1*+ *Crym*+ *Ifitm3*+, while the other states are not.
+
+
+
+For more information, see [our study](https://www.biorxiv.org/content/10.1101/2023.12.18.572232v1) or [my thesis](https://abeljansma.nl/assets/JansmaAbel_PhDThesis_corrected.pdf), or raise an issue on this repository. 

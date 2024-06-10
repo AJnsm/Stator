@@ -23,7 +23,7 @@ Subsequent analysis can be done with our bespoke Stator Shiny app, available at 
 ## Docs
 Documentation on installation and usage are available [here](/docs).
 
-A small tutorial is available [here](/vignette/Vignette.md).
+A small tutorial/vignette is available [here](/vignette/Vignette.md).
 
 ## Changes in this version (V1.1)
 - [X] Switched to Nextflow DSL2 and the latest compatible Nextflow version (23.04)
@@ -37,7 +37,7 @@ A small tutorial is available [here](/vignette/Vignette.md).
 
 ## To do
 - [ ] switch to using CIs for significance estimation, abandon F-value. 
-- [ ] update vignette
+- [X] update vignette
 - [ ] improve documentation and tutorial
 - [ ] Create more unit tests for state inference
 - [ ] add option to also use pairwise interactions for state inference
