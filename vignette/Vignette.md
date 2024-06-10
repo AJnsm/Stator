@@ -193,7 +193,7 @@ Most deviating and striking is the Globin-positive state where the genes *Hbb-bt
 
 The d-tuples are combined to form cell states by cutting a hierarchical clustering at the Dice-coefficient that maximised the modularity score, which was 0.29 in this case (as can be seen in the file `states_output/modularity_scores.csv`). A figure showing this cut dendrogram is saved in `states_output/dendrogram_all_dTuples_cut.png`:
 
-![an example dendrogram](https://github.com/AJnsm/Stator/blob/develop/vignette/dendrogram_vignette_example.png)
+![an example dendrogram](https://github.com/AJnsm/Stator/blob/main/vignette/dendrogram_vignette_example.png)
 
 (Note that for this low number of genes and cells, the PCA embedding of the cells is a bit useless.)
 
@@ -218,11 +218,11 @@ As the interaction estimates depend on the Markov blankets, there should suffici
 The output of Stator can be further analysed with the provided Shiny App, available at https://shiny.igc.ed.ac.uk/MFIs/. An interactive overview of the significant d-tuples and states at different Dice similarities can is provided when the appropriate files are uploaded:
 
 
-![shiny app overview](https://github.com/AJnsm/Stator/blob/develop/vignette/shiny_app_table.png)
+![shiny app overview](https://github.com/AJnsm/Stator/blob/main/vignette/shiny_app_table.png)
 
 For illustrative purposes, we have created two artificial external cell type annotations that are just copies of the two most significant Stator states: the Globin expressing 'blood' state, and the *Adhfe1*+ *Crym*+ *Ifitm3*+ state. This annotation is provided in a csv file `annotation_vignette.csv`. With this file uploaded to the Shiny app, an overview of the enrichment of different Stator states in the external annotation is shown:
 
-![shiny app overview](https://github.com/AJnsm/Stator/blob/develop/vignette/shiny_app_heatmap.png)
+![shiny app overview](https://github.com/AJnsm/Stator/blob/main/vignette/shiny_app_heatmap.png)
 
 It can be seen that the app correctly identifies that the first two states 2 and 4 are significantly enriched in the external annotations for blood and *Adhfe1*+ *Crym*+ *Ifitm3*+, while the other states are not.
 
