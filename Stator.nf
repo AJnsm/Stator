@@ -15,8 +15,8 @@ process makeData {
     input:
     path dataScript 
     path rawData
-    path(userGenes) optional: true
-    path(doubletFile) optional: true
+    path userGenes optional true
+    path doubletFile optional true 
     
     output:
     path "unbinarised_cell_data.h5ad"
