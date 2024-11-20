@@ -166,7 +166,7 @@ process identifyDTuples {
 
     output:
     path '*.png' optional true
-    path 'top_DTuples.csv', emit: topDeviators
+    // path 'top_DTuples.csv', emit: topDeviators
     path 'all_DTuples.csv', emit: allDeviators
     path 'DTuples_binaryReps.csv' optional true
 
@@ -189,30 +189,31 @@ process identifyDTuples {
 
 }
 
-process identifyStates {
-    label 'python'
-    publishDir "${launchDir}/states_output", mode: 'copy'
+// This process is deprecated and replaced by the Shiny R app
+// process identifyStates {
+//     label 'python'
+//     publishDir "${launchDir}/states_output", mode: 'copy'
 
-    input:
-    path estimationScript
-    path devStates
-    path pcaCoords
-    path dataSet
+//     input:
+//     path estimationScript
+//     path devStates
+//     path pcaCoords
+//     path dataSet
 
-    output:
-    path '*.png' optional true
-    path '*.csv' optional true
-    """
-    python ${estimationScript} \
-    --dataPath ${dataSet} \
-    --PCApath ${pcaCoords} \
-    --devStates ${devStates} \
-    --diffCutoff ${params.dendCutoff} \
-    --bsResamps ${params.bsResamps_HC} \
-    --auThreshold ${params.auThreshold}
-    """
+//     output:
+//     path '*.png' optional true
+//     path '*.csv' optional true
+//     """
+//     python ${estimationScript} \
+//     --dataPath ${dataSet} \
+//     --PCApath ${pcaCoords} \
+//     --devStates ${devStates} \
+//     --diffCutoff ${params.dendCutoff} \
+//     --bsResamps ${params.bsResamps_HC} \
+//     --auThreshold ${params.auThreshold}
+//     """
 
-} 
+// } 
 
 workflow {
     script_makeTrainingData = "${projectDir}/scripts/makeTrainingData.py" 
