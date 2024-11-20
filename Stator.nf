@@ -6,8 +6,6 @@ formattedNGenes = String.format( "%04d", params.nGenes )
 dataSetID = "${formattedNCells}Cells_${formattedNGenes}Genes"
 
 
-
-
 process makeData {
     label 'python'
     publishDir "${launchDir}/output", mode: 'copy'
@@ -15,8 +13,8 @@ process makeData {
     input:
     path dataScript 
     path rawData
-    path userGenes optional true
-    path doubletFile optional true 
+    path userGenes
+    path doubletFile
     
     output:
     path "unbinarised_cell_data.h5ad"
@@ -33,8 +31,8 @@ process makeData {
     --rawData ${rawData} \
     --nGenes ${params.nGenes} \
     --nCells ${params.nCells} \
-    ${userGenes ? "--userGenes $userGenes" : ''} \
-    ${doubletFile ? "--bcDoublets $doubletFile" : ''} \
+    --bcDoublets ${doubletFile} \
+    --userGenes ${userGenes} \
     --fracMito ${params.fracMito} \
     --minGenes ${params.minGenes} \
     --minCells ${params.minCells}
@@ -227,10 +225,7 @@ workflow {
     script_calcHOIs_6n7pts = "${projectDir}/scripts/calcHOIs_6n7pts.py"
     utils = "${projectDir}/scripts/utilities.py"
 
-    makeData(script_makeTrainingData,
-            params.rawDataPath,
-            params.userGenes != "/" ? file(params.userGenes) : null,
-            params.doubletFile != "/" ? file(params.doubletFile) : null)
+    makeData(script_makeTrainingData, params.rawDataPath, params.userGenes, params.doubletFile)
 
     estimatePCgraph(script_parallelPC, makeData.out.trainingData)
 
