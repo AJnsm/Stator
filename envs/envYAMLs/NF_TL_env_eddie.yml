@@ -181,5 +181,5 @@ dependencies:
 - zlib=1.2.11=h516909a_1010
 - zstd=1.4.5=h6597ccf_2
 - qt=4.8.7=2
-prefix: /exports/igmm/eddie/ponting-lab/abel/myanaconda/envs/Stator_py_env
+# prefix: /exports/igmm/eddie/ponting-lab/abel/myanaconda/envs/Stator_py_env
 

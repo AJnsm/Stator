@@ -199,5 +199,5 @@ dependencies:
 - xz=5.2.5=h516909a_1
 - zlib=1.2.11=h516909a_1010
 - zstd=1.4.5=h6597ccf_2
-prefix: /exports/igmm/eddie/ponting-lab/abel/myanaconda/envs/rEnv
+# prefix: /exports/igmm/eddie/ponting-lab/abel/myanaconda/envs/rEnv
 
