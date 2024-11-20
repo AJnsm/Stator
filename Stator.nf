@@ -225,23 +225,25 @@ workflow {
     script_calcHOIs_6n7pts = "${projectDir}/scripts/calcHOIs_6n7pts.py"
     utils = "${projectDir}/scripts/utilities.py"
 
+    ch_empty = file("${projectDir}/EMPTY")
+
     makeData(script_makeTrainingData,
             params.rawDataPath,
-            params.userGenes ? file(params.userGenes) : 'null',
-            params.doubletFile ? file(params.doubletFile) : 'null')
+            params.userGenes ? file(params.userGenes) : ch_empty,
+            params.doubletFile ? file(params.doubletFile) : ch_empty)
 
     estimatePCgraph(script_parallelPC, makeData.out.trainingData)
 
     iterMCMCscheme(script_iterMCMC, estimatePCgraph.out.PCgraph, 
                         makeData.out.trainingData)
     estimateCoups_2345pts_WithinMB(script_calcHOIsWithinMB, 
-                        params.genesToOne ? file(params.genesToOne) : 'null',
+                        params.genesToOne ? file(params.genesToOne) : ch_empty,
                         utils,
                         iterMCMCscheme.out.MCMCgraph,
                         makeData.out.trainingData)
 
     estimateCoups_6n7pts(script_calcHOIs_6n7pts,
-                        params.genesToOne ? file(params.genesToOne) : 'null',
+                        params.genesToOne ? file(params.genesToOne) : ch_empty,
                         estimateCoups_2345pts_WithinMB.out.interactions_withinMB_5pts,
                         utils,
                         makeData.out.trainingData,
