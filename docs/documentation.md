@@ -105,7 +105,7 @@ Here follows an overview of the other parameters that can affect the results:
 And these affect the resources accessible to each of the processes, but shouldn't affect the results:
 | Parameter | Default | Description | Required? | 
 | :----- | :----- | :----- | :-- |
-| executor | ' ' | How to execute the pipeline ('sge' for cluster usage) | Yes |
+| executor | ' ' | How to execute the pipeline ('sge' for cluster usage, 'local' for local usage) | Yes |
 | maxQueueSize | ' ' | How many jobs are allowed to be scheduled at the same time | Only when `executor=='sge'` |
 | [cores, mem, time]\_makeData | ' ' | How many [cores, memory, hours] are available when preparing the data | Only when `executor=='sge'` |
 | [cores, mem, time]\_PC | ' ' | How many [cores, memory, hours] are available to the PC-algorithm | Only when `executor=='sge'` |

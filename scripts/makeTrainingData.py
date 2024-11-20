@@ -14,15 +14,9 @@ np.random.seed(0)
 print('libs loaded')
 # print('If figures come out blank, change the matplotlib backend. ')
 
-def none_or_str(value):
-    if value == 'None':
-        return None
-    return value
-
-
 parser = argparse.ArgumentParser(description='Prepare the training data')
 
-# For more info and defaults, see documentation. 
+# For more info and defaults, see documentation.
 parser.add_argument("--dataType", type=str, nargs='?', help="Determines if data is treated as expression data or not")
 parser.add_argument("--rawData", type=str, nargs=1, help="Path to the raw data file")
 parser.add_argument("--nGenes", type=int, nargs=1, help="Number of genes to keep")
