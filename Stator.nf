@@ -235,13 +235,13 @@ workflow {
     iterMCMCscheme(script_iterMCMC, estimatePCgraph.out.PCgraph, 
                         makeData.out.trainingData)
     estimateCoups_2345pts_WithinMB(script_calcHOIsWithinMB, 
-                        params.genesToOne,
+                        params.genesToOne ? file(params.genesToOne) : 'null',
                         utils,
                         iterMCMCscheme.out.MCMCgraph,
                         makeData.out.trainingData)
 
     estimateCoups_6n7pts(script_calcHOIs_6n7pts,
-                        params.genesToOne,
+                        params.genesToOne ? file(params.genesToOne) : 'null',
                         estimateCoups_2345pts_WithinMB.out.interactions_withinMB_5pts,
                         utils,
                         makeData.out.trainingData,
