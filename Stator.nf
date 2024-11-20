@@ -225,25 +225,27 @@ workflow {
     script_calcHOIs_6n7pts = "${projectDir}/scripts/calcHOIs_6n7pts.py"
     utils = "${projectDir}/scripts/utilities.py"
 
-    ch_empty = file("${projectDir}/EMPTY")
+    ch_empty_userGenes = file("${projectDir}/EMPTY_userGenes")
+    ch_empty_doubletFile = file("${projectDir}/EMPTY_doubletFile")
+    ch_empty_genesToOne = file("${projectDir}/EMPTY_genesToOne")
 
     makeData(script_makeTrainingData,
             params.rawDataPath,
-            params.userGenes ? file(params.userGenes) : ch_empty,
-            params.doubletFile ? file(params.doubletFile) : ch_empty)
+            params.userGenes ? file(params.userGenes) : ch_empty_userGenes,
+            params.doubletFile ? file(params.doubletFile) : ch_empty_doubletFile)
 
     estimatePCgraph(script_parallelPC, makeData.out.trainingData)
 
     iterMCMCscheme(script_iterMCMC, estimatePCgraph.out.PCgraph, 
                         makeData.out.trainingData)
     estimateCoups_2345pts_WithinMB(script_calcHOIsWithinMB, 
-                        params.genesToOne ? file(params.genesToOne) : ch_empty,
+                        params.genesToOne ? file(params.genesToOne) : ch_empty_genesToOne,
                         utils,
                         iterMCMCscheme.out.MCMCgraph,
                         makeData.out.trainingData)
 
     estimateCoups_6n7pts(script_calcHOIs_6n7pts,
-                        params.genesToOne ? file(params.genesToOne) : ch_empty,
+                        params.genesToOne ? file(params.genesToOne) : ch_empty_genesToOne,
                         estimateCoups_2345pts_WithinMB.out.interactions_withinMB_5pts,
                         utils,
                         makeData.out.trainingData,
