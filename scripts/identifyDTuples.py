@@ -510,14 +510,15 @@ if len(devDict)>0:
 	deviators['cellIDs'] = [np.where(binRep)[0].astype(int).tolist() for binRep in binReps]
 
 	# Filter out the d-tuples that are significantly enriched:
-	strongDeviators = deviators.query(f'pval_corrected <= {args.stateDevAlpha} and enrichment >= {args.minStateDeviation}').copy()
+	# THIS IS DEPRECATED AND REPLACED BY THE SHINY APP FUNCTIONALITY
+	# strongDeviators = deviators.query(f'pval_corrected <= {args.stateDevAlpha} and enrichment >= {args.minStateDeviation}').copy()
 
 	deviators.to_csv(f'all_DTuples.csv')
-	strongDeviators.to_csv(f'top_DTuples.csv')
+	# strongDeviators.to_csv(f'top_DTuples.csv')
 
 	pd.DataFrame(binReps).to_csv(f'DTuples_binaryReps.csv')
 
 else: 
 	pd.DataFrame(data=[]).to_csv(f'all_DTuples.csv')
-	pd.DataFrame(data=[]).to_csv(f'top_DTuples.csv')
+	# pd.DataFrame(data=[]).to_csv(f'top_DTuples.csv')
 

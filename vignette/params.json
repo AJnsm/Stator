@@ -12,12 +12,9 @@
 
       "nRandomHOIs" : 10,
       "sigHOIthreshold":0.1,
-      "minStateDeviation": 0,
-      "stateDevAlpha": 0.1,
 
       "dendCutoff"  : -1,
       "asympBool"   : 0,
-      "calcAll2pts" : 0,
       "estimationMode" : "MFI",
     
       "executor"    : "sge",
@@ -26,7 +23,6 @@
       "cores_PC"      : 6,
       "cores_MCMC"    : 2,
       "cores_1pt"     : 4,
-      "cores_2pt"     : 6,
       "cores_HOIs_MB" : 6,
       "cores_HOIs_6n7" : 6,
       "cores_HOIs_plots": 6,
@@ -35,7 +31,6 @@
       "mem_PC"        : "32G",
       "mem_MCMC"      : "16G",
       "mem_1pt"       : "16G",
-      "mem_2pt"       : "16G",
       "mem_HOIs_MB"   : "16G",
       "mem_HOIs_6n7"   : "16G",
       "mem_HOIs_plots" : "16G",
@@ -44,7 +39,6 @@
       "time_PC"       : "1h",
       "time_MCMC"     : "1h",
       "time_1pt"      : "1h",
-      "time_2pt"      : "1h",
       "time_HOIs_MB"  : "1h",
       "time_HOIs_6n7"  : "1h",
       "time_HOIs_plots"  : "1h"

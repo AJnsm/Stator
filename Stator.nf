@@ -254,9 +254,9 @@ workflow {
                         estimateCoups_2345pts_WithinMB.out.interactions_withinMB_5pts,
                         makeData.out.PCAembeddings)
 
-    identifyStates(script_identifyStates,  
-                        identifyDTuples.out.topDeviators,
-                        makeData.out.PCAembeddings,
-                        makeData.out.trainingData)
+    // identifyStates(script_identifyStates,  
+    //                     identifyDTuples.out.topDeviators,
+    //                     makeData.out.PCAembeddings,
+    //                     makeData.out.trainingData)
 }
 

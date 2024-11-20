@@ -33,9 +33,7 @@ To schedule job submission on a cluster, this repo comes with a profile for Sun 
 ## Input files
 
 * `rawDataPath`: A count matrix in csv format, where the rows are cells, and the columns genes. The first row should contain the gene names (does not matter in which format). 
-* `userGenes` (optional): A list of genes that should be included in the final analysis, irrespective of their variability.  
-* `genesToOne` (optional): A list of genes that should be conditioned to a 1 instead of a 0.  
-* `doubletFile` (optional): A list of booleans that indicate whether a cell should be included (e.g. on the basis of being a suspected doublet), in the same order as the cells in the count matrix. 
+* `userGenes` (optional): A list of genes that should be included in the final analysis, irrespective of their variability. WARNING: If more than `nGenes` genes are provided, `nGenes` will be overwritten and set to the number of genes in the list. The gene names should be spelled exactly as they are in the count matrix header. 
 
 
 ## Output files
@@ -76,14 +74,19 @@ To schedule job submission on a cluster, this repo comes with a profile for Sun 
 ## Parameters
 The pipeline takes in a number of parameters, which can be set by the user in the params.json file. An example file called `params_example.json` is included in this directory. 
 
-These affect the calculation and the results:
+The `dataType` parameter determines preprocessing of input data, and can take two values:
+* `dataType = "expression"`: Standard scRNA-seq QC is performed (further specified by `fracMito`, `minGenes`, `minCells`), the count values are normalised and log-transformed, a total of `(nGenes - |userGenes|)` of the most highly variable genes are included beyond the optionally provided `userGenes`. 
+* `dataType = "agnostic"` (default): No QC is performed, and only the `userGenes` and first `(nGenes - |userGenes|)` genes are included. 
+
+In both cases, if more than `nCells` are provided in the count matrix, a random selection of `nCells` is included in the analysis.
+
+Here follows an overview of the other parameters that can affect the results:
 | Parameter | Default | Description | Required? | 
 | :----- | :----- | :----- | :-- |
-| dataType | 'agnostic' | Determines preprocessing of input data; either `agnostic` or `expression` | Yes |
+| dataType | 'agnostic' | See explanation above this table | Yes |
 | rawDataPath | ' ' | absolute path to count matrix (`.csv`) | Yes |
 | nGenes | ' ' | Number of genes to keep | Yes |
 | nCells | ' ' | Number of cells to keep | Yes |
-| doubletFile | ' ' | absolute path to doublet annotation (`.csv`) | No |
 | userGenes | ' ' | absolute path to list of required genes (`.csv`) | No |
 | fracMito | 1 | cells with more than `fracMito` mitochondrial reads get dismissed | Only when `dataType=='expression'` |
 | minGenes | 0 | cells with fewer than `minGenes` expressed get dismissed | Only when `dataType=='expression'` |
@@ -95,11 +98,7 @@ These affect the calculation and the results:
 | nRandomHOIs | 1000 | How many random 6 & 7-point interactions to calculate | Yes |
 | plotPairwiseUpsets | 0 | Boolean to determine if pairwise upset plots should be generated | Yes |
 | sigHOIthreshold | 0.05 | Significance threshold on F-value to decide which HOIs get summarised and used for states **(will soon be replaced by CI)** | Yes |
-| minStateDeviation | 3 | Min. enrichment factor for characteristic states | Yes |
-| stateDevAlpha | 0.05 | Min. enrichment significance for characteristic states | Yes |
-| dendCutoff | -1 | Dice distance at which the dendrogram gets cut. Number between 0 and 1, or -1 for maximum modularity | Yes |
-| bsResamps_HC | 100 | Number of bootstrap resampled state dendrograms to generate **(will soon be deprecated)**| Yes |
-| auThreshold | 0.95 | AU threshold that determines if a dendrogram branch is significant **(will soon be deprecated)**| Yes |
+
 
 
 
@@ -112,11 +111,9 @@ And these affect the resources accessible to each of the processes, but shouldn'
 | [cores, mem, time]\_PC | ' ' | How many [cores, memory, hours] are available to the PC-algorithm | Only when `executor=='sge'` |
 | [cores, mem, time]\_MCMC | ' ' | How many [cores, memory, hours] are available to the MCMC scheme | Only when `executor=='sge'` |
 | [cores, mem, time]\_1pt | ' ' | How many [cores, memory, hours] are available to the 1-point estimation | Only when `executor=='sge'` |
-| [cores, mem, time]\_2pt | ' ' | How many [cores, memory, hours] are available to the 2-point estimation | Only when `executor=='sge'` |
-| [cores, mem, time]\_3pt | ' ' | How many [cores, memory, hours] are available to the 3-point estimation | Only when `executor=='sge'` |
 | [cores, mem, time]\_HOIs_MB | ' ' | How many [cores, memory, hours] are available to the 3-5-point estimations within Markov blankets | Only when `executor=='sge'` |
 | [cores, mem, time]\_HOIs_6n7 | ' ' | How many [cores, memory, hours] are available to the 6- and 7-point estimations | Only when `executor=='sge'` |
-| [cores, mem, time]\_HOIs_plots | ' ' | How many [cores, memory, hours] are available for plotting the HOI summaries and characteristic states | Only when `executor=='sge'` |
+| [cores, mem, time]\_HOIs_plots | ' ' | How many [cores, memory, hours] are available for plotting the HOI summaries and d-tuples | Only when `executor=='sge'` |
 
 
 ## Usage

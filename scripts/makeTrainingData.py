@@ -22,7 +22,8 @@ def none_or_str(value):
 
 parser = argparse.ArgumentParser(description='Prepare the training data')
 
-parser.add_argument("--dataType", type=str, nargs='?', help="From which experiment does the data come (10X/Zeisel)")
+# For more info and defaults, see documentation. 
+parser.add_argument("--dataType", type=str, nargs='?', help="Determines if data is treated as expression data or not")
 parser.add_argument("--rawData", type=str, nargs=1, help="Path to the raw data file")
 parser.add_argument("--nGenes", type=int, nargs=1, help="Number of genes to keep")
 parser.add_argument("--userGenes", type=str, nargs='?', help="List of genes to always include")
@@ -56,6 +57,8 @@ if args.dataType=='agnostic':
         print('file with user genes:  ', args.userGenes)
         userGenes = pd.read_csv(args.userGenes).columns.values
         userGenes = [g for g in userGenes if g in scObj.var.index.values]
+        if len(userGenes)>nGenes:
+            print('WARNING: more user-defined genes than expected, I am including them all!')
         nGenes = max(nGenes, len(userGenes))
     except Exception as e:
         print(e)
@@ -133,10 +136,8 @@ elif args.dataType=='expression':
         print('file with user genes:  ', args.userGenes)
         userGenes = pd.read_csv(args.userGenes).columns.values
         userGenes = [g for g in userGenes if g in scObj.var.index]
-
         if len(userGenes)>nGenes:
             print('WARNING: more user-defined genes than expected, I am including them all!')
-
         nGenes = max(nGenes, len(userGenes))
 
 

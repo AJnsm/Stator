@@ -44,12 +44,8 @@ $ cat params.json.json
 >
 >      "nRandomHOIs" : 10,
 >      "sigHOIthreshold":0.1,
->      "minStateDeviation": 0,
->      "stateDevAlpha": 0.1,
 >
->      "dendCutoff"  : -1,
 >      "asympBool"   : 0,
->      "calcAll2pts" : 0,
 >      "estimationMode" : "MFI",
 >
 >      "executor"    : "sge",
@@ -58,7 +54,6 @@ $ cat params.json.json
 >      "cores_PC"      : 6,
 >      "cores_MCMC"    : 2,
 >      "cores_1pt"     : 4,
->      "cores_2pt"     : 6,
 >      "cores_HOIs_MB" : 6,
 >      "cores_HOIs_6n7" : 6,
 >      "cores_HOIs_plots": 6,
@@ -67,7 +62,6 @@ $ cat params.json.json
 >      "mem_PC"        : "32G",
 >      "mem_MCMC"      : "16G",
 >      "mem_1pt"       : "16G",
->      "mem_2pt"       : "16G",
 >      "mem_HOIs_MB"   : "16G",
 >      "mem_HOIs_6n7"   : "16G",
 >      "mem_HOIs_plots" : "16G",
@@ -76,22 +70,18 @@ $ cat params.json.json
 >      "time_PC"       : "1h",
 >      "time_MCMC"     : "1h",
 >      "time_1pt"      : "1h",
->      "time_2pt"      : "1h",
 >      "time_HOIs_MB"  : "1h",
 >      "time_HOIs_6n7"  : "1h",
 >      "time_HOIs_plots"  : "1h"
 >  }
 ```
-Some explanation:
-* `"dataType" : "expression"` indicates that the pipeline should assume that the data is expression data, and perform some scRNA-seq specific QC, like filtering out low-read cells. More info on this is available from the documentation. 
+Some explanation (for more details see the [documentation](/docs/documentation.md)):
+* `"dataType" : "expression"` indicates that the pipeline should assume that the data is expression data, and perform some scRNA-seq specific QC, like filtering out low-read cells. More info on this is available from the [documentation](/docs/documentation.md). 
 * `nGenes : 50` indicates that a total of 50 genes should be included, which includes the 19 genes specified in `userGenes.csv`.
 * `nCells : 4000`: The total number of cells used in the estimation. In practice, you would probably be interested in more cells and genes, but to keep things light, I've put in some very small numbers here.
 * `"PCalpha" : 0.1`: When running the PC-algorithm, this is used as the significance threshold to conclude a conditional dependency. Setting this to a higher value makes it easier to reject the null hypothesis of no dependence, which leaves more causal edges present, which is more conservative.
 * `"nRandomHOIs" : 10`: Beyond the Markov-connected tuples, Stator calculates this many interactions among random tuples at orders 3-7.
 * `"sigHOIthreshold" : 0.1`: The significance threshold at which a higher-order interaction (HOI) is deemed significant. In practice, you might want to set this to 0.05 to be more conservative.
-* `"minStateDeviation" : 0`: The minimum log-2 fold deviation from the expected number of occurrences of a particular gene state (d-tuple). Setting this to 0, as is done here, merely requires the deviation to be positive. 
-* `"stateDevAlpha" : 0.1`: The significance threshold (after Benjamini-Yekutieli correction) to determine that the occurrence of a particular d-tuple deviates significantly. In practice, you might want to set this to 0.05 to be more conservative. 
-* `"dendCutoff"  : -1`: The value of -1 tells Stator to cut the dendrogram of d-tuples at whichever height maximises the modularity score. Setting this to a value between 0 and 1 cuts at that particular Dice-coefficient. 
 * `"asympBool" : 0`: This boolean 0 indicates that the confidence intervals and the uncertainty in the interaction estimation should be calculated using bootstrap resampling, not using an asymptotic estimation (`"asympBool" : 1`). 
 * `"executor" : "sge"`: Run Stator on a cluster with the Sun Grid Engine scheduler.
 * `"maxQueueSize"  : 25`: We don't want to be impolite and submit more than 25 jobs at the same time. 
@@ -141,7 +131,7 @@ Once the pipeline has finished, the output should look something like this:
 
 
 ```bash
-> N E X T F L O W  ~  version 22.04.3
+> N E X T F L O W  ~  version 23.04.4
 > Launching `https://github.com/AJnsm/Stator` [jolly_turing] DSL1 - revision: 4902322ba5 [develop]
 executor >  sge (11)
 [28/5d1f37] process > makeData                       [100%] 1 of 1 ✔
