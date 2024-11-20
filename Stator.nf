@@ -225,7 +225,10 @@ workflow {
     script_calcHOIs_6n7pts = "${projectDir}/scripts/calcHOIs_6n7pts.py"
     utils = "${projectDir}/scripts/utilities.py"
 
-    makeData(script_makeTrainingData, params.rawDataPath, params.userGenes, params.doubletFile)
+    makeData(script_makeTrainingScript,
+            params.rawDataPath,
+            params.userGenes ? file(params.userGenes) : 'null',
+            params.doubletFile ? file(params.doubletFile) : 'null')
 
     estimatePCgraph(script_parallelPC, makeData.out.trainingData)
 
