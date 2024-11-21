@@ -13,7 +13,6 @@
       "nRandomHOIs" : 10,
       "sigHOIthreshold":0.1,
 
-      "dendCutoff"  : -1,
       "asympBool"   : 0,
       "estimationMode" : "MFI",
     

@@ -51,7 +51,7 @@ process estimatePCgraph {
     path("PCgraph_${dataSetID}.csv"), emit: PCgraph
     
     """
-    Rscript ${PCgraphEstScript} ${dataSet} ${params.cores_PC} ${params.PCalpha}
+    Rscript ${PCgraphEstScript} ${dataSet} ${params.cores_PC ?: 1} ${params.PCalpha}
     """
  }
 
@@ -103,7 +103,7 @@ process estimateCoups_2345pts_WithinMB {
     --dataPath ${dataSet} \
     --graphPath ${MCMCgraph} \
     --nResamps ${params.bsResamps} \
-    --nCores ${params.cores_HOIs_MB} \
+    --nCores ${params.cores_HOIs_MB ?: 1} \
     --nRandoms ${params.nRandomHOIs} \
     --genesToOne ${genesToOne} \
     --dataDups ${params.dataDups} \
@@ -136,7 +136,7 @@ process estimateCoups_6n7pts {
     --graphPath ${MCMCgraph} \
     --pathTo5pts ${withinMB_5pts} \
     --nResamps ${params.bsResamps} \
-    --nCores ${params.cores_HOIs_6n7} \
+    --nCores ${params.cores_HOIs_6n7 ?: 1} \
     --nRandoms ${params.nRandomHOIs} \
     --genesToOne ${genesToOne} \
     --dataDups ${params.dataDups} \
@@ -215,6 +215,8 @@ process identifyDTuples {
 
 // } 
 
+
+// NOTE: Nextflow does not yet allow optional inputs, so we create some temporary empty files to pass to the process when there are no userGenes, doubletFile, or genesToOne files specified. 
 workflow {
     script_makeTrainingData = "${projectDir}/scripts/makeTrainingData.py" 
     script_calcHOIsWithinMB = "${projectDir}/scripts/calcHOIsWithinMB.py"
