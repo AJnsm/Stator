@@ -36,7 +36,7 @@ To schedule job submission on a cluster, this repo comes with a profile for Sun 
 * `userGenes` (optional): A list of genes that should be included in the final analysis, irrespective of their variability. **WARNING!** pay attention to the following:
     * If more than `nGenes` genes are provided, `nGenes` will be overwritten and set to the number of genes in the list. 
     * The gene names should be spelled exactly as they are in the count matrix header.
-    * Genes that are not expressed in any of the cells will *not* be included, so fewer than `nGenes` genes might be included in the final analysis.
+    * Genes that are not expressed in any of the cells will *not* be included when `nCells`>0, so fewer than `nGenes` genes might be included in the final analysis.
 
 
 ## Output files
@@ -93,7 +93,7 @@ Here follows an overview of the other parameters that can affect the results:
 | userGenes | ' ' | absolute path to list of required genes (`.csv`) | No |
 | fracMito | 1 | cells with more than `fracMito` mitochondrial reads get dismissed | Only when `dataType=='expression'` |
 | minGenes | 0 | cells with fewer than `minGenes` expressed get dismissed | Only when `dataType=='expression'` |
-| minCells | 0 | genes expressed in fewer than `minCells` get dismissed | Only when `dataType=='expression'` |
+| minCells | 1 | genes expressed in fewer than `minCells` get dismissed | Only when `dataType=='expression'` |
 | PCalpha | 0.05 | Significance threshold to use for the PC-algorithm | Yes |
 | asympBool | 0 | Boolean that determines if the variance is estimated from bootstrap resamples (0) or an asymptotic approximation (1) | Yes |
 | bsResamps | 1000 | Number of bootstrap resamples to use when calculating confidence intervals on interactions | Only when `asympBool==0` |
