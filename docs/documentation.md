@@ -34,9 +34,9 @@ To schedule job submission on a cluster, this repo comes with a profile for Sun 
 
 * `rawDataPath`: A count matrix in csv format, where the rows are cells, and the columns genes. The first row should contain the gene names (does not matter in which format). 
 * `userGenes` (optional): A list of genes that should be included in the final analysis, irrespective of their variability. **WARNING!** pay attention to the following:
-    * If more than `nGenes` genes are provided, `nGenes` will be overwritten and set to the number of genes in the list. 
+    * If more than `nGenes` genes are provided, `nGenes` will be overwritten and set to the number of genes in the list. (This prints a warning to the `.command.out` file.)
     * The gene names should be spelled exactly as they are in the count matrix header.
-    * Genes that are not expressed in any of the cells will *not* be included when `nCells`>0, so fewer than `nGenes` genes might be included in the final analysis.
+    * Genes that are not expressed in any of the cells will *not* be included when `nCells`>0, so fewer than `nGenes` genes might be included in the final analysis. (This prints a warning to the `.command.out` file.)
 
 
 ## Output files
