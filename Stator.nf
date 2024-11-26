@@ -3,7 +3,7 @@ nextflow.enable.dsl=2
 
 formattedNCells = String.format( "%05d", params.nCells )
 formattedNGenes = String.format( "%04d", params.nGenes )
-dataSetID = "${formattedNCells}Cells_${formattedNGenes}Genes"
+dataSetID = "${formattedNCells}Cells_*Genes"
 
 
 process makeData {
