@@ -98,11 +98,11 @@ if args.dataType=='agnostic':
 
     selectedCellsAndGenes = scObjBin[:,scObjBin.var.index.isin(selected_genes)]
 
-    clDF = pd.DataFrame(selectedCellsAndGenes.X.toarray())
-    clDF.columns = selectedCellsAndGenes.var.index
-    print('Final QCd data set size: ', clDF.shape)
+    finalDF = pd.DataFrame(selectedCellsAndGenes.X.toarray())
+    finalDF.columns = selectedCellsAndGenes.var.index
+    print('Final QCd data set size: ', finalDF.shape)
 
-    clDF.iloc[:nCells].to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
+    finalDF.iloc[:nCells].to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
     pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
     pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
 
@@ -187,7 +187,7 @@ elif args.dataType=='expression':
 #     Min mean is low enough to include all genes
 #     Max mean 14, because that is ln(10^6)
 #     Min dispersion doesn't matter because only the top N are taken anyway
-    sc.pp.highly_variable_genes(scObj, min_mean=0.01, max_mean=14, min_disp=0.0)
+    sc.pp.highly_variable_genes(scObj, min_mean=0.001, max_mean=14, min_disp=0.0)
     sc.pl.highly_variable_genes(scObj, save=f'QC_HVG_selection_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.png')
     print('selected genes: ', sum(scObj.var['highly_variable']))
 
@@ -218,18 +218,22 @@ elif args.dataType=='expression':
 
     selectedCellsAndGenes = scObjBin[:,scObjBin.var.index.isin(selected_genes)]
 
+    if len(selectedCellsAndGenes.var) < nGenes:
+        # this can happen if very few genes are expressed in the raw data.
+        print(f'WARNING: fewer than {nGenes} genes expressed, continuing with {len(selectedCellsAndGenes.var)} genes.')
+
     print('Saving final binarised count matrix of selected cells and genes...')
-    clDF = pd.DataFrame(selectedCellsAndGenes.X.toarray())
-    clDF.columns = selectedCellsAndGenes.var.index
-    print('Final QCd data set size: ', clDF.shape)
+    finalDF = pd.DataFrame(selectedCellsAndGenes.X.toarray())
+    finalDF.columns = selectedCellsAndGenes.var.index
+    print('Final QCd data set size: ', finalDF.shape)
 
     # Output the selected cells and genes:
-    clDF.iloc[:nCells].to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes.csv', index=False)
+    finalDF.iloc[:nCells].to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(len(selectedCellsAndGenes.var)) + 'Genes.csv', index=False)
 
     print('Saving embedding coordinates...')
     # Output the embedding coordinates of the selected cells:
-    pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_PCAcoords.csv', index=False)
-    pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(nGenes) + 'Genes_UMAPcoords.csv', index=False)
+    pd.DataFrame(scObjBin.obsm['X_pca'][:nCells]).to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(len(selectedCellsAndGenes.var)) + 'Genes_PCAcoords.csv', index=False)
+    pd.DataFrame(scObjBin.obsm['X_umap'][:nCells]).to_csv('trainingData_' + '{:0>5}'.format(nCells) + 'Cells_'+'{:0>4}'.format(len(selectedCellsAndGenes.var)) + 'Genes_UMAPcoords.csv', index=False)
 
     print('****DONE****')
     
