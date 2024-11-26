@@ -21,7 +21,7 @@ The pipeline can be run directly from the command line, both locally or on an HP
 Subsequent analysis can be done with our bespoke Stator Shiny app, available at https://shiny.igc.ed.ac.uk/MFIs/
 
 ## Docs
-Documentation on installation and usage are available [here](/docs).
+Documentation on installation and usage are available [here](/docs/documentation.md).
 
 A small tutorial/vignette is available [here](/vignette/Vignette.md).
 
