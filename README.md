@@ -30,7 +30,6 @@ A small tutorial/vignette is available [here](/vignette/Vignette.md).
 - [X] Fixed a bug where the QC would filter out unexpressed genes, but not update nGenes in the output filenames. 
 - [X] Default settings changed to output *all* positively enriched d-tuples (further selection should be done with the Shiny app).
 - [X] Removed documentation on the `doubletFile` and `genesToOne` parameters (these will be deprecated), but functionality remains available for now. 
-- [X] 
 
 ## To do
 - [ ] switch to using CIs for significance estimation, abandon F-value. 
