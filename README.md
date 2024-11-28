@@ -3,6 +3,8 @@ Preprint now available at https://www.biorxiv.org/content/10.1101/2023.12.18.572
 
 NOTE: this repo will soon move to the account of the [Edinburgh Biomedical AI Lab](https://edbiomed.ai)
 
+NOTE: the latest version of Stator (V1.2) is now available on the `develop` branch, and should be more stable and easy-to-use. Pending some final tests, it will be merged into `main` soon, but you can already use it by pulling the `develop` branch instead (`nextflow pull AJnsm/Stator -r develop`). 
+
 
 ## Table of contents
 * [Introduction](#introduction)
