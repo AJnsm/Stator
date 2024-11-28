@@ -25,21 +25,15 @@ Documentation on installation and usage are available [here](/docs/documentation
 
 A small tutorial/vignette is available [here](/vignette/Vignette.md).
 
-## Changes in this version (V1.1)
-- [X] Switched to Nextflow DSL2 and the latest compatible Nextflow version (23.04)
-- [X] Changed file handling inside Stator.nf to fix read permission bug on some clusters
-- [X] Renamed multiple scripts, files, and directories
-- [X] Updated and tested Docker profile for local runs
-- [X] Removed 1-point calculation
-- [X] Simplified Nextflow config files
-- [X] Removed conda yamls
-- [X] Switched back to numpy (was numba in V1.0) for interaction estimation (might be reverted in the future, depending on performance)
+## Changes in this version (V1.2)
+- [X] Removed the identifyStates process--this is replaced by the Shiny R app.
+- [X] Fixed a bug where the QC would filter out unexpressed genes, but not update nGenes in the output filenames. 
+- [X] Default settings changed to output *all* positively enriched d-tuples (further selection should be done with the Shiny app).
+- [X] Removed documentation on the `doubletFile` and `genesToOne` parameters (these will be deprecated), but functionality remains available for now. 
+- [X] 
 
 ## To do
 - [ ] switch to using CIs for significance estimation, abandon F-value. 
-- [X] update vignette
-- [ ] improve documentation and tutorial
 - [ ] Create more unit tests for state inference
 - [ ] add option to also use pairwise interactions for state inference
 - [ ] if pairwise not used, *optionally* skip their computation. 
-
